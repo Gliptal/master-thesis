@@ -1,0 +1,43 @@
+% chktex-file 1
+
+\newcommand      {\CHARnodot}[1]             {}
+\newcommand      {\CHARomissis}              {\FONTnormal{[\CHARdots\FONTunkern]}}
+
+\newcommand      {\MATHSnaturals}            {\AMSMATHsymbol{N}}
+\newcommand      {\MATHSrationals}           {\AMSMATHsymbol{Q}}
+
+\newcommand      {\TABLEcellnum}[1]          {\XCOLORcellcolor{color#1}$#1$}
+\newcommand      {\TABLEcellnumbold}[1]      {\XCOLORcellcolor{color#1}$\AMSMATHbold{#1}$}
+
+\newcommand      {\enquote}[2]               {\FONTitalics{"#1"}~#2}
+\newcommand      {\fref}[1]                  {\HYPERREFref[{#1}]{\CLEVEREFcref*{#1} -- \nameref*{#1}}}  % chktex 8
+
+\newenvironment{authors}
+	{
+	\begin{tabular*}{\FLOATtextwidth}{c@{\extracolsep{\FLOATfill}}c}
+	\FONTsizeseven{Supervisor} & \FONTsizeseven{Graduand}\\
+	}
+	{
+	\end{tabular*}
+	}
+
+\newenvironment{dedication}
+	{
+	\begin{center}
+	\FLOATverticalspace*{\FLOATstretch{1}}
+	\FLOATalignright
+	}
+	{
+	\FLOATverticalspace*{\FLOATstretch{1.618}}
+	\end{center}
+	}
+
+\newenvironment{keywords}
+	{
+	\FONTbold{\FONTitalics{Keywords --- }}
+	\begin{scshape}
+	}
+	{
+	\end{scshape}
+	\\
+	}

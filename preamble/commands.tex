@@ -1,0 +1,77 @@
+%% SILENCE %%
+
+\SILENCEfilter{hyperref}{Draft mode on}
+
+%% BIBLIO %%
+
+\BIBLIOset{unsrt}
+
+%% ENUMITEM %%
+
+\ENUMITEMsetlist{
+	listparindent=\parindent,
+	parsep=0em
+}
+
+%% GEOMETRY %%
+
+\GEOMETRYset{
+	paperheight=29.7cm,
+	paperwidth=21cm,
+	outer=1.5cm,
+	inner=2.5cm,
+	top=2cm,
+	bottom=2cm
+}
+
+%% GLOSSARIES %%
+
+\renewcommand{\GLOSSARIEStextfont}[1]{\FONTslanted{#1}}
+\renewcommand{\GLOSSARIESnamefont}[1]{\FONTsmallcaps{#1}}
+\GLOSSARIESset{
+	toc,
+	nopostdot
+}
+\GLOSSARIESsetstylea{long-sc-short}
+\GLOSSARIESsetstyle{altlistgroup}
+
+%% HYPERREF %%
+
+\HYPERREFset{
+	hidelinks,
+	pdftitle={\utitle{}},
+	pdfauthor={\uauthor{}},
+	pdfsubject={\usubtitle{}}
+}
+
+%% TABULARX %%
+
+\TABULARXnewcolumntype{Y}{>{\FLOATcenter\COREresetbackslash}X}
+
+%% TITLESEC %%
+
+\TITLESECformat{\part}{\FLOATcenter\FONTnormalseries\FONTsizenine\FONTboldseries}{\FONTuppercaseseries{\TITLESECname~\TITLESECpart}}{0pt}{\\\FLOATverticalspace{2pc}}
+
+%% TOCLOFT %%
+
+\renewcommand{\TOCLOFTline}{}
+
+%% XCOLOR %%
+
+\XCOLORnewcolor{color0}{gray}{0.30}
+\XCOLORnewcolor{color1}{gray}{0.40}
+\XCOLORnewcolor{color2}{gray}{0.50}
+\XCOLORnewcolor{color3}{gray}{0.60}
+\XCOLORnewcolor{color4}{gray}{0.70}
+\XCOLORnewcolor{color5}{gray}{0.80}
+\XCOLORcopycolor{color0.0}{color0}\XCOLORcopycolor{color0.1}{color0}\XCOLORcopycolor{color0.2}{color0}\XCOLORcopycolor{color0.3}{color0}\XCOLORcopycolor{color0.4}{color0}
+\XCOLORcopycolor{color0.5}{color1}\XCOLORcopycolor{color0.6}{color1}\XCOLORcopycolor{color0.7}{color1}\XCOLORcopycolor{color0.8}{color1}\XCOLORcopycolor{color0.9}{color1}
+\XCOLORcopycolor{color1.0}{color1}\XCOLORcopycolor{color1.1}{color1}\XCOLORcopycolor{color1.2}{color1}\XCOLORcopycolor{color1.3}{color1}\XCOLORcopycolor{color1.4}{color1}
+\XCOLORcopycolor{color1.5}{color2}\XCOLORcopycolor{color1.6}{color2}\XCOLORcopycolor{color1.7}{color2}\XCOLORcopycolor{color1.8}{color2}\XCOLORcopycolor{color1.9}{color2}
+\XCOLORcopycolor{color2.0}{color2}\XCOLORcopycolor{color2.1}{color2}\XCOLORcopycolor{color2.2}{color2}\XCOLORcopycolor{color2.3}{color2}\XCOLORcopycolor{color2.4}{color2}
+\XCOLORcopycolor{color2.5}{color3}\XCOLORcopycolor{color2.6}{color3}\XCOLORcopycolor{color2.7}{color3}\XCOLORcopycolor{color2.8}{color3}\XCOLORcopycolor{color2.9}{color3}
+\XCOLORcopycolor{color3.0}{color3}\XCOLORcopycolor{color3.1}{color3}\XCOLORcopycolor{color3.2}{color3}\XCOLORcopycolor{color3.3}{color3}\XCOLORcopycolor{color3.4}{color3}
+\XCOLORcopycolor{color3.5}{color4}\XCOLORcopycolor{color3.6}{color4}\XCOLORcopycolor{color3.7}{color4}\XCOLORcopycolor{color3.8}{color4}\XCOLORcopycolor{color3.9}{color4}
+\XCOLORcopycolor{color4.0}{color4}\XCOLORcopycolor{color4.1}{color4}\XCOLORcopycolor{color4.2}{color4}\XCOLORcopycolor{color4.3}{color4}\XCOLORcopycolor{color4.4}{color4}
+\XCOLORcopycolor{color4.5}{color5}\XCOLORcopycolor{color4.6}{color5}\XCOLORcopycolor{color4.7}{color5}\XCOLORcopycolor{color4.8}{color5}\XCOLORcopycolor{color4.9}{color5}
+\XCOLORcopycolor{color5.0}{color5}

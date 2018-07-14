@@ -1,0 +1,72 @@
+\documentclass[draft,a4paper,twoside,11pt,openright,fleqn]{book}
+
+%% PREAMBLE %%
+
+\input{preamble/imports}
+\input{preamble/namespaces}
+\input{preamble/custom}
+\input{preamble/meta}
+\input{preamble/commands}
+
+%% GLOSSARY %%
+
+\input{backmatter/glossary}
+\GLOSSARIESload{}
+
+%% DOCUMENT %%
+
+\begin{document}
+
+	%% FRONTMATTER %%
+
+	\frontmatter{}
+	\begingroup
+
+		\input{frontmatter/configuration/commands}
+
+		\input{frontmatter/cover}
+		\FLOATpushrightpage{}
+		\input{frontmatter/dedication}
+		\input{frontmatter/thanks}
+		\FLOATpushrightpage{}
+		\TOCwrite{}
+
+	\endgroup
+
+	%% MAINMATTER %%
+
+	\mainmatter{}
+	\begingroup
+
+		\input{mainmatter/configuration/commands}
+
+		\input{parts/preface}
+		\input{parts/motivation}
+		\input{parts/development}
+		\input{parts/analysis}
+
+	\endgroup
+
+	%% APPENDIX %%
+
+	\appendix{}
+	\begingroup
+
+		\input{appendix/configuration/commands}
+
+		\input{parts/appendix}
+
+	\endgroup
+
+	%% BACKMATTER %%
+
+	\backmatter{}
+	\begingroup
+
+		\BIBLIOforce{*}
+		\BIBLIOwrite{backmatter/biblio}
+		\GLOSSARIESwrite{}
+
+	\endgroup
+
+\end{document}
