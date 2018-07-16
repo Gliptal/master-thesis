@@ -1,2 +1,4 @@
 \chapter*{Abstract}\label{ch:abstract}
-\addcontentsline{toc}{chapter}{Abstract}
+\TOCadd{toc}{chapter}{Abstract}
+
+In the view of the overall advancement of ground-based transportation research through simulation, both in an academic and enterprise setting, this document describes the work done on behalf of \company{ioTech}, \company{Slightly Mad Studios}, and the \company{University of Trento} on the integration of a third-party vehicle traffic software in a proprietary game engine. In the final product, the latter acts as the on-screen visualization for the former's underlying traffic simulation. Data is exchanged through a typical network stack, either using \FONTsmallcaps{udp} or \FONTsmallcaps{tcp}: two networking socket solutions (one based on low-level operating system libraries, the other on an higher level framework) are implemented, analysed, and compared. The results show that, with some performance tradeoffs, pre-existing network frameworks like \software{0mq} provide interesting advantages in the development process over home-grown solutions.
