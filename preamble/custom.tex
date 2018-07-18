@@ -10,7 +10,7 @@
 \newcommand      {\TABLEcellnumbold}[1]      {\XCOLORcellcolor{color#1}$\AMSMATHbold{#1}$}
 
 \newcommand      {\enquote}[2]               {\FONTitalics{"#1"}~#2}
-\newcommand      {\fref}[1]                  {\HYPERREFref[{#1}]{\CLEVEREFcref*{#1} -- \nameref*{#1}}}  % chktex 8
+\newcommand      {\fref}[1]                  {\HYPERREFref[{#1}]{\CLEVEREFcref*{#1} -- \nameref*{#1}}}
 \newcommand      {\pref}[1]                  {\HYPERREFref[{#1}]{\CLEVEREFcref*{#1}}}
 
 \newenvironment{authors}
@@ -33,12 +33,31 @@
 	\end{center}
 	}
 
+\newenvironment{definition}[1]
+	{
+	\begin{leftbar}
+	\noindent{}
+	\FONTsmallcaps{\Gls{#1}}: \Glsdesc{#1}.
+	}
+	{
+	\end{leftbar}
+	}
+
 \newenvironment{keywords}
 	{
 	\FONTbold{\FONTitalics{Keywords --- }}
 	\begin{scshape}
 	}
 	{
-	\end{scshape}
-	\\
+	\end{scshape}\\
+	}
+
+\newenvironment{excerpt}[1]
+	{
+	\def\arg{#1}
+	\begin{quoting}
+	}
+	{
+	\FONTnormalseries{}\cite{\arg}
+	\end{quoting}
 	}

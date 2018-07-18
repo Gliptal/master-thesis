@@ -1,1 +1,23 @@
 \chapter{Math}\label{ax:math}
+
+\section{Weighted Feasibility}\label{ax:math:feasibility}
+
+\begin{align*}
+    &f: \MATHSnaturals \mapsto \MATHSrationals \\
+    \\
+    &\forall w_p,w_e \in \MATHSrationals^+: w_p + w_e = 1 \\
+    &\forall s_p,s_e \in \MATHSnaturals: 1 \leqslant s_p,s_e \leqslant 5 \\
+    \\
+    &s_f = (s_p \cdot w_p) + (s_e \cdot w_e) \\
+\end{align*}
+
+\section{Overall Score}\label{ax:math:mean}
+
+\begin{align*}
+    &f: \MATHSrationals \mapsto \MATHSrationals \\
+    \\
+    &\forall w_i \in \MATHSrationals:0 \leqslant w_i \leqslant 1 \\
+    &\forall {s_f}_i \in \MATHSrationals:0 \leqslant {s_f}_i \leqslant 5 \\
+    \\
+    &s = \frac{\sum\limits_{i=1}^{n}({s_f}_i \cdot w_i)}{\sum\limits_{i=1}^{n}w_i} \\
+\end{align*}

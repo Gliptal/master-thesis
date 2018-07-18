@@ -25,6 +25,7 @@
 
 \let      \FIGUREinclude              \includegraphics
 
+\let      \FLOATskipbig               \bigskip
 \let      \FLOATcenter                \centering
 \let      \FLOATpushrightpage         \cleardoublepage
 \let      \FLOATfill                  \fill
@@ -45,6 +46,7 @@
 \let      \FONTnormal                 \textnormal
 \let      \FONTsmallcaps              \textsc
 \let      \FONTslanted                \textsl
+\let      \FONTmonospace              \texttt
 \let      \FONTunkern                 \unkern
 
 \let      \NUMBERset                  \pagenumbering
@@ -52,10 +54,14 @@
 \let      \PAGEset                    \pagestyle
 \let      \PAGEsetthis                \thispagestyle
 
+\let      \TABLEbottomruler           \bottomrule
 \let      \TABLEextracolumn           \extracolsep
+\let      \TABLEmidruler              \midrule
 
 \let      \TOCadd                     \addcontentsline
 \let      \TOCwrite                   \tableofcontents
+\let      \TOCwritefigures            \listoffigures
+\let      \TOCwritetables             \listoftables
 
 %% ENUMITEM %%
 
@@ -87,6 +93,8 @@
 
 %% TABULARX %%
 
+\let      \TABULARXpartialruler       \cmidrule
+\let      \TABULARXmulticolumn        \multicolumn
 \let      \TABULARXnewcolumntype      \newcolumntype
 
 %% TITLESEC %%
