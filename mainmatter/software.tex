@@ -1,9 +1,44 @@
 \chapter{Software Descriptions}\label{ch:software}
 
+\begin{keywords}
+	me, middleware, vtd
+\end{keywords}
+
+This chapter describes the software involved in the development. \gls{me} is the game engine on top of which \software{Project Cars} is built; \gls{vtd} by \company{Vires Simulationstechnologie GmbH} contains the traffic software, that sends and accepts data about its entities in the proprietary \gls{rdb} format; the \gls{middleware} is a home-grown solution to connect the two previous software.
+
+Additionally, the two socket libraries methods used to implement two distinct versions of the \gls{middleware} are also summarily presented. More information and details on their implementation can be found in \fref{ch:middleware}.
+
+\section{Overall Structure}\label{ch_software:overall}
+
+Before analysing in detail each software an overall view is presented, treating each as a black box with a specific function. The \gls{middleware} offers two functions (or a two-way function): it converts data from a proprietary format (like \gls{rdb}) to \gls{me}'s accepted format, and the opposite. Details on how it accomplishes this, how it abstracts to any possible proprietary format, and the intermediate third \gls{sae} format can be found in \fref{ch:middleware}.
+
+\input{mainmatter/tables/software/functions}
+
+The overall black box structure is summarized as in \fref{im:software:structure}. The difference in implementation between \gls{os} sockets and \software{0mq} sockets is only visible after grey boxing the \gls{middleware} and \gls{vtd}, so it is omitted here.
+
+\begin{figure}[!ht]
+	\FLOATcenter{}
+	\FIGUREinclude[width=\FLOATtextwidth]{mainmatter/images/software/structure.pdf}
+
+    \caption{overall structure}\label{im:software:structure}
+\end{figure}
+
+Data about the traffic entities flows from \gls{vtd} to the \gls{middleware} in the \gls{rdb} format; their respective \code{in} and \code{out} ports are network sockets, with the two host \glspl{os} being reachable via \gls{ip} with each other. The data is converted into an \gls{me} digestible format by the \gls{middleware}, and then supplied to \gls{me}: this is actually done in-memory (the implementation of the \gls{middleware} runs within \gls{me}), hence the ports are in this case abstractions for memory management. Similarly, data about the player vehicle flows in the opposite way: \gls{me} supplies the \gls{middleware} with the data, the \gls{middleware} converts it into the \gls{rdb} format, and sends it to \gls{vtd}.
+
+This feedback loop is repeated continuously for the entire duration of the simulation. The right-to-left flow moves the "ego" car within the traffic simulation, allowing its entities to react in real time; the left-to-right flow allows \gls{me} to render the traffic entities on screen, displaying them to the end-user. Time and spatial synchronization issues are omitted in this simplified description, details can be found in \fref{sc:integration:approach}. % TODO: check correct ref
+
+This structure is akin to a client-server paradigm: here the client is \gls{me}, and the server is \gls{vtd}\footnote{This distinction is purely arbitrary, since it's a 1:1 communication loop}. \Glspl{sendrate} and \glspl{tickrate} are not synchronized: both software are running at their own simulation paces; \gls{vtd}'s sendrate is fully configurable; \gls{me}'s sendrate is dependent on its framerate.
+
 \section{Madness Engine}\label{sc:software:madnessengine}
 
-\section{VTD}\label{sc:software:vtd}
+\section{Virtual Test Drive}\label{sc:software:vtd}
 
-\section{0mq}\label{sc:software:0mq}
+\subsection{Runtime Data Bus}
+
+\section{Middleware}\label{sc:software:middleware}
+
+\subsection{\textsc{os} Sockets}
+
+\subsection{0mq Sockets}
 
 \section{Recap}\label{sc:software:recap}

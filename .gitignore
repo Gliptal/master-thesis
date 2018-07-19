@@ -1,3 +1,7 @@
 *.vscode
+
 *.synctex*
 *.xdy
+*.xml
+
+main.pdf
