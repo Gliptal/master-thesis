@@ -99,9 +99,84 @@ Rotations are internally handled by the engine as quaternions, although for simp
 
 \section{Virtual Test Drive}\label{sc:software:vtd}
 
+Virtual Test Drive is a \enquote{complete tool-chain for driving simulation applications \FONTnormal{[that]} provides tools for road generation, scenario generation, traffic simulation, sound simulation, simulation control and image generation}{\cite{software:vtd}}. This project is interested in the traffic simulation part only, specifically the \software{v-traffic} module (with visual support from \software{v-scenario}). The entire software is closed source, although a number of customisation options are available.
+
+\gls{vtd} supports two-way communication with external software using the \gls{rdb} proprietary format via either the network, or in-memory. This allows a \nth{3}-party software to interject in nearly every layer of \gls{vtd}'s simulation stack: the sales pitch accurately states that \enquote{an interactive simulation with multiple external data sources (e.g.\ simulators) is feasible and the user may influence the behavior of all entities substantially}{\cite{software:vtraffic}}.
+
+The \software{v-traffic} module specifically provides \enquote{Vehicles \FONTnormal{[that]} may navigate autonomously in the \CHARomissis{} network}{\cite{software:vtraffic}}, among pedestrians, signalling, traffic-lights, and more. Normally, the \code{ego} vehicle (the non \gls{ai}-controlled player) is moved through acceleration, brake, and steering inputs fed to \gls{vtd} (either from internal or outside sources). In this project, the \code{ego} car will instead be moved by directly supplying its spatial coordinates in the scene.
+
+\software{v-scenario} provides a simple top-view rendering system, that displays the scenario and the entities \software{v-traffic} is handling.
+
+\subsection{Coordinate System} % TODO: check
+
+\begin{figure}[!ht]
+	\FLOATcenter{}
+	\FIGUREinclude[width=\FLOATtextwidth]{mainmatter/images/software/vtdcoords.pdf}
+
+    \caption{\gls{vtd} coordinate system}\label{im:software:vtdcoords}
+\end{figure}
+
+\subsubsection{Absolute}
+
+The absolute coordinate system is an Euclidean space on three axes, with the $(0,0)$ origin being the center point of the scenario. Measures are in meters (\si{\meter}).
+
+\begin{itemize}
+	\item \code{x}: West-East axis; positive East
+	\item \code{y}: North-South axis; positive North
+	\item \code{z}: up-down axis; positive up
+\end{itemize}
+
+\subsubsection{Relative}
+
+The reference point and $(0,0)$ origin for the geometry of each vehicle is the mid point of the rear wheels axle. Measures are also in meters (\si{\meter}).
+
+\begin{itemize}
+	\item \code{x}: vehicle length; positive forward
+	\item \code{y}: vehicle width; positive right
+	\item \code{z}: vehicle height; positive up
+\end{itemize}
+
+Rotations are exposed as Euclidean angles. Measures are in degrees \si{\degree}.
+
+\begin{itemize}
+	\item \code{pitch}: insists on the \code{x}-\code{z} plane; unwraps from the positive \code{x} semi-axis; $\ang{-180} \leqslant \alpha \leqslant \ang{0}$ in the negative (lower) semiplane, $\ang{0} \leqslant \alpha \leqslant \ang{180}$ in the positive (upper) semiplane
+	\item \code{yaw}: insists on the \code{x}-\code{y} plane; unwraps from the positive \code{x} semi-axis; $\ang{0} \leqslant \alpha \leqslant \ang{360}$ clockwise
+	\item \code{roll}: insists on the \code{y}-\code{z} plane; unwraps from the positive \code{y} semi-axis; $\ang{-180} \leqslant \alpha \leqslant \ang{0}$ in the negative (lower) semiplane, $\ang{0} \leqslant \alpha \leqslant \ang{180}$ in the positive (upper) semiplane\footnote{The roll angle visualization is left to the reader.}
+\end{itemize}
+
 \subsection{Runtime Data Bus}
 
+\gls{rdb} is the proprietary data format that \gls{vtd} provides and accepts to/from any \nth{3}-party software connected to its stack. It is a plain-text \enquote{vector of lists which contain each an array of entries of identical type}{\cite{software:rdbfaqs}}: the format specifies a large number of extensible data types, ranging from entitles meta-data, to their physical quantities (e.g.\ size, position, orientation), road details, sensor data, scenario state, and more.
+
+Details on how this data is formatted are of limited importance. \gls{vtd} does provide an extensive \planguage{c}/\planguage{c++} \glspl{api} to parse, read, and generate \gls{rdb} packets; this greatly eases the procedure of composing and understanding \gls{rdb} messages. The takeaway is that, given any set of raw measures, an \gls{rdb} packet can be efficiently built with the certainty that it adheres to the standard and is accepted by \gls{vtd}.
+
+Based on the configuration parameters, \gls{rdb} packets containing specific data may be sent from \gls{vtd} to an arbitrary software residing on an \code{ip:port} over the network (data is sent from port \num{10001}). Likewise data may be sent to \gls{vtd} from an arbitrary software by connecting to \gls{vtd} on \code{ip:10001}.\footnote{Note that the port numbers presented here are not the real ones.} The frequency of the sent data can be freely varied (with a soft limit of \SI{1000}{\hertz}); \gls{vtd} on the other hand can gracefully handle any receiving rate when the synchronization is set to \code{real-time}, allowing a variable \nth{3}-party sendrate.
+
+\input{mainmatter/tables/software/rdb}
+
+In the case of this project, the following data is sent from \gls{vtd}'s \software{v-traffic} module, with a rate varying between \SI{60}{\hertz} and \SI{240}{\hertz}:
+
+\begin{itemize}
+	\item (each) entity position
+	\item (each) entity orientation
+	\item (each) entity velocity vector
+	\item (each) entity acceleration vector
+	\item (each) entity wheels angle
+	\item (each) entity lights state
+\end{itemize}
+
+Similar data is sent back to \gls{vtd}'s \software{v-traffic} module:
+
+\begin{itemize}
+	\item player entity position
+	\item player entity orientation
+	\item player entity velocity vector
+	\item player entity acceleration vector
+\end{itemize}
+
 \section{Middleware}\label{sc:software:middleware}
+
+
 
 \subsection{\textsc{os} Sockets}
 

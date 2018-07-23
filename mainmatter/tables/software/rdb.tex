@@ -1,0 +1,12 @@
+\begin{table}[!ht]
+	\centering
+    \begin{tabular}{cccll}
+    	sender & receiver & \gls{vtd} port & \TABLEmulticolumn{1}{c}{sendrate} & \TABLEmulticolumn{1}{c}{data} \\
+		\TABLEmidruler{}
+        \gls{vtd} & \gls{me}  & \num{10001} & $\lessapprox \SI{1000}{\hertz}$ & entity state, entity lights \\
+        \gls{me}  & \gls{vtd} & \num{10000} & $\approx \SI{240}{\hertz}$      & player state  \\
+        \TABLEbottomruler{}
+    \end{tabular}
+
+    \caption{\gls{rdb} communication}\label{tb:software:rdbcommunication}
+\end{table}
