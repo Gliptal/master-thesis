@@ -8,7 +8,7 @@ This chapter describes the software involved in the development. \gls{me} is the
 
 Additionally, the two socket libraries methods used to implement two distinct versions of the \gls{middleware} are also summarily presented. More information and details on their implementation can be found in \fref{ch:middleware}.
 
-\section{Overall Structure}\label{ch_software:overall}
+\section{Overall Structure}\label{sc:software:overall}
 
 Before analysing in detail each software an overall view is presented, treating each as a black box with a specific function. The \gls{middleware} offers two functions (or a two-way function): it converts data from a proprietary format (like \gls{rdb}) to \gls{me}'s accepted format, and the opposite. Details on how it accomplishes this, how it abstracts to any possible proprietary format, and the intermediate third \gls{sae} format can be found in \fref{ch:middleware}.
 
@@ -71,7 +71,7 @@ Although the nature of the data passed in the logic-\gls{ai} and \gls{ai}-physic
 
 \subsubsection{Absolute}
 
-The absolute coordinate system is an Euclidean space on three axes, with the $(0,0)$ origin being an arbitrary "origin" point in the scenario. Measures are in meters (\si{\meter}).
+The absolute coordinate system is an Euclidean space on three axes, with the $(0,0,0)$ origin being an arbitrary "origin" point in the scenario. Measures are in meters (\si{\meter}).
 
 \begin{itemize}
 	\item \code{x}: North-South axis; positive North
@@ -81,7 +81,7 @@ The absolute coordinate system is an Euclidean space on three axes, with the $(0
 
 \subsubsection{Relative}
 
-The reference point and $(0,0)$ origin for the geometry of each vehicle is the mid point of the front wheels axle. Measures are also in meters (\si{\meter}).
+The reference point and $(0,0,0)$ origin for the geometry of each vehicle is the mid point of the front wheels axle. Measures are also in meters (\si{\meter}).
 
 \begin{itemize}
 	\item \code{x}: vehicle length; positive forward
@@ -89,12 +89,12 @@ The reference point and $(0,0)$ origin for the geometry of each vehicle is the m
 	\item \code{z}: vehicle width; positive left
 \end{itemize}
 
-Rotations are internally handled by the engine as quaternions, although for simplicity Euclidean angles will be used instead. Measures are in radians (\si{\radian}).
+Rotations are internally handled by the engine as quaternions, although for simplicity Euclidean angles will be used instead. Measures are in radians (\si{\radian}).\footnote{The roll angle visualization is left to the reader.}
 
 \begin{itemize}
 	\item \code{pitch}: insists on the \code{x}-\code{y} plane; unwraps from the positive \code{x} semi-axis; $-\pi \leqslant \alpha \leqslant 0$ in the negative (upper) semiplane, $0 \leqslant \alpha \leqslant \pi$ in the positive (lower) semiplane
 	\item \code{yaw}: insists on the \code{x}-\code{z} plane; unwraps from the positive \code{x} semi-axis; $-\pi \leqslant \alpha \leqslant 0$ in the negative (right) semiplane, $0 \leqslant \alpha \leqslant \pi$ in the positive (left) semiplane
-	\item \code{roll}: insists on the \code{y}-\code{z} plane; unwraps from the positive \code{z} semi-axis; $-\pi \leqslant \alpha \leqslant 0$ in the negative (upper) semiplane, $0 \leqslant \alpha \leqslant \pi$ in the positive (lower) semiplane\footnote{The roll angle visualization is left to the reader.}
+	\item \code{roll}: insists on the \code{y}-\code{z} plane; unwraps from the positive \code{z} semi-axis; $-\pi \leqslant \alpha \leqslant 0$ in the negative (upper) semiplane, $0 \leqslant \alpha \leqslant \pi$ in the positive (lower) semiplane
 \end{itemize}
 
 \section{Virtual Test Drive}\label{sc:software:vtd}
@@ -105,7 +105,7 @@ Virtual Test Drive is a \enquote{complete tool-chain for driving simulation appl
 
 The \software{v-traffic} module specifically provides \enquote{Vehicles \FONTnormal{[that]} may navigate autonomously in the \CHARomissis{} network}{\cite{software:vtraffic}}, among pedestrians, signalling, traffic-lights, and more. Normally, the \code{ego} vehicle (the non \gls{ai}-controlled player) is moved through acceleration, brake, and steering inputs fed to \gls{vtd} (either from internal or outside sources). In this project, the \code{ego} car will instead be moved by directly supplying its spatial coordinates in the scene.
 
-\software{v-scenario} provides a simple top-view rendering system, that displays the scenario and the entities \software{v-traffic} is handling.
+\software{v-scenario} provides a simple top-view rendering system, that displays the scenario and the entities \software{v-traffic} is handling. The scenario within which the entities move is a road network defined in the \software{OpenDRIVE} format~\cite{software:opendrive}: for the purpose of this project, a simple racetrack with a 4-way intersection was provided; this racetrack was recreated in \gls{me} by the art team, to closely resemble the original.
 
 \subsection{Coordinate System} % TODO: check
 
@@ -118,7 +118,7 @@ The \software{v-traffic} module specifically provides \enquote{Vehicles \FONTnor
 
 \subsubsection{Absolute}
 
-The absolute coordinate system is an Euclidean space on three axes, with the $(0,0)$ origin being the center point of the scenario. Measures are in meters (\si{\meter}).
+The absolute coordinate system is an Euclidean space on three axes, with the $(0,0,0)$ origin being the center point of the scenario. Measures are in meters (\si{\meter}).
 
 \begin{itemize}
 	\item \code{x}: West-East axis; positive East
@@ -128,7 +128,7 @@ The absolute coordinate system is an Euclidean space on three axes, with the $(0
 
 \subsubsection{Relative}
 
-The reference point and $(0,0)$ origin for the geometry of each vehicle is the mid point of the rear wheels axle. Measures are also in meters (\si{\meter}).
+The reference point and $(0,0,0)$ origin for the geometry of each vehicle is the mid point of the rear wheels axle. Measures are also in meters (\si{\meter}).
 
 \begin{itemize}
 	\item \code{x}: vehicle length; positive forward
@@ -136,12 +136,12 @@ The reference point and $(0,0)$ origin for the geometry of each vehicle is the m
 	\item \code{z}: vehicle height; positive up
 \end{itemize}
 
-Rotations are exposed as Euclidean angles. Measures are in degrees \si{\degree}.
+Rotations are exposed as Euclidean angles. Measures are in degrees \si{\degree}.\footnote{The roll angle visualization is left to the reader.}
 
 \begin{itemize}
 	\item \code{pitch}: insists on the \code{x}-\code{z} plane; unwraps from the positive \code{x} semi-axis; $\ang{-180} \leqslant \alpha \leqslant \ang{0}$ in the negative (lower) semiplane, $\ang{0} \leqslant \alpha \leqslant \ang{180}$ in the positive (upper) semiplane
-	\item \code{yaw}: insists on the \code{x}-\code{y} plane; unwraps from the positive \code{x} semi-axis; $\ang{0} \leqslant \alpha \leqslant \ang{360}$ clockwise
-	\item \code{roll}: insists on the \code{y}-\code{z} plane; unwraps from the positive \code{y} semi-axis; $\ang{-180} \leqslant \alpha \leqslant \ang{0}$ in the negative (lower) semiplane, $\ang{0} \leqslant \alpha \leqslant \ang{180}$ in the positive (upper) semiplane\footnote{The roll angle visualization is left to the reader.}
+	\item \code{yaw}: insists on the \code{x}-\code{y} plane; unwraps clockwise from the positive \code{x} semi-axis; $\ang{0} \leqslant \alpha \leqslant \ang{360}$
+	\item \code{roll}: insists on the \code{y}-\code{z} plane; unwraps from the positive \code{y} semi-axis; $\ang{-180} \leqslant \alpha \leqslant \ang{0}$ in the negative (lower) semiplane, $\ang{0} \leqslant \alpha \leqslant \ang{180}$ in the positive (upper) semiplane
 \end{itemize}
 
 \subsection{Runtime Data Bus}
@@ -176,10 +176,72 @@ Similar data is sent back to \gls{vtd}'s \software{v-traffic} module:
 
 \section{Middleware}\label{sc:software:middleware}
 
+The middleware is an home-grown intermediary library, written in \planguage{c++},  added at compile time to \gls{me}. Its purpose is to bridge the game engine with any arbitrary traffic software, provided the latter adheres to some basic constraints:
 
+\begin{itemize}
+	\item It can communicate over the network, using the \gls{udp} protocol.
+	\item It sends real-time data about the traffic entities.
+	\item It is capable of accepting real-time data about the player entity.
+\end{itemize}
 
-\subsection{\textsc{os} Sockets}
+A set of \glspl{api} is exposed, such that any \nth{3}-party may independently integrate the traffic software of their choice, without needing direct access to \gls{me}. Details on how this is achieved are in \fref{ch:middleware}, but the general idea is that the \nth{3}-party only needs to convert the data from the traffic system's format to the \gls{middleware}'s, and the other way round, without needing to handle the connection or work with \gls{me}'s coordinate system.
 
-\subsection{0mq Sockets}
+\begin{figure}[!ht]
+	\FLOATcenter{}
+	\FIGUREinclude[width=\FLOATtextwidth]{mainmatter/images/software/middleware.pdf}
+
+    \caption{\gls{middleware} role}\label{im:software:middleware}
+\end{figure}
+
+Two similar types of network sockets were implemented, leveraging different libraries: raw \gls{os} (\gls{udp}) sockets, and \software{0mq} sockets~\cite{software:zmq}.
+
+\subsubsection{\textsc{os} Sockets}
+
+\gls{os} sockets use the built-in Windows \code{<Ws2tcpip>} libraries. These libraries provide low-level functions to open and close network sockets, compose, parse, send, and receive messages, and any helper functions required.
+
+\subsubsection{0mq Sockets}
+
+\software{0mq} sockets use the libraries provided by the \software{0mq} framework. This framework abstracts the socket creation and handling, providing high-level functions. A number of different connection paradigms are available, all high-level and easily interchangeable.
+
+The main limitations are the lack of support for the \gls{udp} protocol, and more importantly the need to have both the sending and receiving source using \software{0mq} sockets: hybrid systems (with raw sockets on one side and \software{0mq} on the other) are not supported.
+
+\subsection{Coordinate System}
+
+\begin{figure}[!ht]
+	\FLOATcenter{}
+	\FIGUREinclude[width=\FLOATtextwidth]{mainmatter/images/software/midcoords.pdf}
+
+    \caption{\gls{middleware} coordinate system}\label{im:software:midcoords}
+\end{figure}
+
+\subsubsection{Absolute}
+
+The absolute coordinate system is an Euclidean space on three axes, with the $(0,0,0)$ origin being the center point of the scenario. Measures are in meters (\si{\meter}).
+
+\begin{itemize}
+	\item \code{x}: North-South axis; positive North
+	\item \code{y}: West-East axis; positive West
+	\item \code{z}: up-down axis; positive up
+\end{itemize}
+
+\subsubsection{Relative}
+
+The reference point and $(0,0,0)$ origin for the geometry of each vehicle is the mid point of the front wheels axle. Measures are also in meters (\si{\meter}).
+
+\begin{itemize}
+	\item \code{x}: vehicle length; positive forward
+	\item \code{y}: vehicle width; positive left
+	\item \code{z}: vehicle height; positive up
+\end{itemize}
+
+Rotations are exposed as Euclidean angles. Measures are in degrees \si{\degree}.\footnote{The roll angle visualization is left to the reader.}
+
+\begin{itemize}
+	\item \code{pitch}: insists on the \code{x}-\code{z} plane; unwraps from the positive \code{x} semi-axis; $0 \leqslant \alpha \leqslant 2\pi$
+	\item \code{yaw}: insists on the \code{x}-\code{y} plane; unwraps counter-clockwise from the positive \code{x} semi-axis; $0 \leqslant \alpha \leqslant 2\pi$
+	\item \code{roll}: insists on the \code{y}-\code{z} plane; unwraps counter-clockwise from the positive \code{y} semi-axis; $0 \leqslant \alpha \leqslant 2\pi$
+\end{itemize}
 
 \section{Recap}\label{sc:software:recap}
+
+In \fref{sc:software:overall} an overall view of the project was given, with broad details on the roles of each software and the interconnections between them. In \fref{sc:software:madnessengine} and \fref{sc:software:vtd} the two main software entities were presented, in enough detail to understand the development process described in the following chapters. \fref{sc:software:middleware} introduces the \gls{middleware} and its purpose, showing how it bridges \gls{me} and \gls{vtd} on the network.
