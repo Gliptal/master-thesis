@@ -1,6 +1,29 @@
 \chapter{Middleware Development}\label{ch:middleware}
 
-\section{Requirements}\label{sc:middleware:requirements}
+\begin{keywords}
+	middleware, netcode
+\end{keywords}
+
+The \gls{middleware} is a \planguage{c++} static library (\code{.lib}), developed with \software{VSCode} and \software{Microsoft Visual Studio}.
+
+\section{Features}\label{sc:middleware:features}
+
+The list of requirements was proposed and expanded upon by \company{ioTech}, based on the commercial viability of the final product (of which this \gls{middleware} is only a portion). The overall goal is to provide a public set of \glspl{api}, such that integration of any traffic software could be done without having access to \gls{me}'s source code. Any \nth{3}-party company interested in using a traffic software of their choice, could this seamlessly integrate it with minimal coding efforts and limited support from \company{ioTech}.
+
+The current iteration of the \gls{middleware} achieves all of the following \glspl{feature}.
+
+\begin{itemize}
+	\item \FONTbold{black box} -- The \gls{middleware} should, by all intents and purposes, be a black box to any \nth{3}-party; only those parts required to successfully integrate a traffic software should be grey boxed.
+	\item \FONTbold{trivial} -- Implementing any traffic software should be a simple, trivial, and documented process. Allowing a \nth{3}-party to independently develop the integration greatly reduces the support \software{ioTech} is expected to provide.
+	\item \FONTbold{agnosticism} -- The \gls{netcode} part of the \gls{middleware} should be entirely hidden behind high-level functions: everything from sockets to memory handling should be handled inside the black box.
+	\item \FONTbold{standardization} -- Vehicular standards, unit of measures, coordinate systems, and more should not refer to \gls{me}'s specific implementation, but rather to an industry accepted standard.\footnote{See \fref{sc:software:middleware}.}
+\end{itemize}
+
+The following \glspl{feature} are not fully supported yet, although the code is in place to allow an efficient transition to full support.
+
+\begin{itemize}
+	\item \FONTbold{plug-and-play} -- Switching between different traffic software should be allowed by means of \gls{me} configuration files or in-game settings.
+\end{itemize}
 
 \section{Structure}\label{sc:middleware:structure}
 
