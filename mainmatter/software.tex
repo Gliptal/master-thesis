@@ -16,12 +16,12 @@ Before analysing in detail each software an overall view is presented, treating 
 
 The overall black box structure is summarized as in \fref{im:software:structure}. The difference in implementation between \gls{os} sockets and \software{0mq} sockets is only visible after grey boxing the \gls{middleware} and \gls{vtd}, so it is omitted here.
 
-\begin{figure}[!ht]
-	\FLOATcenter{}
-	\FIGUREinclude[width=\FLOATtextwidth]{mainmatter/images/software/structure.pdf}
-
-    \caption{overall structure}\label{im:software:structure}
-\end{figure}
+\begin{image}
+	{software/structure}{1.0}
+	{overall structure}
+	{im:software:structure}
+	{}
+\end{image}
 
 Data about the traffic entities flows from \gls{vtd} to the \gls{middleware} in the \gls{rdb} format; their respective \code{in} and \code{out} ports are network sockets, with the two host \glspl{os} being reachable via \gls{ip} with each other. The data is converted into an \gls{me} digestible format by the \gls{middleware}, and then supplied to \gls{me}: this is actually done in-memory (the implementation of the \gls{middleware} runs within \gls{me}), hence the ports are in this case abstractions for memory management. Similarly, data about the player vehicle flows in the opposite way: \gls{me} supplies the \gls{middleware} with the data, the \gls{middleware} converts it into the \gls{rdb} format, and sends it to \gls{vtd}.
 
@@ -42,12 +42,12 @@ The Madness Engine is a massive, monolithic, proprietary, closed-source game eng
 
 The details on how the engine operates at mid to low level are covered by \gls{nda} and too technical to be covered here. The overall simulation stack can nevertheless be described, enough to grasp the main concepts and the reasonings in \fref{ch:integration}. Roughly, Each simulation tick (that may or may not be tied to framerate) steps through logic, \gls{ai}, physics, and rendering; the required data is passed from one step to the next, converted to a lower level of abstraction as it flows down.
 
-\begin{figure}[!ht]
-	\FLOATcenter{}
-	\FIGUREinclude[width=0.3\FLOATtextwidth]{mainmatter/images/software/mestack.pdf}
-
-    \caption{\gls{me} simulation stack}\label{im:software:mestack}
-\end{figure}
+\begin{image}
+	{software/mestack}{0.3}
+	{\gls{me} simulation stack}
+	{im:software:mestack}
+	{}
+\end{image}
 
 A vague example could be that of an \gls{ai} car that wants to overtake a slower player, during a race. This would take an unknown amount of simulation tick, each flowing summarily as follows:
 
@@ -62,12 +62,12 @@ Although the nature of the data passed in the logic-\gls{ai} and \gls{ai}-physic
 
 \subsection{Coordinate System} % TODO: check
 
-\begin{figure}[!ht]
-	\FLOATcenter{}
-	\FIGUREinclude[width=\FLOATtextwidth]{mainmatter/images/software/mecoords.pdf}
-
-    \caption{\gls{me} coordinate system}\label{im:software:mecoords}
-\end{figure}
+\begin{image}
+	{software/mecoords}{1.0}
+	{\gls{me} coordinate system}
+	{im:software:mecoords}
+	{}
+\end{image}
 
 \subsubsection{Absolute}
 
@@ -109,12 +109,12 @@ The \software{v-traffic} module specifically provides \enquote{Vehicles \FONTnor
 
 \subsection{Coordinate System} % TODO: check
 
-\begin{figure}[!ht]
-	\FLOATcenter{}
-	\FIGUREinclude[width=\FLOATtextwidth]{mainmatter/images/software/vtdcoords.pdf}
-
-    \caption{\gls{vtd} coordinate system}\label{im:software:vtdcoords}
-\end{figure}
+\begin{image}
+	{software/vtdcoords}{1.0}
+	{\gls{vtd} coordinate system}
+	{im:software:vtdcoords}
+	{}
+\end{image}
 
 \subsubsection{Absolute}
 
@@ -186,12 +186,12 @@ The middleware is an home-grown intermediary library, written in \planguage{c++}
 
 A set of \glspl{api} is exposed, such that any \nth{3}-party may independently integrate the traffic software of their choice, without needing direct access to \gls{me}. Details on how this is achieved are in \fref{ch:middleware}, but the general idea is that the \nth{3}-party only needs to convert the data from the traffic system's format to the \gls{middleware}'s, and the other way round, without needing to handle the connection or work with \gls{me}'s coordinate system.
 
-\begin{figure}[!ht]
-	\FLOATcenter{}
-	\FIGUREinclude[width=\FLOATtextwidth]{mainmatter/images/software/middleware.pdf}
-
-    \caption{\gls{middleware} role}\label{im:software:middleware}
-\end{figure}
+\begin{image}
+	{software/middleware}{1.0}
+	{\gls{middleware} role}
+	{im:software:middleware}
+	{}
+\end{image}
 
 Two similar types of network sockets were implemented, leveraging different libraries: raw \gls{os} (\gls{udp}) sockets, and \software{0mq} sockets~\cite{software:zmq}.
 
@@ -207,12 +207,12 @@ The main limitations are the lack of support for the \gls{udp} protocol, and mor
 
 \subsection{Coordinate System}
 
-\begin{figure}[!ht]
-	\FLOATcenter{}
-	\FIGUREinclude[width=\FLOATtextwidth]{mainmatter/images/software/midcoords.pdf}
-
-    \caption{\gls{middleware} coordinate system}\label{im:software:midcoords}
-\end{figure}
+\begin{image}
+	{software/midcoords}{1.0}
+	{\gls{middleware} coordinate system}
+	{im:software:midcoords}
+	{}
+\end{image}
 
 \subsubsection{Absolute}
 

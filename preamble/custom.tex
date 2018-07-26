@@ -13,7 +13,7 @@
 \newcommand      {\fref}[1]                  {\HYPERREFref[{#1}]{\CLEVEREFcref*{#1} -- \nameref*{#1}}}
 \newcommand      {\pref}[1]                  {\HYPERREFref[{#1}]{\CLEVEREFcref*{#1}}}
 
-\newenvironment{authors}
+\COREnewenv{authors}
 	{
 	\begin{tabular*}{\FLOATtextwidth}{c@{\extracolsep{\FLOATfill}}c}
 	\FONTsizeseven{Supervisor} & \FONTsizeseven{Graduand}\\
@@ -22,7 +22,7 @@
 	\end{tabular*}
 	}
 
-\newenvironment{dedication}
+\COREnewenv{dedication}
 	{
 	\begin{center}
 	\FLOATverticalspace*{\FLOATstretch{1}}
@@ -33,7 +33,7 @@
 	\end{center}
 	}
 
-\newenvironment{definition}[1]
+\COREnewenv{definition}[1]
 	{
 	\begin{leftbar}
 	\FLOATnoindent{}
@@ -43,16 +43,7 @@
 	\end{leftbar}
 	}
 
-\newenvironment{keywords}
-	{
-	\FONTbold{\FONTitalics{Keywords --- }}
-	\begin{scshape}
-	}
-	{
-	\end{scshape}\\
-	}
-
-\newenvironment{excerpt}[1]
+\COREnewenv{excerpt}[1]
 	{
 	\def\arg{#1}
 	\begin{quoting}
@@ -60,4 +51,33 @@
 	{
 	\FONTnormalseries{}\cite{\arg}
 	\end{quoting}
+	}
+
+\LISTINGSnewenv{filelist}
+	{
+	\LISTINGSset{
+		frame=none
+	}
+	}
+	{
+	}
+
+\COREnewenv{image}[5]
+	{
+	\begin{figure}[!ht]
+	\FLOATcenter{}
+	\FIGUREinclude[width=#2\FLOATtextwidth,#5]{mainmatter/images/#1.pdf}
+	\caption{#3}\label{#4}
+	}
+	{
+	\end{figure}
+	}
+
+\COREnewenv{keywords}
+	{
+	\FONTbold{\FONTitalics{Keywords --- }}
+	\begin{scshape}
+	}
+	{
+	\end{scshape}\\
 	}
