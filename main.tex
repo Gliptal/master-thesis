@@ -12,7 +12,7 @@
 %% GLOSSARY %%
 
 \input{backmatter/glossary}
-\GLOSSARIESload{}
+\GLOSSARIESload
 
 %% DOCUMENT %%
 
@@ -20,26 +20,26 @@
 
 	%% FRONTMATTER %%
 
-	\frontmatter{}
+	\frontmatter
 	\begingroup
 
 		\input{frontmatter/configuration/commands}
 
 		\input{frontmatter/cover}
-		\FLOATpushrightpage{}
+		\FLOATpushrightpage
 		\input{frontmatter/dedication}
 		\input{frontmatter/thanks}
-		\FLOATpushrightpage{}
-		\TOCwrite{}
-		\FLOATpushrightpage{}
-		\TOCwritefigures{}
-		\TOCwritetables{}
+		\FLOATpushrightpage
+		\TOCwrite
+		\FLOATpushrightpage
+		\TOCwritefigures
+		\TOCwritetables
 
 	\endgroup
 
 	%% MAINMATTER %%
 
-	\mainmatter{}
+	\mainmatter
 	\begingroup
 
 		\input{mainmatter/configuration/commands}
@@ -53,7 +53,7 @@
 
 	%% APPENDIX %%
 
-	\appendix{}
+	\appendix
 	\begingroup
 
 		\input{appendix/configuration/commands}
@@ -64,7 +64,7 @@
 
 	%% BACKMATTER %%
 
-	\backmatter{}
+	\backmatter
 	\begingroup
 
 		\input{parts/references}

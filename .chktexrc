@@ -1,0 +1,16 @@
+Silent
+{
+    \FLOATcenter \FLOATnoindent \FLOATpushrightpage \FLOATskipbig
+
+    \FONTmonospaceseries \FONTnormalseries
+
+    \TOCwrite \TOCwritefigures \TOCwritetables
+
+    \GEOMETRYrestore
+
+    \GLOSSARIESload \GLOSSARIESwrite
+
+    \TABLEbottomruler \TABLEmidruler
+}[
+    \\FONTsize*
+]

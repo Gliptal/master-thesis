@@ -54,7 +54,7 @@
 \COREnewenv{definition}[1]
 	{
 	\begin{leftbar}
-	\FLOATnoindent{}
+	\FLOATnoindent
 	\FONTsmallcaps{\Gls{#1}}: \Glsdesc{#1}.
 	}
 	{
@@ -67,7 +67,7 @@
 	\begin{quoting}
 	}
 	{
-	\FONTnormalseries{}\cite{\arg}
+	\FONTnormalseries\cite{\arg}
 	\end{quoting}
 	}
 
@@ -83,7 +83,7 @@
 \COREnewenv{image}[5]
 	{
 	\begin{figure}[!ht]
-	\FLOATcenter{}
+	\FLOATcenter
 	\FIGUREinclude[width=#2\FLOATtextwidth,#5]{mainmatter/images/#1.pdf}
 	\caption{#3}\label{#4}
 	}
