@@ -22,6 +22,7 @@
 \let      \CHARdots                   \dots
 
 \let      \COREresetbackslash         \arraybackslash
+\let      \COREbox                    \mbox
 \let      \COREnewenv                 \newenvironment
 
 \let      \FIGUREinclude              \includegraphics
@@ -37,18 +38,22 @@
 \let      \FLOATverticalspace         \vspace
 
 \let      \FONTboldseries             \bfseries
+\let      \FONTcolor                  \color
 \let      \FONTsizenine               \Huge
 \let      \FONTsizeeight              \LARGE
 \let      \FONTsizeseven              \Large
 \let      \FONTuppercaseseries        \MakeUppercase
 \let      \FONTnormalseries           \normalfont
 \let      \FONTsmallcapsseries        \scseries
+\let      \FONTsizethree              \footnotesize
 \let      \FONTbold                   \textbf
 \let      \FONTitalics                \textit
 \let      \FONTnormal                 \textnormal
 \let      \FONTsmallcaps              \textsc
 \let      \FONTslanted                \textsl
 \let      \FONTmonospace              \texttt
+\let      \FONTsizeone                \tiny
+\let      \FONTmonospaceseries        \ttfamily
 \let      \FONTunkern                 \unkern
 
 \let      \NUMBERset                  \pagenumbering
@@ -94,9 +99,19 @@
 \let      \HYPERREFref                \hyperref
 \let      \HYPERREFset                \hypersetup
 
+%% LISTINGS %%
+
+\let      \LISTINGSinline             \lstinline
+\let      \LISTINGSnewenv             \lstnewenvironment
+\let      \LISTINGSset                \lstset
+
 %% MAKECELL %%
 
 \let      \MAKECELLcell               \makecell
+
+%% REALBOXES %%
+
+\let      \REALBOXEScolored           \Colorbox
 
 %% TABULARX %%
 

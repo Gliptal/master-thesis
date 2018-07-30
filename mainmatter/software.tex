@@ -25,7 +25,7 @@ The overall black box structure is summarized as in \fref{im:software:structure}
 
 Data about the traffic entities flows from \gls{vtd} to the \gls{middleware} in the \gls{rdb} format; their respective \code{in} and \code{out} ports are network sockets, with the two host \glspl{os} being reachable via \gls{ip} with each other. The data is converted into an \gls{me} digestible format by the \gls{middleware}, and then supplied to \gls{me}: this is actually done in-memory (the implementation of the \gls{middleware} runs within \gls{me}), hence the ports are in this case abstractions for memory management. Similarly, data about the player vehicle flows in the opposite way: \gls{me} supplies the \gls{middleware} with the data, the \gls{middleware} converts it into the \gls{rdb} format, and sends it to \gls{vtd}.
 
-This feedback loop is repeated continuously for the entire duration of the simulation. The right-to-left flow moves the "ego" car within the traffic simulation, allowing its entities to react in real time; the left-to-right flow allows \gls{me} to render the traffic entities on screen, displaying them to the end-user. Time and spatial synchronization issues are omitted in this simplified description, details can be found in \fref{sc:integration:approach}. % TODO: check correct ref
+This feedback loop is repeated continuously for the entire duration of the simulation. The right-to-left flow moves the "ego" car within the traffic simulation, allowing its entities to react in real time; the left-to-right flow allows \gls{me} to render the traffic entities on screen, displaying them to the end-user. Time and spatial synchronization issues are omitted in this simplified description, details can be found in \fref{sc:integration:approach}. % TODO check correct ref
 
 This structure is akin to a client-server paradigm: here the client is \gls{me}, and the server is \gls{vtd}\footnote{This distinction is purely arbitrary, since it is a 1:1 communication loop.}. \Glspl{sendrate} and \glspl{tickrate} are not synchronized: both software are running at their own simulation paces; \gls{vtd}'s sendrate is fully configurable; \gls{me}'s sendrate is equal to its framerate.
 
@@ -60,7 +60,7 @@ A vague example could be that of an \gls{ai} car that wants to overtake a slower
 
 Although the nature of the data passed in the logic-\gls{ai} and \gls{ai}-physics transitions can be fuzzily assumed, (a subset of) the data passed in the physics-rendering transition should be instead precisely defined. To locate an object in the environment the physics system outputs, among many other metrics, its spatial and rotational coordinates: these two metrics are enough for the rendering system to show a car moving in the scene.
 
-\subsection{Coordinate System} % TODO: check
+\subsection{Coordinate System} % TODO check
 
 \begin{image}
 	{software/mecoords}{1.0}
@@ -107,7 +107,7 @@ The \software{v-traffic} module specifically provides \enquote{Vehicles \FONTnor
 
 \software{v-scenario} provides a simple top-view rendering system, that displays the scenario and the entities \software{v-traffic} is handling. The scenario within which the entities move is a road network defined in the \software{OpenDRIVE} format~\cite{software:opendrive}: for the purpose of this project, a simple racetrack with a 4-way intersection was provided; this racetrack was recreated in \gls{me} by the art team, to closely resemble the original.
 
-\subsection{Coordinate System} % TODO: check
+\subsection{Coordinate System} % TODO check
 
 \begin{image}
 	{software/vtdcoords}{1.0}

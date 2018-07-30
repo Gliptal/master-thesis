@@ -1,7 +1,7 @@
 \chapter{Middleware Development}\label{ch:middleware}
 
 \begin{keywords}
-	middleware, netcode
+	middleware, netcode % TODO Add TC, packet, payload
 \end{keywords}
 
 The \gls{middleware} is a \planguage{c++} static library (\code{.lib}), developed with \software{VSCode} and \software{Microsoft Visual Studio}.
@@ -26,6 +26,85 @@ The following \glspl{feature} are not fully supported yet, although the code is 
 \end{itemize}
 
 \section{Structure}\label{sc:middleware:structure}
+
+The project is made of one core class, two helper namespaces, three data classes, and one required integration class.
+
+\subsubsection{Helper}
+
+\begin{filelist}
+	logger.cpp
+\end{filelist}
+
+Provides utility functions to log the \gls{middleware}'s state and debug data. Logging is done on the \code{stderr} stream.
+
+\begin{filelist}
+	maths.cpp
+\end{filelist}
+
+Provides some basic maths functionality, mainly focused on matrix transformations between and within 3D systems. Among basic conversion functions, it defines a \code{Vector_t} struct, and an \code{apply_matrix} function: this is used to convert position (velocity, acceleration) vectors between coordinate systems. See \fref{ax:math:matrix} for the relevant maths basics.
+
+\begin{codelist}{1}
+	Vector_t apply_matrix(const Vector_t* vector, const transformMatrix matrix) {
+		Vector_t transformed;
+
+		transformed.x = vector->x*matrix[0][0] + vector->y*matrix[0][1] +
+						vector->z*matrix[0][2] + 1*matrix[0][3];
+		transformed.y = vector->x*matrix[1][0] + vector->y*matrix[1][1] +
+						vector->z*matrix[1][2] + 1*matrix[1][3];
+		transformed.z = vector->x*matrix[2][0] + vector->y*matrix[2][1] +
+						vector->z*matrix[2][2] + 1*matrix[2][3];
+
+		return transformed;
+	}
+\end{codelist}
+
+The functions in this namespace are exposed as \glspl{api} to \nth{3}-parties through the \code{maths.hpp} header.
+
+\subsubsection{Data}
+
+The three data classes represent generic traffic objects, and must be used in the integration process.
+
+\begin{filelist}
+	LightEntity.cpp
+	TrafficEntity.cpp
+	VehicleEntity.cpp
+\end{filelist}
+
+The data obtained from the traffic software must be serialized in the appropriate class (e.g.\ data on an \gls{ai} vehicle is serialized in a \code{VehicleEntity} instance); the serialized instances obtained from \gls{me} must be deserialized into the appropriate traffic software format (e.g.\ a \code{LightEntity} is deserialized into traffic lights raw data). This serialization/deserialization is in fact the only code that a \nth{3}-party must produce for the integration.
+
+\code{TrafficEntity} is the parent class, that contains values common to all other entities (like position and id); \code{LightEntity} and \code{VehicleEntity} both extend the base class, each adding the data relevant to their function (e.g.\ \code{VehicleEntity} adds velocity and acceleration vectors, among other values).
+
+The headers are fully documented to ease the coding by \nth{3}-parties.
+
+\subsubsection{Core}
+
+The core class is a pure virtual class, which means it must be extended by a child class that implements its pure virtual methods. \code{UDPConnector} silently handles the netcode, and only leaves the conversion to/from the traffic software and \gls{me} to be implemented. As such the two pure virtual methods are \code{handle_RX_payload()} and \code{prepare_TX_payload()}, that respectively must handle the payload received from the traffic software, and prepare the data to be sent to the traffic software.
+
+Summarily, the execution flow is as follows:
+
+\begin{itemize}
+	\item an instance of \code{UDPConnector} is created by the implementing child class, via the \code{UDPConnector()} constructor;
+	\item receiving and transmitting connections are opened between the traffic software and \gls{me}, via \code{open_RX_connection()} and \code{open_TX_connection()};
+	\item a packet is received from the traffic software, via \code{receive_packet()}, and placed in \code{m_payloadRX}
+	\item the payload is converted/serialized by \code{handle_RX_payload()}, and the returned \code{std::vector} consumed by \gls{me} for rendering;
+	\item player data provided by \gls{me} is converted/deserialized by \code{handle_TX_payload()}, and the resulting payload is placed in \code{m_payloadTX};
+	\item a packet is sent to the traffic software with the payload in \code{m_payloadTX}, via \code{send_packet()}.
+\end{itemize}
+
+\begin{image}
+	{middleware/flow}{0.8}
+	{\gls{middleware} execution flow}
+	{im:middleware:flow}
+	{}
+\end{image}
+
+A destructor is also used to properly close the connections and free all the used memory. Note that there is no requirement for a 1:1 relation between packets sent and packets received: both may happen independently and at different rates.
+
+These methods are called within \gls{me}, as part of the integration with the game engine (\fref{ch:integration}).
+
+\subsubsection{Integration}
+
+Integrating any traffic software into the \gls{middleware} (and thus \gls{me}) simply requires implementing \code{handle_RX_payload()} and \code{prepare_TX_payload()}. The former should take the payload from the traffic software, generate a list of matching \code{TrafficEntity}, and return them; how this is achieved is irrelevant from the \gls{middleware}'s perspective. The latter should take a list of \code{TrafficEntity} (more specifically, a \code{VehicleEntity} representing the player), covert it into the appropriate byte format required by the traffic software, and place it into \code{m_payloadTX}.
 
 \section{Netcode}\label{sc:middleware:netcode}
 

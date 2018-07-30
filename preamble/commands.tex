@@ -44,6 +44,47 @@
 	pdfsubject={\usubtitle{}}
 }
 
+%% LISTINGS %%
+
+\LISTINGSset{
+	language=C++,
+	% deletekeywords={char},
+	% otherkeywords={
+	% 	=,*,
+	% 	->,::
+	% },
+	% emph={
+	% 	char
+	% },
+	% emph={[2]
+	% 	malloc,
+	% 	UDPConnector,
+	% 	zmq_ctx_new,zmq_socket
+	% },
+	% emph={[3]
+	% 	UDPCONNECTOR_ME_PAYLOAD_BUFFER,
+	% 	ZMQ_SUB,ZMQ_PUB
+	% },
+	basicstyle=\FONTsizethree{}\FONTmonospaceseries{},
+	% stringstyle=\FONTcolor{Dandelion},
+	% keywordstyle=\FONTcolor{Red},
+	% emphstyle=\FONTcolor{NavyBlue},
+	% emphstyle={[2]\FONTcolor{OliveGreen}},
+	% emphstyle={[3]\FONTcolor{Fuchsia}},
+	frame=none,
+	breaklines=true,
+	% postbreak=\COREbox{$\FONTcolor{DarkGray}\mapsto$\,},
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	tabsize=2,
+	% numbers=left,
+	% numberstyle=\FONTsizeone{}\FONTcolor{DarkGray},
+	% numbersep=12pt,
+	% numberfirstline=true,
+	% stepnumber=5
+}
+
 %% TABULARX %%
 
 \TABULARXnewcolumntype{Y}{>{\FLOATcenter\COREresetbackslash}X}
@@ -58,6 +99,8 @@
 
 %% XCOLOR %%
 
+\XCOLORnewcolor{code-grey}{gray}{0.95}
+\XCOLORnewcolor{DarkGray}{gray}{0.30}
 \XCOLORnewcolor{color0}{gray}{0.30}
 \XCOLORnewcolor{color1}{gray}{0.40}
 \XCOLORnewcolor{color2}{gray}{0.50}

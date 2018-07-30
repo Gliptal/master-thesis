@@ -22,6 +22,24 @@
 	\end{tabular*}
 	}
 
+\LISTINGSnewenv{codelist}[1]
+	{
+	\mdframed[
+		backgroundcolor=code-grey,
+		innerleftmargin=24,
+		innertopmargin=6,
+		innerbottommargin=6,
+		leftmargin=1,
+		linecolor=code-grey,
+		rightmargin=1]
+	\lstset{
+		firstnumber=#1
+	}
+	}
+	{
+	\endmdframed
+	}
+
 \COREnewenv{dedication}
 	{
 	\begin{center}
