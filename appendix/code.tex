@@ -1,1 +1,75 @@
 \chapter{Code}\label{ax:code}
+
+\section{Unmodified Code}\label{ax:code:fullcode}
+
+\begin{codelist}{73}
+bool UDPConnector::open_RX_connection(const char* ip, const uint16_t port) {
+    if (m_socketRXfd > -1)
+        return false;
+
+    struct sockaddr_in sock;
+    uint32_t address;
+
+    int opt;
+    int result;
+
+    InetPton(AF_INET, ip, &address);
+
+#ifdef DEBUG
+    logger::log(logger::LOG_TASK, "UDPConnector", __func__, "opening RX connection on %s:%d", ip, port);
+#endif
+
+#ifdef _WIN32
+    m_socketRXfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+#else
+    m_socketRXfd = socket(AF_INET, SOCK_DGRAM, 0);
+#endif  // _WIN32
+
+    if (m_socketRXfd == -1) {
+#ifdef DEBUG
+        logger::log(logger::LOG_FAIL, "UDPConnector", __func__, "opening RX socket on %s:%d", ip, port);
+#endif  // DEBUG
+        return false;
+    }
+
+    opt = 1;
+#ifdef _WIN32
+    result = setsockopt(m_socketRXfd, SOL_SOCKET, SO_REUSEADDR, (char*) &opt, sizeof(opt));
+#else
+    int result   = setsockopt(m_socketRXfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+#endif  // _WIN32
+
+    if (result == -1) {
+#ifdef DEBUG
+        logger::log(logger::LOG_FAIL, "UDPConnector", __func__, "net address cannot be reused");
+#endif  // DEBUG
+        return false;
+    }
+
+    memset(&sock, 0, sizeof(sock));
+    sock.sin_family      = AF_INET;
+    sock.sin_addr.s_addr = address;
+    sock.sin_port        = htons(port);
+
+    result = bind(m_socketRXfd, (struct sockaddr*) &sock, sizeof(struct sockaddr_in));
+
+    if (result == -1) {
+#ifdef DEBUG
+        logger::log(logger::LOG_FAIL, "UDPConnector", __func__, "could not bind socket");
+#endif  // DEBUG
+        return false;
+    }
+
+    opt = 1;
+#ifdef _WIN32
+    ioctlsocket(m_socketRXfd, FIONBIO, (u_long*) &opt);  // nonblocking
+#else
+    ioctl(m_socketRXfd, FIONBIO, sizeof(opt));  // blocking
+#endif  // _WIN32
+
+#ifdef DEBUG
+    logger::log(logger::LOG_SUCCESS, "UDPConnector", __func__, "RX connection opened on %s:%d", ip, port);
+#endif  // DEBUG
+    return true;
+}
+\end{codelist}

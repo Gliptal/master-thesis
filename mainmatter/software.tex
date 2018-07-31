@@ -25,7 +25,7 @@ The overall black box structure is summarized as in \fref{im:software:structure}
 
 Data about the traffic entities flows from \gls{vtd} to the \gls{middleware} in the \gls{rdb} format; their respective \code{in} and \code{out} ports are network sockets, with the two host \glspl{os} being reachable via \gls{ip} with each other. The data is converted into an \gls{me} digestible format by the \gls{middleware}, and then supplied to \gls{me}: this is actually done in-memory (the implementation of the \gls{middleware} runs within \gls{me}), hence the ports are in this case abstractions for memory management. Similarly, data about the player vehicle flows in the opposite way: \gls{me} supplies the \gls{middleware} with the data, the \gls{middleware} converts it into the \gls{rdb} format, and sends it to \gls{vtd}.
 
-This feedback loop is repeated continuously for the entire duration of the simulation. The right-to-left flow moves the "ego" car within the traffic simulation, allowing its entities to react in real time; the left-to-right flow allows \gls{me} to render the traffic entities on screen, displaying them to the end-user. Time and spatial synchronization issues are omitted in this simplified description, details can be found in \fref{sc:integration:approach}. % TODO check correct ref
+This feedback loop is repeated continuously for the entire duration of the simulation. The right-to-left flow moves the "ego" car within the traffic simulation, allowing its entities to react in real time; the left-to-right flow allows \gls{me} to render the traffic entities on screen, displaying them to the end-user. Time and spatial synchronization issues are omitted in this simplified description, details can be found in \fref{sc:integration:approach}. % FIXME check correct ref
 
 This structure is akin to a client-server paradigm: here the client is \gls{me}, and the server is \gls{vtd}\footnote{This distinction is purely arbitrary, since it is a 1:1 communication loop.}. \Glspl{sendrate} and \glspl{tickrate} are not synchronized: both software are running at their own simulation paces; \gls{vtd}'s sendrate is fully configurable; \gls{me}'s sendrate is equal to its framerate.
 
@@ -60,7 +60,7 @@ A vague example could be that of an \gls{ai} car that wants to overtake a slower
 
 Although the nature of the data passed in the logic-\gls{ai} and \gls{ai}-physics transitions can be fuzzily assumed, (a subset of) the data passed in the physics-rendering transition should be instead precisely defined. To locate an object in the environment the physics system outputs, among many other metrics, its spatial and rotational coordinates: these two metrics are enough for the rendering system to show a car moving in the scene.
 
-\subsection{Coordinate System} % TODO check
+\subsection{Coordinate System} % FIXME check correctness
 
 \begin{image}
 	{software/mecoords}{1.0}
@@ -107,7 +107,7 @@ The \software{v-traffic} module specifically provides \enquote{Vehicles \FONTnor
 
 \software{v-scenario} provides a simple top-view rendering system, that displays the scenario and the entities \software{v-traffic} is handling. The scenario within which the entities move is a road network defined in the \software{OpenDRIVE} format~\cite{software:opendrive}: for the purpose of this project, a simple racetrack with a 4-way intersection was provided; this racetrack was recreated in \gls{me} by the art team, to closely resemble the original.
 
-\subsection{Coordinate System} % TODO check
+\subsection{Coordinate System} % FIXME check correctness
 
 \begin{image}
 	{software/vtdcoords}{1.0}
@@ -148,9 +148,9 @@ Rotations are exposed as Euclidean angles. Measures are in degrees \si{\degree}.
 
 \gls{rdb} is the proprietary data format that \gls{vtd} provides and accepts to/from any \nth{3}-party software connected to its stack. It is a plain-text \enquote{vector of lists which contain each an array of entries of identical type}{\cite{software:rdbfaqs}}: the format specifies a large number of extensible data types, ranging from entitles meta-data, to their physical quantities (e.g.\ size, position, orientation), road details, sensor data, scenario state, and more.
 
-Details on how this data is formatted are of limited importance. \gls{vtd} does provide an extensive \planguage{c}/\planguage{c++} \glspl{api} to parse, read, and generate \gls{rdb} packets; this greatly eases the procedure of composing and understanding \gls{rdb} messages. The takeaway is that, given any set of raw measures, an \gls{rdb} packet can be efficiently built with the certainty that it adheres to the standard and is accepted by \gls{vtd}.
+Details on how this data is formatted are of limited importance. \gls{vtd} does provide an extensive \planguage{c}/\planguage{c++} \glspl{api} to parse, read, and generate \gls{rdb} packets; this greatly eases the procedure of composing and understanding \gls{rdb} messages. The takeaway is that, given any set of raw measures, an \gls{rdb} \gls{packet} can be efficiently built with the certainty that it adheres to the standard and is accepted by \gls{vtd}.
 
-Based on the configuration parameters, \gls{rdb} packets containing specific data may be sent from \gls{vtd} to an arbitrary software residing on an \code{ip:port} over the network (data is sent from port \num{10001}). Likewise data may be sent to \gls{vtd} from an arbitrary software by connecting to \gls{vtd} on \code{ip:10001}.\footnote{Note that the port numbers presented here are not the real ones.} The frequency of the sent data can be freely varied (with a soft limit of \SI{1000}{\hertz}); \gls{vtd} on the other hand can gracefully handle any receiving rate when the synchronization is set to \code{real-time}, allowing a variable \nth{3}-party sendrate.
+Based on the configuration parameters, \gls{rdb} packets containing specific data may be sent from \gls{vtd} to an arbitrary software residing on an \code{ip:port} over the network (data is sent from port \num{10001}). Likewise data may be sent to \gls{vtd} from an arbitrary software by connecting to \gls{vtd} on \code{ip:10000}.\footnote{Note that the port numbers presented here are not the real ones.} The frequency of the sent data can be freely varied (with a soft limit of \SI{1000}{\hertz}); \gls{vtd} on the other hand can gracefully handle any receiving rate when the synchronization is set to \code{real-time}, allowing a variable \nth{3}-party sendrate. % FIXME explain ports better
 
 \input{mainmatter/tables/software/rdb}
 
