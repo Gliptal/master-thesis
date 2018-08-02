@@ -1,3 +1,5 @@
+%chktex-file 26
+
 %% SILENCE %%
 
 \SILENCEfilter{hyperref}{Draft mode on}
@@ -16,7 +18,9 @@
 %% FRAMED %%
 
 \FRAMEDset{
-	frametitlealignment=\FLOATcenter
+	frametitleaboveskip=12pt,
+	frametitlealignment=\FLOATcenter,
+	frametitlefont=\FONTsizethree\FONTsmallcapsseries
 }
 
 %% GEOMETRY %%
@@ -54,42 +58,94 @@
 
 \LISTINGSset{
 	language=C++,
-	% deletekeywords={char},
-	% otherkeywords={
-	% 	=,*,
-	% 	->,::
-	% },
-	% emph={
-	% 	char
-	% },
-	% emph={[2]
-	% 	malloc,
-	% 	UDPConnector,
-	% 	zmq_ctx_new,zmq_socket
-	% },
-	% emph={[3]
-	% 	UDPCONNECTOR_ME_PAYLOAD_BUFFER,
-	% 	ZMQ_SUB,ZMQ_PUB
-	% },
+	deletekeywords={
+		bool,
+		char,
+		false,
+		int,
+		void,
+	},
+	otherkeywords={
+		=,+,-,*,/,>,<,
+		?,&,.,->,::,:,~,
+		!,||
+	},
+	emph={
+		AVAILABLE_ENTITIES_e,
+		bool,Bridge,
+		char,const_iterator,cout,
+		endl,Evaluator,
+		help,
+		int,
+		left,LightEntity,logger,
+		maths,
+		RDB_MSG_ENTRY_HDR_t,RDB_MSG_t,RDB_OBJECT_STATE_t,RDB_TRAFFIC_LIGHT_t,RDB_VEHICLE_SYSTEMS_t,
+		sockaddr_in,std,stderr,string,struct,
+		transformMatrix,TrafficEntity,
+		u_long,uint8_t,uint16_t,uint32_t,
+		UDPConnector,
+		Vector_t,VehicleEntity,VTDConnector,void,
+		zmq,ZMQBridge
+	},
+	emph={[2]
+		apply_matrix,
+		begin,bind,
+		c_str,close_downstream_lane,close_upstream_lane,connect,convert_entity_to_objectstate,compute_delta,convert_entity_to_vehiclesystems,convert_entry_to_entity,
+		deg_to_rad,deliver_local,deliver_remote,
+		end,
+		flow_downstream,flow_upstream,
+		get_add_entity,
+		handle_RX_payload,htons,
+		InetPton,ioctl,ioctlsocket,
+		log,
+		main,malloc,memset,move_pivot_front,
+		obtain_local,obtain_remote,open_downstream_lane,open_RX_connection,open_TX_connection,open_upstream_lane,
+		prepare_TX_payload,push_back,
+		rad_to_deg,receive_packet,recv,
+		send,send_packet,sendmore,setsockopt,setw,size,socket,start,
+		to_string,
+		zmq_bind,zmq_connect,zmq_ctx_new,zmq_recv,zmq_send,zmq_setsockopt,zmq_socket,
+	},
+	emph={[3]
+		true,false,
+		AF_INET,
+		ENTITY_VEHICLE,ENTITY_TRAFFIC,ENTITY_TRAFFICLIGHT,
+		FIONBIO,
+		IPPROTO_UDP,
+		LOG_FAIL,LOG_SUCCESS,LOG_TASK,
+		RDB_COORD_TYPE_INERTIAL,RDB_MAGIC_NO,RDB_PKG_FLAG_EXTENDED,RDB_PKG_ID_OBJECT_STATE,RDB_PKG_ID_VEHICLE_SYSTEMS,RDB_PKG_ID_TRAFFIC_LIGHT,
+		SO_REUSEADDR,SOCK_DGRAM,SOL_SOCKET,
+		TYPE_HATCHBACK,TYPE_SEDAN,
+		UDPCONNECTOR_ME_PAYLOAD_BUFFER,
+		ZMQ_CONFLATE,ZMQ_NOBLOCK,ZMQ_SENDMORE,ZMQ_SUB,ZMQ_SUBSCRIBE,ZMQ_PUB,ZMQBRIDGE_REMOTE_PROTOCOL,ZMQBRIDGE_UDP_BUFFER,
+	},
+	emph={[4]
+		_DEBUG,_WIN32,
+		DEBUG,
+		PERF,
+		WIN32,
+		TEST,
+	},
 	basicstyle=\FONTsizetwo\FONTmonospaceseries,
-	% stringstyle=\FONTcolor{Dandelion},
-	% keywordstyle=\FONTcolor{Red},
-	% emphstyle=\FONTcolor{NavyBlue},
-	% emphstyle={[2]\FONTcolor{OliveGreen}},
-	% emphstyle={[3]\FONTcolor{Fuchsia}},
+	stringstyle=\FONTcolor{Sepia},
+	keywordstyle=\FONTcolor{Red},
+	directivestyle={\FONTcolor{BurntOrange}},
+	emphstyle=\FONTcolor{NavyBlue},
+	emphstyle={[2]\FONTcolor{OliveGreen}},
+	emphstyle={[3]\FONTcolor{Fuchsia}},
+	emphstyle={[4]\FONTcolor{BurntOrange}},
 	frame=none,
-	abovecaptionskip=6pt,
 	breaklines=true,
-	% postbreak=\COREbox{$\FONTcolor{DarkGray}\mapsto$\,},
+	postbreak=\COREbox{$\FONTcolor{DarkGray}\mapsto$\,},
 	showspaces=false,
 	showstringspaces=false,
 	showtabs=false,
 	tabsize=2,
-	% numbers=left,
-	% numberstyle=\FONTsizeone\FONTcolor{DarkGray},
-	% numbersep=12pt,
-	% numberfirstline=true,
-	% stepnumber=5
+	numbers=left,
+	numberstyle=\FONTsizeone\FONTcolor{DarkGray},
+	numbersep=12pt,
+	numberfirstline=true,
+	stepnumber=5
 }
 
 %% TABULARX %%

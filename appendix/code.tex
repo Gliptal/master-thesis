@@ -23,12 +23,12 @@ bool UDPConnector::open_RX_connection(const char* ip, const uint16_t port) {
     m_socketRXfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #else
     m_socketRXfd = socket(AF_INET, SOCK_DGRAM, 0);
-#endif  // _WIN32
+#endif
 
     if (m_socketRXfd == -1) {
 #ifdef DEBUG
         logger::log(logger::LOG_FAIL, "UDPConnector", __func__, "opening RX socket on %s:%d", ip, port);
-#endif  // DEBUG
+#endif
         return false;
     }
 
@@ -37,12 +37,12 @@ bool UDPConnector::open_RX_connection(const char* ip, const uint16_t port) {
     result = setsockopt(m_socketRXfd, SOL_SOCKET, SO_REUSEADDR, (char*) &opt, sizeof(opt));
 #else
     int result   = setsockopt(m_socketRXfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-#endif  // _WIN32
+#endif
 
     if (result == -1) {
 #ifdef DEBUG
         logger::log(logger::LOG_FAIL, "UDPConnector", __func__, "net address cannot be reused");
-#endif  // DEBUG
+#endif
         return false;
     }
 
@@ -56,20 +56,20 @@ bool UDPConnector::open_RX_connection(const char* ip, const uint16_t port) {
     if (result == -1) {
 #ifdef DEBUG
         logger::log(logger::LOG_FAIL, "UDPConnector", __func__, "could not bind socket");
-#endif  // DEBUG
+#endif
         return false;
     }
 
     opt = 1;
 #ifdef _WIN32
-    ioctlsocket(m_socketRXfd, FIONBIO, (u_long*) &opt);  // nonblocking
+    ioctlsocket(m_socketRXfd, FIONBIO, (u_long*) &opt);
 #else
-    ioctl(m_socketRXfd, FIONBIO, sizeof(opt));  // blocking
-#endif  // _WIN32
+    ioctl(m_socketRXfd, FIONBIO, sizeof(opt));
+#endif
 
 #ifdef DEBUG
     logger::log(logger::LOG_SUCCESS, "UDPConnector", __func__, "RX connection opened on %s:%d", ip, port);
-#endif  // DEBUG
+#endif
     return true;
 }
 \end{codelist}
@@ -84,17 +84,15 @@ void Bridge::flow_upstream() {
 
 	if (payload != "") {
 #ifdef TEST
-		// clang-format off
 		std::cout << std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ LANE ]" << "UPSTREAM" << std::endl
-					<< std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ RECV ]" << payload.size() << std::endl;
-		// clang-format on
-#endif  // TEST
+		<< std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ RECV ]" << payload.size() << std::endl;
+#endif
 
 		deliver_remote(payload);
 
 #ifdef TEST
 		std::cout << std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ SEND ]" << payload.size() << std::endl;
-#endif  // TEST
+#endif
 	}
 }
 
@@ -105,28 +103,26 @@ void Bridge::flow_downstream() {
 
 	if (payload != "") {
 #ifdef TEST
-		// clang-format off
 		std::cout << std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ LANE ]" << "DOWNSTREAM" << std::endl
-					<< std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ RECV ]" << payload.size() << std::endl;
-		// clang-format on
-#endif  // TEST
+		<< std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ RECV ]"payload.size() << std::endl;
+#endif
 
 		deliver_local(payload);
 
 #ifdef TEST
 		std::cout << std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ SEND ]" << payload.size() << std::endl;
-#endif  // TEST
+#endif
 	}
 }
 
 std::string Bridge::obtain_local() {
 #ifdef PERF
 	Evaluator::start();
-#endif  // PERF
+#endif
 
-	char* payload[ZMQBDIRGE_UDP_BUFFER];
+	char* payload[ZMQBRIDGE_UDP_BUFFER];
 
-	int payloadSize = recv(m_socketLocalRX, payload, ZMQBDIRGE_UDP_BUFFER, 0);
+	int payloadSize = recv(m_socketLocalRX, payload, ZMQBRIDGE_UDP_BUFFER, 0);
 
 	if (payloadSize > 0) {
 		return std::string((const char*) payload, payloadSize);
@@ -158,7 +154,7 @@ void Bridge::deliver_remote(const std::string payload) {
 
 #ifdef PERF
 	Evaluator::end();
-	Evaluator::computeDelta();
-#endif  // PERF
+	Evaluator::compute_delta();
+#endif
 }
 \end{codelist}
