@@ -1,8 +1,8 @@
 \chapter{Code}\label{ax:code}
 
-\section{Unmodified Code}\label{ax:code:fullcode}
+\section{Unmodified Netcode}\label{ax:code:netcode}
 
-\begin{codelist}{73}
+\begin{codelist}{UDPConnector.cpp --- open\_RX\_connection()}{73}
 bool UDPConnector::open_RX_connection(const char* ip, const uint16_t port) {
     if (m_socketRXfd > -1)
         return false;
@@ -71,5 +71,94 @@ bool UDPConnector::open_RX_connection(const char* ip, const uint16_t port) {
     logger::log(logger::LOG_SUCCESS, "UDPConnector", __func__, "RX connection opened on %s:%d", ip, port);
 #endif  // DEBUG
     return true;
+}
+\end{codelist}
+
+\section{Proxy Rerouting}\label{ax:code:proxy}
+
+\begin{codelist}{Bridge.cpp --- various}{127}
+void Bridge::flow_upstream() {
+	std::string payload;
+
+	payload = obtain_local();
+
+	if (payload != "") {
+#ifdef TEST
+		// clang-format off
+		std::cout << std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ LANE ]" << "UPSTREAM" << std::endl
+					<< std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ RECV ]" << payload.size() << std::endl;
+		// clang-format on
+#endif  // TEST
+
+		deliver_remote(payload);
+
+#ifdef TEST
+		std::cout << std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ SEND ]" << payload.size() << std::endl;
+#endif  // TEST
+	}
+}
+
+void Bridge::flow_downstream() {
+	std::string payload;
+
+	payload = obtain_remote();
+
+	if (payload != "") {
+#ifdef TEST
+		// clang-format off
+		std::cout << std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ LANE ]" << "DOWNSTREAM" << std::endl
+					<< std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ RECV ]" << payload.size() << std::endl;
+		// clang-format on
+#endif  // TEST
+
+		deliver_local(payload);
+
+#ifdef TEST
+		std::cout << std::left << std::setw(12) << "[ COMM ]" << std::setw(12) << "[ SEND ]" << payload.size() << std::endl;
+#endif  // TEST
+	}
+}
+
+std::string Bridge::obtain_local() {
+#ifdef PERF
+	Evaluator::start();
+#endif  // PERF
+
+	char* payload[ZMQBDIRGE_UDP_BUFFER];
+
+	int payloadSize = recv(m_socketLocalRX, payload, ZMQBDIRGE_UDP_BUFFER, 0);
+
+	if (payloadSize > 0) {
+		return std::string((const char*) payload, payloadSize);
+	} else {
+		return "";
+	}
+}
+
+std::string Bridge::obtain_remote() {
+	std::string payload;
+
+	zmq::help::recv(m_socketRemoteRX);
+	payload = zmq::help::recv(m_socketRemoteRX);
+
+	if (payload.size() > 0) {
+		return payload;
+	} else {
+		return "";
+	}
+}
+
+void Bridge::deliver_local(const std::string payload) {
+	send(m_socketLocalTX, payload.c_str(), payload.size(), 0);
+}
+
+void Bridge::deliver_remote(const std::string payload) {
+	zmq::help::sendmore(m_socketRemoteTX, "");
+	zmq::help::send(m_socketRemoteTX, payload);
+
+#ifdef PERF
+	Evaluator::end();
+	Evaluator::computeDelta();
+#endif  // PERF
 }
 \end{codelist}

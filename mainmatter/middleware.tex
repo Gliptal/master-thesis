@@ -43,7 +43,7 @@ Provides utility functions to log the \gls{middleware}'s state and debug data. L
 
 Provides some basic maths functionality, mainly focused on matrix transformations between and within 3D systems. Among basic conversion functions, it defines a \code{Vector_t} struct, and an \code{apply_matrix} function: this is used to convert position (velocity, acceleration) vectors between coordinate systems. See \fref{ax:math:matrix} for the relevant maths basics.
 
-\begin{codelist}{1}
+\begin{codelist}{maths.cpp --- apply\_matrix()}{46}
 	Vector_t apply_matrix(const Vector_t* vector, const transformMatrix matrix) {
 		Vector_t transformed;
 
@@ -121,7 +121,7 @@ The netcode is fully handled by the core \code{UDPConnector} class: more specifi
 
 \input{mainmatter/tables/middleware/netcode}
 
-Note that all the following code snippets have comments, debugging, and cross-compiler options removed for functional clarity. See \fref{ax:code:fullcode} for an example of unmodified code.
+Note that all the following code snippets have comments, debugging, and cross-compiler options removed for functional clarity. See \fref{ax:code:netcode} for an example of unmodified code.
 
 \subsection{\FONTsmallcaps{os} Sockets}
 
@@ -131,7 +131,7 @@ Windows \gls{os} sockets are provided by the\code{<Ws2tcpip.h>} standard \plangu
 
 An in (receiving) socket is represented by a \code{strucy sockaddr_in}. The file descriptor is obtained with a \code{socket()} call, with the \code{IPPROTO_UDP} option specifying the \gls{udp} protocol; options are specified with \code{setsockopt()}. Properties of the socket (like \gls{ip} and port) are directly set to the \code{struct}'s appropriate fields. The sockets is set as non-blocking (i.e.\ the execution continues if nothing is found on a \code{recv} call) via \code{ioctlsocket()} and the \code{FIONBIO} option. Finally, the socket is opened (bound) with \code{bind}, by passing the file descriptor and the socket \code{struct}.
 
-\begin{codelist}{1}
+\begin{codelist}{UDPConnector.cpp --- open\_RX\_connection()}{73}
 bool UDPConnector::open_RX_connection(const char* ip, const uint16_t port) {
     if (m_socketRXfd > -1)
         return false;
@@ -176,7 +176,7 @@ bool UDPConnector::open_RX_connection(const char* ip, const uint16_t port) {
 
 Opening an out (delivery) socket is similar, with only minor changes in the options for the socket. The major difference is the usage of \code{connect} instead of \code{bind}. The former is used to connect to a remote \code{ip:port}, whilst the latter provides an endpoint for external connections.
 
-\begin{codelist}{1}
+\begin{codelist}{UDPConnector.cpp --- open\_TX\_connection()}{143}
 bool UDPConnector::open_TX_connection(const char* ip, const uint16_t port) {
     if (m_socketTXfd > -1)
         return false;
@@ -224,7 +224,7 @@ bool UDPConnector::open_TX_connection(const char* ip, const uint16_t port) {
 
 The \code{recv()} function polls the socket to see if any \glspl{packet} were sent to it. If one is found the \gls{packet}'s \gls{payload} is saved in \code{m_payloadRX}.
 
-\begin{codelist}{1}
+\begin{codelist}{UDPConnector.cpp --- receive\_packet()}{215}
 bool UDPConnector::receive_packet() {
     int payloadSize = recv(m_socketRXfd, m_payloadRX, UDPCONNECTOR_ME_PAYLOAD_BUFFER, 0);
 
@@ -239,7 +239,7 @@ bool UDPConnector::receive_packet() {
 
 The \code{send()} function takes a \gls{payload} (and its size) and sends a \gls{packet} containing it towards the specified remote \code{ip:port}.
 
-\begin{codelist}{1}
+\begin{codelist}{UDPConnector.cpp --- send\_packet()}{234}
 bool UDPConnector::send_packet() {
     int result = send(m_socketTXfd, m_payloadTX, m_payloadTXSize, 0);
 
@@ -256,7 +256,7 @@ bool UDPConnector::send_packet() {
 
 The \code{UDPConnector()} constructor instantiates a new context, and specifies the receive and send socket references. The current implementation uses the \FONTsmallcaps{pub/sub} model: a receiving socket subscribes to a remote publishing socket; multiple receiving sockets may subscribe to a single publish socket at the same time. The project's structure would only require a single subscriber, but the 1:1 \software{0mq} \FONTsmallcaps{req/rep} forces the server and client sendrates to be the same (each request must be followed by a reply).
 
-\begin{codelist}{63}
+\begin{codelist}{UDPConnector.cpp --- UDPConnector()}{63}
 UDPConnector::UDPConnector() {
     m_context  = zmq_ctx_new();
     m_socketRX = zmq_socket(m_context, ZMQ_SUB);
@@ -276,7 +276,7 @@ Opening a receival connection in \software{0mq} requires only a \code{connect} c
 	\item \code{ZMQ_SUBSCRIBE} specifies the list the socket subscribes to (in this case, only one unnamed list exists).
 \end{itemize}
 
-\begin{codelist}{1}
+\begin{codelist}{UDPConnector.cpp --- open\_RX\_connection()}{80}
 bool UDPConnector::open_RX_connection(const char* ip, const uint16_t port) {
 
     std::string addr = std::string(ZMQBRIDGE_REMOTE_PROTOCOL) + "://" + std::string(ip) + ":" + std::to_string(port);
@@ -294,7 +294,7 @@ bool UDPConnector::open_RX_connection(const char* ip, const uint16_t port) {
 
 A delivery connection is set up with the \code{bind} call, that creates a socket to which remote \software{0mq} processes can connect to. The \code{ZMQ_CONFLATE} option is also passed to avoid a \gls{packet} queueing.
 
-\begin{codelist}{1}
+\begin{codelist}{UDPConnector.cpp --- open\_TX\_connection()}{95}
 bool UDPConnector::open_TX_connection(const char* ip, const uint16_t port) {
     std::string addr = std::string(ZMQBRIDGE_REMOTE_PROTOCOL) + "://" + std::string(ip) + ":" + std::to_string(port);
 
@@ -310,7 +310,7 @@ bool UDPConnector::open_TX_connection(const char* ip, const uint16_t port) {
 
 Receiving a \gls{packet} on a socket requires a single \code{zmq_recv()} call, specifying the \code{ZMQ_NOBLOCK} option for a non-blocking receive (the execution does not halt until a \gls{packet} is received). The \gls{payload} is placed in \code{m_payloadRX}.
 
-\begin{codelist}{1}
+\begin{codelist}{UDPConnector.cpp --- receive\_packet()}{109}
 bool UDPConnector::receive_packet() {
     zmq_recv(m_socketRX, m_payloadRX, UDPCONNECTOR_ME_PAYLOAD_BUFFER, ZMQ_NOBLOCK);
 
@@ -325,7 +325,7 @@ bool UDPConnector::receive_packet() {
 
 Sending a \gls{packet} requires firstly sending the list name for that \gls{packet} (in this case, an empty name), and then adding the \gls{payload}. Both are done with the \code{zmq_send()} function, with the first part specifying \code{ZMQ_SENDMORE} to notify the receiver that more bytes from the same \gls{packet} are to be expected. The \gls{payload} sent is the one found in \code{m_payloadTX}.
 
-\begin{codelist}{1}
+\begin{codelist}{UDPConnector.cpp --- send\_packet()}{130}
 bool UDPConnector::send_packet() {
 	zmq_send(m_socketTX, "", 0, ZMQ_SNDMORE);
 	int sentBytes = zmq_send(m_socketTX, m_payloadTX, m_payloadTXSize, 0);
@@ -337,6 +337,186 @@ bool UDPConnector::send_packet() {
 }
 \end{codelist}
 
+\section{\FONTsmallcaps{vtd} Implementation}\label{sc:middleware:implementation}
+
+For testing purposes and as a proof-of-concept, the implementation of \gls{vtd} was coded during the development of the \gls{middleware}.
+
+As per specs two functions were overridden:
+
+\begin{itemize}
+	\item \code{handle_RX_payload()} converts the data from the \gls{rdb} format into matching \code{TrafficEntity};
+	\item \code{handle_TX_payload()} converts the data from \code{TrafficEntity} to the the \gls{rdb} format.
+\end{itemize}
+
+\gls{vtd} developer \company{Vires Simulationstechnologie GmbH} provides a full set of \glspl{api} to create, parse, print, and generally handle data in the \gls{rdb} format. This greatly eases the implementation, since it hides all the details on packaging, byte sizes, and more. Among the many datatypes, the ones relevant to this implementation are \code{RDB_OBJECT_STATE_t} and \code{RDB_VEHICLE_SYSTEMS_t}, that respectively hold data about an object's overall state (dimensions, position, vectors, type, name, etc.), and vehicle systems (sensors, lights, etc.).
+
+The higher level functions that convert data are, for \gls{rdb} to \gls{me}:
+
+\begin{itemize}
+	\item \code{convert_entry_to_entity()} --- converts a datatype (passed as a pointer) into an appropriate \code{TrafficEntity}, adding it to a \code{std::vector<TrafficEntity>};
+\end{itemize}
+
+\FLOATnoindent whereas, for \gls{me} to \gls{rdb}:
+
+\begin{itemize}
+	\item \code{convert_entity_to_objectstate()} --- converts a \code{TrafficEntity} into an appropriate \gls{rdb} \code{RDB_OBJECT_STATE_t}, returning a memory point to that object;
+	\item \code{convert_entity_to_vehiclesystems()} --- converts a \code{TrafficEntity} into an appropriate \gls{rdb} \code{RDB_VEHICLE_SYSTEMS_t}, returning a memory point to that object.
+\end{itemize}
+
+Since a single \code{rdb} \gls{packet} contains data for all the entities in the simulation, the receiving handling function must discriminate between the different datatypes, keeping count on how many bytes remain before the end of the whole \gls{packet}. \code{simTime} and \code{frameNo} are used to synchronize the simulation between \gls{vtd} and \gls{me}.
+
+\begin{codelist}{VTDConnector.cpp --- handle\_RX\_payload()}{65}
+std::vector<TrafficEntity*> VTDConnector::handle_RX_payload() {
+	std::vector<TrafficEntity*> entities;
+
+	RDB_MSG_t* message = (RDB_MSG_t*) m_payloadRX;
+
+	if (!message || !message->hdr.dataSize || message->hdr.magicNo != RDB_MAGIC_NO)
+		return entities;
+
+	RDB_MSG_ENTRY_HDR_t* entry = (RDB_MSG_ENTRY_HDR_t*) (((char*) message) + message->hdr.headerSize);
+
+	m_time  = message->hdr.simTime;
+	m_frame = message->hdr.frameNo;
+
+	uint32_t remainingBytes = message->hdr.dataSize;
+	while (remainingBytes) {
+		int elementsAmount = entry->elementSize ? (entry->dataSize / entry->elementSize) : 0;
+
+		char* dataStart = (char*) entry;
+		dataStart += entry->headerSize;
+
+		while (elementsAmount) {
+			switch (entry->pkgId) {
+				case RDB_PKG_ID_OBJECT_STATE:
+					convert_entry_to_entity(&entities, (RDB_OBJECT_STATE_t*) dataStart, entry->flags & RDB_PKG_FLAG_EXTENDED);
+					break;
+				case RDB_PKG_ID_VEHICLE_SYSTEMS:
+					convert_entry_to_entity(&entities, (RDB_VEHICLE_SYSTEMS_t*) dataStart);
+					break;
+				case RDB_PKG_ID_TRAFFIC_LIGHT:
+					convert_entry_to_entity(&entities, (RDB_TRAFFIC_LIGHT_t*) dataStart);
+					break;
+				default:
+					break;
+			}
+			dataStart += entry->elementSize;
+			elementsAmount -= 1;
+		}
+
+		remainingBytes -= (entry->headerSize + entry->dataSize);
+		if (remainingBytes)
+			entry = (RDB_MSG_ENTRY_HDR_t*) (((char*) entry) + entry->headerSize + entry->dataSize);
+	}
+
+	return entities;
+}
+\end{codelist}
+
+Internally, \code{convert_entry_to_entity()} calls another method that checks whether a \code{TrafficEntity} with the found \code{id} was already added to the \code{std::vector}: f so, it gets its reference, and adds the data to it; otherwise, it instantiates a new (appropriate) \code{TrafficEntity} and adds it to the \code{std::vector}.
+
+\begin{codelist}{VTDConnector.cpp --- prepare\_TX\_payload()}{118}
+TrafficEntity* VTDConnector::get_add_entity(std::vector<TrafficEntity*>* entities, const uint8_t id, const TrafficEntity::AVAILABLE_ENTITIES_e type) {
+	for (std::vector<TrafficEntity*>::const_iterator iter = entities->begin(); iter != entities->end(); iter++)
+		if ((*iter)->id == id)
+			return (*iter);
+
+	TrafficEntity* entity;
+	switch (type) {
+		case TrafficEntity::AVAILABLE_ENTITIES_e::ENTITY_VEHICLE:
+			entity = new VehicleEntity();
+			break;
+		case TrafficEntity::AVAILABLE_ENTITIES_e::ENTITY_TRAFFICLIGHT:
+			entity = new LightEntity();
+			break;
+		case TrafficEntity::AVAILABLE_ENTITIES_e::ENTITY_TRAFFIC:
+		default:
+			entity = new TrafficEntity();
+			break;
+	}
+
+	entities->push_back(entity);
+
+	return entity;
+}
+\end{codelist}
+
+The actual conversion is handled vector by vector. A temporary \code{maths::vector vector} is used to apply the transformation matrices, that transform vectors from \gls{vtd}'s coordinate system to the \gls{middleware}'s. The center point is moved first with the \code{transformMatrices.move_pivot_front()} call, depending on the vehicle's heading (\code{entry->base.pos.h}). The \gls{rdb} vector is then copied member-by-member to the temporary \code{vector}, and two transform matrices are applied: one to align the scenario, and one to transform the coordinate systems. Finally, the data is copied member-by-member from the temporary \code{vector} to the \code{TrafficEntity}'s \code{inertialPosition} property. A similar process is used for angles, velocity, and acceleration vectors.
+
+\begin{codelist}{VTDConnector.cpp --- convert\_entry\_to\_entity()}{162}
+void VTDConnector::convert_entry_to_entity(std::vector<TrafficEntity*>* entities, const RDB_OBJECT_STATE_t* entry, bool isExtended) {
+	VehicleEntity* entity = (VehicleEntity*) get_add_entity(entities, entry->base.id - 1, TrafficEntity::AVAILABLE_ENTITIES_e::ENTITY_VEHICLE);
+
+	entity->id = entry->base.id - 1;
+
+	maths::Vector_t vector;
+
+	if (entry->base.pos.type == RDB_COORD_TYPE_INERTIAL) {
+		entity->inertialPosition.isValid = true;
+
+		transformMatrices.alpha = entry->base.pos.h;
+		transformMatrices.move_pivot_front();
+
+		vector.x = entry->base.pos.x;
+		vector.y = entry->base.pos.y;
+		vector.z = entry->base.pos.z;
+
+		vector = maths::apply_matrix(&(vector), transformMatrices.testTrack.VTDToME);
+		vector = maths::apply_matrix(&(vector), transformMatrices.VTDToSAE);
+
+		entity->inertialPosition.x = vector.x;
+		entity->inertialPosition.y = vector.y;
+		entity->inertialPosition.z = vector.z;
+	}
+
+	entity->orientation.pitch = maths::rad_to_deg(entry->base.pos.p);
+	entity->orientation.roll  = maths::rad_to_deg(entry->base.pos.r);
+	entity->orientation.yaw   = maths::rad_to_deg(entry->base.pos.h) + 90;
+
+	if (isExtended) {
+		vector.x = entry->ext.speed.x;
+		vector.y = entry->ext.speed.y;
+		vector.z = entry->ext.speed.z;
+
+		vector = maths::apply_matrix(&(vector), transformMatrices.VTDToSAE);
+
+		entity->velocities.x     = vector.x;
+		entity->velocities.y     = vector.y;
+		entity->velocities.z     = vector.z;
+		entity->velocities.pitch = maths::rad_to_deg(entry->ext.speed.p);
+		entity->velocities.roll  = maths::rad_to_deg(entry->ext.speed.r);
+		entity->velocities.yaw   = maths::rad_to_deg(entry->ext.speed.h) + 90;
+
+		vector.x = entry->ext.accel.x;
+		vector.y = entry->ext.accel.y;
+		vector.z = entry->ext.accel.z;
+
+		vector = maths::apply_matrix(&(vector), transformMatrices.VTDToSAE);
+
+		entity->accelerations.x     = vector.x;
+		entity->accelerations.y     = vector.y;
+		entity->accelerations.z     = vector.z;
+		entity->accelerations.pitch = maths::rad_to_deg(entry->ext.accel.p);
+		entity->accelerations.roll  = maths::rad_to_deg(entry->ext.accel.r);
+		entity->accelerations.yaw   = maths::rad_to_deg(entry->ext.accel.h) + 90;
+	}
+
+	switch (entry->base.cfgModelId) {
+		case 3:
+			entity->type = VehicleEntity::TYPE_HATCHBACK;
+			break;
+		case 5:
+		case 15:
+			entity->type = VehicleEntity::TYPE_SEDAN;
+			break;
+	}
+}
+\end{codelist}
+
+The opposite conversion (\gls{me} to \gls{vtd}) is similar.
+
 \section{Testing}\label{sc:middleware:testing}
 
 \section{Recap}\label{sc:middleware:recap}
+
+The \gls{middleware}'s requirements and matching features were presented and explained in \fref{sc:middleware:features}; its overall structure was then described in \fref{sc:middleware:structure}, by discriminating between helper namespaces, data objects, the core class, and the necessary integration class. \fref{sc:middleware:netcode} summarily details the \gls{netcode} implementation, both with \gls{os} and \software{0mq} sockets. \fref{sc:middleware:implementation} broadly explains how \gls{vtd} was integrated as a proof-of-concept. Finally, \fref{sc:middleware:testing} presented the development and testing environment, explaining why a \gls{proxy} is needed to test \software{0mq}, where it resides, and how it works.

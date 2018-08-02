@@ -22,7 +22,7 @@
 	\end{tabular*}
 	}
 
-\LISTINGSnewenv{codelist}[1]
+\LISTINGSnewenv{codelist}[2]
 	{
 	\mdframed[
 		backgroundcolor=code-grey,
@@ -31,9 +31,10 @@
 		innerbottommargin=6,
 		leftmargin=1,
 		linecolor=code-grey,
-		rightmargin=1]
-	\lstset{
-		firstnumber=#1
+		rightmargin=1,
+		frametitle=#1]
+	\LISTINGSset{
+		firstnumber=#2
 	}
 	}
 	{
