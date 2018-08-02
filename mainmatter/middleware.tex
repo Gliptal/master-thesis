@@ -517,6 +517,56 @@ The opposite conversion (\gls{me} to \gls{vtd}) is similar.
 
 \section{Testing}\label{sc:middleware:testing}
 
+Testing was done continuously during the development process, by comparing the visual rendering in \gls{me} with the traffic behaviour in \gls{vtd}. \gls{me} runs on a Windows 10 machine, whilst \gls{vtd} runs on a guest \gls{vm}: the \gls{vm} is set to obtain its own \gls{ip} from the network's \gls{dhcp} server, to separate the host and guest on the network and fully generalize the testing.
+
+\begin{image}
+	{middleware/environment}{1.0}
+	{testing environment}
+	{im:middleware:environment}
+	{}
+\end{image} % FIXME check the ports on the MSI
+
+\software{0mq} requires all the entities part of the network to implement their sockets. This becomes a problem when testing \gls{vtd} with \software{0mq}, since \gls{vtd} is closed source and does not use \software{0mq} sockets. To avoid this issue, a \gls{proxy} was coded, such that it receives/sends from \gls{vtd} on normal sockets, and forwards the \gls{payload} sending/receiving to the \gls{middleware} on \software{0mq} sockets.
+
+\subsection{The Proxy}
+
+\begin{definition}{proxy}
+\end{definition}
+
+This \gls{proxy} resides on the \gls{vm} hosting \gls{vtd}; additionally, the expected ports are modified on the \gls{middleware}'s side. This completely hides the bridge's presence to the \gls{middleware}, that has no knowledge that a \gls{proxy} is between it and \gls{vtd}.\footnote{The additional latency introduced by the \gls{proxy} is unsubstantial, see \fref{sc:performance:proxy}}.
+
+\begin{image}
+	{middleware/zmqenvironment}{1.0}
+	{\software{0mq} testing environment}
+	{im:middleware:zmqenvironment}
+	{}
+\end{image}
+
+The \gls{proxy} opens two connection "lanes", one upstream (data flowing out the \gls{vm}) and one downstream (data flowing in the \gls{vm}). It does so by creating four sockets, each of the appropriate type: \gls{os} towards \gls{vtd}, \software{0mq} towards the \gls{middleware}. It then waits for \glspl{packet} to be received from either side, and reroutes them with no modifications. The full lower level code that handles the rerouting can be found in \fref{ax:code:proxy}.
+
+\begin{codelist}{start.cpp --- main()}{12}
+int main() {
+	ZMQBridge::Bridge bridge;
+
+	bridge.open_upstream_lane();
+	bridge.open_downstream_lane();
+
+	while (true) {
+		bridge.flow_upstream();
+		bridge.flow_downstream();
+	}
+
+	bridge.close_upstream_lane();
+	bridge.close_downstream_lane();
+
+	bridge.~Bridge();
+
+	return 0;
+}
+\end{codelist}
+
+Sockets are created and handled nearly identically as seen in \fref{sc:middleware:netcode}.
+
 \section{Recap}\label{sc:middleware:recap}
 
 The \gls{middleware}'s requirements and matching features were presented and explained in \fref{sc:middleware:features}; its overall structure was then described in \fref{sc:middleware:structure}, by discriminating between helper namespaces, data objects, the core class, and the necessary integration class. \fref{sc:middleware:netcode} summarily details the \gls{netcode} implementation, both with \gls{os} and \software{0mq} sockets. \fref{sc:middleware:implementation} broadly explains how \gls{vtd} was integrated as a proof-of-concept. Finally, \fref{sc:middleware:testing} presented the development and testing environment, explaining why a \gls{proxy} is needed to test \software{0mq}, where it resides, and how it works.
