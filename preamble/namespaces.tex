@@ -88,9 +88,9 @@
 
 %% GLOSSARIES %%
 
-\let      \GLOSSARIESnamefont         \glsnamefont
+\let      \GLOSSARIESsetformat        \defglsentryfmt
+\let      \GLOSSARIESentry            \glsgenentryfmt
 \let      \GLOSSARIESreset            \glsresetall
-\let      \GLOSSARIEStextfont         \glstextformat
 \let      \GLOSSARIESload             \makeglossaries
 \let      \GLOSSARIESnewacronym       \newacronym
 \let      \GLOSSARIESnewentry         \newglossaryentry
@@ -118,6 +118,10 @@
 
 \let      \REALBOXEScolored           \Colorbox
 
+%% SILENCE %%
+
+\let      \SILENCEfilter              \WarningFilter
+
 %% TABULARX %%
 
 \let      \TABULARXpartialruler       \cmidrule
@@ -136,12 +140,12 @@
 
 \let      \TOCLOFTline                \cftdot
 
+%% URL %%
+
+\let      \URLsetstyle                \urlstyle
+
 %% XCOLOR %%
 
 \let      \XCOLORcellcolor            \cellcolor
 \let      \XCOLORcopycolor            \colorlet
 \let      \XCOLORnewcolor             \definecolor
-
-%% SILENCE %%
-
-\let      \SILENCEfilter              \WarningFilter

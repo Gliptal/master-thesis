@@ -42,8 +42,7 @@
 }
 \GLOSSARIESsetstylea{long-sc-short}
 \GLOSSARIESsetstyle{altlistgroup}
-%\renewcommand{\GLOSSARIEStextfont}[1]{\FONTslanted{#1}}
-%\renewcommand{\GLOSSARIESnamefont}[1]{\FONTsmallcaps{#1}}
+\GLOSSARIESsetformat[main]{\FONTslanted{\GLOSSARIESentry}}
 
 %% HYPERREF %%
 
@@ -66,8 +65,9 @@
 		void,
 	},
 	otherkeywords={
-		=,+,-,*,/,>,<,
-		?,&,.,->,::,:,~,
+		=,
+		%+,-,*,/,>,<,
+		&,~,
 		!,||
 	},
 	emph={
@@ -158,7 +158,11 @@
 
 %% TOCLOFT %%
 
-\renewcommand{\TOCLOFTline}{}
+\renewcommand{\cftdot}{}
+
+%% URL %%
+
+\renewcommand{\UrlFont}{\FONTmonospace\FONTsizetwo}
 
 %% XCOLOR %%
 
