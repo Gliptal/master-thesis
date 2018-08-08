@@ -148,9 +148,9 @@ Rotations are exposed as Euclidean angles. Measures are in degrees \si{\degree}.
 
 \gls{rdb} is the proprietary data format that \gls{vtd} provides and accepts to/from any \nth{3}-party software connected to its stack. It is a plain-text \enquote{vector of lists which contain each an array of entries of identical type}{\cite{software:rdbfaqs}}: the format specifies a large number of extensible data types, ranging from entitles meta-data, to their physical quantities (e.g.\ size, position, orientation), road details, sensor data, scenario state, and more.
 
-Details on how this data is formatted are of limited importance. \gls{vtd} does provide an extensive \planguage{c}/\planguage{c++} \glspl{api} to parse, read, and generate \gls{rdb} packets; this greatly eases the procedure of composing and understanding \gls{rdb} messages. The takeaway is that, given any set of raw measures, an \gls{rdb} \gls{packet} can be efficiently built with the certainty that it adheres to the standard and is accepted by \gls{vtd}.
+Details on how this data is formatted are of limited importance. \gls{vtd} does provide an extensive \planguage{c}/\planguage{c++} \glspl{api} to parse, read, and generate \gls{rdb} \glspl{packet}; this greatly eases the procedure of composing and understanding \gls{rdb} messages. The takeaway is that, given any set of raw measures, an \gls{rdb} \gls{packet} can be efficiently built with the certainty that it adheres to the standard and is accepted by \gls{vtd}.
 
-Based on the configuration parameters, \gls{rdb} packets containing specific data may be sent from \gls{vtd} to an arbitrary software residing on an \code{ip:port} over the network (data is sent from port \num{10001}). Likewise data may be sent to \gls{vtd} from an arbitrary software by connecting to \gls{vtd} on \code{ip:10000}.\footnote{Note that the port numbers presented here are not the real ones.} The frequency of the sent data can be freely varied (with a soft limit of \SI{1000}{\hertz}); \gls{vtd} on the other hand can gracefully handle any receiving rate when the synchronization is set to \code{real-time}, allowing a variable \nth{3}-party sendrate. % FIXME explain ports better
+Based on the configuration parameters, \gls{rdb} \glspl{packet} containing specific data may be sent from \gls{vtd} to an arbitrary software residing on an \code{ip:port} over the network (data is sent to port \num{28190}). Likewise data may be sent to \gls{vtd} from an arbitrary software by connecting to \gls{vtd} on \code{ip:28191}.\footnote{Note that the port numbers presented here are not the real ones.} The frequency of the sent data can be freely varied (with a soft limit of \SI{1000}{\hertz}); \gls{vtd} on the other hand can gracefully handle any receiving rate when the synchronization is set to \code{real-time}, allowing a variable \nth{3}-party sendrate. % FIXME explain ports better
 
 \input{mainmatter/tables/software/rdb}
 
@@ -197,7 +197,7 @@ Two similar types of network sockets were implemented, leveraging different libr
 
 \subsubsection{\textsc{os} Sockets}
 
-\gls{os} sockets use the built-in Windows \code{<Ws2tcpip>} libraries. These libraries provide low-level functions to open and close network sockets, compose, parse, send, and receive messages, and any helper functions required.
+\gls{os} sockets use the built-in Windows \file{<Ws2tcpip>} libraries. These libraries provide low-level functions to open and close network sockets, compose, parse, send, and receive messages, and any helper functions required.
 
 \subsubsection{0mq Sockets}
 

@@ -1,10 +1,31 @@
 \chapter{Engine Integration}\label{ch:integration}
 
+\begin{keywords}
+	me, middleware, packet, payload
+\end{keywords}
+
+As explained in \fref{sc:software:madnessengine}, the \gls{me} can be roughly divided into four tiers (or layers). A simulation tick or update can be summarized as a single loop, with all the layers exchanging data from top to bottom, until the rendering input is ready to be given to the \gls{os}. In reality, all the layers may run at different rates (fixed or variable), and each can gracefully handle unsynchronized data.
+
 \section{Approach}\label{sc:integration:approach}
 
-\section{Modularization}\label{sc:integration:modularization}
+In order to visualize the vehicle traffic simulated by the \gls{ts}, rendering it within \gls{me}'s world, custom data must be provided at one of the layers, either replacing or supplementing the already existing data. Three possible approaches are presented.
 
-\section{Refinement}\label{sc:integration:refinement}
+\begin{itemize}
+	\item \FONTbold{\acrshort{ai} splice} --- Supplying the \gls{ai} layer with custom \gls{ai} commands, basically telling the vehicles to exactly replicate their behaviour in the \gls{ts} through a set of goals and actions. Given the nature of the data received from the \gls{ts} (raw state vectors), this approach is clearly the hardest to achieve proper synchronization with: it would require abstracting the raw data to higher-level intent in real time, with little to no knowledge of what the \gls{ts} entitles goals are.
+	\item \FONTbold{physics splice} --- Replacing the \gls{ai} supplied data before it is handled by the physics layer. This requires a thorough knowledge of the physics system, since the raw data obtained from the \gls{ts} should be converted in more abstract data on which the physics responses may be calculated on.
+	\item \FONTbold{rendering splice} --- Replacing the data used by the rendering system is the easier, but most approachable solution: the raw data obtained from the \gls{ts} can be used directly (after trivial transformations), since the rendering system internally uses the same position vectors. The main drawback is that all the systems that receive data from the physics layer (e.g.\ sounds, pilot animations, car lights, advanced wheel physics) still receive their data from the original unmodified physics layer, resulting in unsynchronized states.
+\end{itemize}
+
+Due to time, support, and knowledge constraints the easier but more limited approach was chosen.
+
+\begin{image}
+	{integration/splice}{0.5}
+	{rendering splice}
+	{im:integration:splice}
+	{}
+\end{image}
+
+Sending player data to the \gls{ts} is instead straightforward: telemetry metrics about the player (update on each tick) are available at all times within \gls{me}, and basic state vectors can be easily obtained and packaged for the \gls{middleware}.
 
 \section{Limitations}\label{sc:integration:limitations}
 
