@@ -158,3 +158,46 @@ void Bridge::deliver_remote(const std::string payload) {
 #endif
 }
 \end{codelist}
+
+\section{History Matrix}\label{ax:code:historymatrix}
+
+\begin{codelist}{Traffic.hpp --- m\_trafficVehicles}{206}
+///
+/// @BRIEF  Frame history matrix for traffic vehicles.
+///
+/// This matrix contains the history of packets for each traffic vehicle. It's statically of
+///  n` rows, where `n` is the number of past history kept, and of `m` columns, where `m` is
+/// the maximum amount of traffic vehicles that can be simulated. Each column contains the
+/// data for the vehicle whose VehicleEntity#id matches the index. The first row is always
+/// the current history. Every other cell in the matrix is filled with `nullptr`.
+///
+/// For example:
+///
+/// - frame history - 2
+/// - maximum traffic - 3
+/// - simulated vehicles - 2
+///   - 1st vehicle id - 1
+///   - 2nd vehicle id - 2
+///
+/// 1st tick:
+/// | 0                | 1                | 2                |
+/// | :--------------: | :--------------: | :--------------: |
+/// | nullptr          | 1st Vehicle      | 1st Vehicle      |
+/// | nullptr          | nullptr          | nullptr          |
+///
+/// 2nd tick:
+/// | 0                | 1                | 2                |
+/// | :--------------: | :--------------: | :--------------: |
+/// | nullptr          | 2nd Vehicle      | 2nd Vehicle      |
+/// | nullptr          | 1st Vehicle      | 1st Vehicle      |
+///
+/// 3rd tick:
+/// | 0                | 1                | 2                |
+/// | :--------------: | :--------------: | :--------------: |
+/// | nullptr          | 3rd Vehicle      | 3rd Vehicle      |
+/// | nullptr          | 2nd Vehicle      | 2nd Vehicle      |
+///
+/// @NOTE  Since  0  is reserved for player packets, that column is always filled with  nullptr .
+///
+static Vehicle* m_trafficVehicles[IOTECH_TRAFFIC_DATA_HISTORY][IOTECH_TRAFFIC_MAX_VEHICLES];
+\end{codelist}

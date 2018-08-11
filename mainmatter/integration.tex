@@ -27,6 +27,214 @@ Due to time, support, and knowledge constraints the easier but more limited appr
 
 Sending player data to the \gls{ts} is instead straightforward: telemetry metrics about the player (update on each tick) are available at all times within \gls{me}, and basic state vectors can be easily obtained and packaged for the \gls{middleware}.
 
+\section{Traffic Module}\label{sc:integration:trafficmodule}
+
+The integrating code is entirely contained in a separate \gls{me} module, with only the necessary modifications made directly on the rendering module. The methods exposed by this traffic module are then called appropriately to obtain the data required for correct rendering.
+
+\begin{image}
+	{integration/flow}{0.6}
+	{traffic module flow}
+	{im:integration:flow}
+	{}
+\end{image}
+
+\subsubsection{Aids}
+
+To aid in the process, a custom \code{Vehicle} extends the \gls{middleware}'s \code{VehicleEntity} class. This allows the encapsulation of all those methods, data, and matrices that are required to convert from the \gls{middleware}'s to \gls{me}'s format and back.\footnote{All of the following code snippets are removed of their comments and documentation.}
+
+\begin{codelist}{Vehicle.hpp}{51}
+class Vehicle : public UDPConnector::VehicleEntity {
+public:
+	enum ROLE_e {
+		ROLE_PLAYER = 0,
+		ROLE_TRAFFIC
+	};
+
+	struct Vectors_t {
+		nsMaths::BVec3f location;
+		nsMaths::BVec3f orientation;
+		nsMaths::BVec3f velocity;
+		nsMaths::BVec3f acceleration;
+
+		nsMaths::BVec4f wheelPosition[MAX_WHEELS];
+		nsMaths::BQuatf wheelRotation[MAX_WHEELS];
+	} vectors;
+
+	Vehicle();
+	explicit Vehicle(const UDPConnector::VehicleEntity);
+	explicit Vehicle(const Vehicle, const Vehicle);
+
+	bool convert_vehicle_to_entity(const MWL::PhysicsMetrics*, const transformMatrix);
+	bool convert_entity_to_vehicle(const UDPConnector::VehicleEntity*, const transformMatrix);
+
+	void set_entity_metadata(const uint8_t, const UDPConnector::VehicleEntity::VehicleType_e);
+	void set_entity_lights(const MWL::PhysicsMetrics* metrics, const MWL::SMS::ParticipantMemento);
+
+private:
+	struct Geometry_t {
+		float axle;
+		float wheelbase;
+		float wheelRadius;
+	};
+
+	struct Geometries_t {
+		Geometry_t sedan = {1.630f, 2.900f, 0.340f};
+	} geometries;
+
+	void set_wheel_position(const int);
+	void set_wheel_rotation(const int);
+
+	void set_entity_vector(UDPConnector::maths::Vector_t*, const nsMaths::BVec3f*, const transformMatrix);
+	void set_vehicle_vector(nsMaths::BVec3f*, const UDPConnector::maths::Vector_t*, const transformMatrix);
+};
+\end{codelist}
+
+An history matrix is used to hold the data about the traffic entities received from the \gls{ts}. Depending on the value of \code{IOTECH_TRAFFIC_DATA_HISTORY}, this matrix may either keep only the latest received \code{Vehicle}(s), or keep an history of past \code{Vehicle}(s) up to a specified number of past receivals.\footnote{Currently, only no history or one past receival are implemented}
+
+\begin{codelist}{Traffic.hpp --- m\_trafficVehicles}{241}
+	static Vehicle* m_trafficVehicles[IOTECH_TRAFFIC_DATA_HISTORY][IOTECH_TRAFFIC_MAX_VEHICLES];
+\end{codelist}
+
+See \fref{ax:code:historymatrix} for an explanation of how the history matrix works and an example of the documentation.
+
+\subsubsection{Initialization}
+
+Instantiating the traffic module generates a new \gls{middleware} \code{UDPConnector} object, that will handle all the communication with the external \gls{ts}. Once instantiated, the module is initialized by opening the required connections with the \gls{ts} (either receive only, or both send and receive). Note that this module (and by extension, \gls{me}) has no knowledge on what sockets or network protocol is used to obtain and send the data: only the \glspl{ip} of the machines hosting \gls{me} and the \gls{ts}, and the respective process ports are required.
+
+\begin{codelist}{Traffic.cpp --- init()}{73}
+void Traffic::init(const INIT_RESOURCE_e resource) {
+    switch (resource) {
+        case INIT_NONE:
+            break;
+        case INIT_RX:
+            m_connector->open_RX_connection(UDPCONNECTOR_VTD_DEFAULT_RX_IP, UDPCONNECTOR_VTD_DEFAULT_RX_PORT);
+            break;
+        case INIT_BOTH:
+        default:
+            m_connector->open_RX_connection(UDPCONNECTOR_VTD_DEFAULT_RX_IP, UDPCONNECTOR_VTD_DEFAULT_RX_PORT);
+            m_connector->open_TX_connection(UDPCONNECTOR_VTD_DEFAULT_TX_IP, UDPCONNECTOR_VTD_DEFAULT_TX_PORT);
+            break;
+    }
+}
+\end{codelist}
+
+\subsubsection{Update}
+
+\begin{image}
+	{integration/update}{1.0}
+	{traffic module update}
+	{im:integration:update}
+	{draft=false}
+\end{image}
+
+An \code{update()} function handles everything required to update the data about all the \gls{ts} entities. Each time it's called, the player data is first sent to the \gls{ts}, and then the traffic data from the \gls{ts} is handled:
+
+\begin{itemize}
+	\item data about the player car is taken from \gls{me}'s metrics (through the \code{ParticipantConstPtr} and \code{ParticipantMemento} objects), and converted into the format required by the \gls{middleware};
+	\item an \code{std::vector} of \code{TrafficEntity} with the \code{VehicleEntity} representing the \gls{me} player is used to prepare the payload;
+	\item the packet is sent to the \gls{ts}.
+	\item a packet is received from the \gls{ts};
+	\item the payload is converted into appropriate \code{TrafficEntity}, and of those the data about the player is filtered (since the \gls{ts} may send it back any other generic entity);
+	\item for every \code{TrafficEntity}, its data is converted into the format required by \gls{me};
+	\item the resulting \code{Vehicle} is appropriately placed into the history matrix.
+\end{itemize}
+
+\begin{codelist}{Traffic.cpp --- update()}{88}
+void Traffic::update(const MWL::SMS::ParticipantConstPtr participant, const MWL::SMS::ParticipantMemento memento) {
+    PhysicsMetrics* metrics = participant->GI()->GetRenderTimePhysicsMetrics();
+    if (!metrics) {
+        return;
+    }
+
+    UDPConnector::VehicleEntity* playerEntity = new Vehicle();
+
+    ((Vehicle*) playerEntity)->convert_vehicle_to_entity(metrics, transformMatrices.METoSAE);
+    ((Vehicle*) playerEntity)->set_entity_metadata(Vehicle::ROLE_PLAYER, Vehicle::TYPE_SEDAN);
+    ((Vehicle*) playerEntity)->set_entity_lights(metrics, memento);
+
+    std::vector<UDPConnector::TrafficEntity*> entitiesTX;
+    entitiesTX.push_back(playerEntity);
+
+    if (m_connector->prepare_TX_payload(entitiesTX)) {
+        m_connector->send_packet();
+    }
+
+    entitiesTX.clear();
+    entitiesTX.shrink_to_fit();
+    delete playerEntity;
+
+    if (m_connector->receive_packet()) {
+#if IOTECH_TRAFFIC_DATA_HISTORY >= 2
+        m_isNewTrafficVehicles = true;
+#endif
+
+        std::vector<UDPConnector::TrafficEntity*> allEntities     = m_connector->handle_RX_payload();
+        std::vector<UDPConnector::VehicleEntity*> vehicleEntities = filter_AI_vehicles(allEntities);
+
+        for (std::vector<UDPConnector::VehicleEntity*>::iterator iter = vehicleEntities.begin(); iter != vehicleEntities.end(); iter++) {
+            Vehicle* vehicle = new Vehicle(**iter);
+
+            vehicle->convert_entity_to_vehicle(*iter, transformMatrices.SAEToME);
+
+#if IOTECH_TRAFFIC_DATA_HISTORY >= 2
+            if (!is_no_history(vehicle->id)) {
+                delete m_trafficVehicles[1][vehicle->id];
+            }
+            m_trafficVehicles[1][vehicle->id] = m_trafficVehicles[0][vehicle->id];
+#endif
+            m_trafficVehicles[0][vehicle->id] = vehicle;
+        }
+    }
+}
+\end{codelist}
+
+\subsubsection{Getting the Vehicle}
+
+Once the network has been polled, the history matrix may have been updated with new \code{Vehicle}(s), or the older \code{Vehicle}(s) may be still there (depending on the differences in \gls{me}'s tickrate and the \gls{ts}'s sendrate). Obtaining the latest possible vehicle changes depending on the value of \code{IOTECH_TRAFFIC_DATA_HISTORY}. With \num{1} the history matrix keeps only one instance for each entity at all times, so that instance is returned; with \num{2} (or possibly more) a variable helps in taking into account whether the most recent \code{Vehicle} comes from the \gls{ts} or from extrapolation. If the former, then \code{m_isNewTrafficVehicles} is set to \code{false}, to signal that subsequent calls without a successful network poll require extrapolation; if the latter, then a "ghost" \code{Vehicle} is extrapolated and the history matrix is updated accordingly by bumping down the other \code{Vehicle}(s).
+
+\begin{codelist}{Traffic.hpp --- get\_latest\_vehicle()}{135}
+Vehicle* Traffic::get_latest_vehicle(const int vehicleId) {
+#if IOTECH_TRAFFIC_DATA_HISTORY >= 2
+    if (m_isNewTrafficVehicles || is_no_history(vehicleId)) {
+        m_isNewTrafficVehicles = false;
+    } else {
+        Vehicle* ioVehicle = new Vehicle(*(m_trafficVehicles[0][vehicleId]), *(m_trafficVehicles[1][vehicleId]));
+
+        delete m_trafficVehicles[1][vehicleId];
+        m_trafficVehicles[1][vehicleId] = m_trafficVehicles[0][vehicleId];
+        m_trafficVehicles[0][vehicleId] = ioVehicle;
+    }
+#endif
+
+    return m_trafficVehicles[0][vehicleId];
+}
+\end{codelist}
+
+\subsubsection{Extrapolation}
+
+When \code{IOTECH_TRAFFIC_DATA_HISTORY} is set to \num{2} or more, extrapolation is made available for rendering purposes. If the \gls{ts} sendrate is less than \gls{me}'s tickrate, an entity may be rendered in the same state multiple times, since a packet with the updated data hasn't been received yet. In this case, a "ghost" \code{Vehicle} is generated by extrapolating from the \code{Vehicle}(s) in the history matrix.
+
+The calculations themselves are made by taking the current and previous \code{Vehicle}, and instantiating a third \code{Vechicle} by extrapolating possible future position vectors. Only location vectors are extrapolated: orientation, velocity, and acceleration are set at the current values. See \fref{ax:math:extrapolation} for the mathematics behind the extrapolation algorithm.
+
+\begin{codelist}{Vehicle.cpp --- Vehicle()}{56}
+Vehicle::Vehicle(const Vehicle current, const Vehicle old) {
+    id         = current.id;
+    type       = current.type;
+    components = current.components;
+
+    vectors.location = current.vectors.location + ((current.vectors.location - old.vectors.location) * 0.3f);
+
+    vectors.orientation  = current.vectors.orientation;
+    vectors.velocity     = current.vectors.velocity;
+    vectors.acceleration = current.vectors.acceleration;
+
+    for (int wheel = 0; wheel < MAX_WHEELS; wheel++) {
+        vectors.wheelPosition[wheel] = current.vectors.wheelPosition[wheel];
+        vectors.wheelRotation[wheel] = current.vectors.wheelRotation[wheel];
+    }
+}
+\end{codelist}
+
 \section{Limitations}\label{sc:integration:limitations}
 
 \section{Recap}\label{sc:integration:recap}
