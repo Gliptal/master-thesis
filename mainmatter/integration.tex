@@ -235,6 +235,102 @@ Vehicle::Vehicle(const Vehicle current, const Vehicle old) {
 }
 \end{codelist}
 
+\section{Rendering Code}\label{sc:integration:renderingcode}
+
+In \gls{me}, a vehicle entity is a subclass of \code{ParticipantAI}: this is the class used as the container for all the modifications to the rendering layer.
+
+An instance of the traffic module is instantiated when loading \gls{me}.
+
+\begin{codelist}{Participant.cpp --- ParticipantAI()}{662}
+#ifndef IOTECH_OFF
+	m_ioTraffic = new IOTECH::Traffic::Traffic();
+	m_ioTraffic->init(IOTECH::Traffic::Traffic::INIT_BOTH);
+#endif
+\end{codelist}
+
+\gls{me} internally calls the \code{Update()} method of any \code{ParticipantAI} on each simulation tick: the Traffic module is thus updated each time this method is called (by the player's car only).
+
+\begin{codelist}{Participant.cpp --- Update()}{2107}
+#ifndef IOTECH_OFF
+	if (getMemento().mYype == ParticipantMemento::ePlayer) {
+		const ParticipantConstPtr pViewedParticipant(gParticipants.GetPlayerParticipantConstPtr());
+		m_ioTraffic->update(pViewedParticipant, GetMemento());
+	}
+#endif
+\end{codelist}
+
+The \code{FeedTheBridge()} method collects the required raw data to be sent to the rendering low-level functions. Since only the \gls{ai} entities are received from the \gls{ts}, whilst the player is handled entirely by \gls{me}, the override must only be done if the rendered car is not the player's, and data about the non-player car is available in the history matrix.
+
+\begin{codelist}{Participant.cpp --- FeedTheBridge()}{2647}
+#ifndef IOTECH_OFF
+	bool ioIsOverriding = false;
+
+	IOTECH::Traffic::Vehicle* ioVehicle;
+
+	if (GetMemento().mType != ParticipantMemento::ePlayer) {
+		if (m_ioTraffic->is_packet_available(GetParticipantID().GetID())) {
+			ioIsOverriding = true;
+			ioVehicle = m_ioTraffic->get_latest_vehicle(GetParticipantID().GetID());
+		}
+	}
+
+	if (ioIsOverriding) {
+		nsMaths::BQuatf ioRotationQuat;
+		ioRotationQuat.FromEuler(ioVehicle->vectors.orientation.x, ioVehicle->vectors.orientation.y, ioVehicle->vectors.orientation.z);
+
+		theBridge.AddToUpdate(0, ioVehicle->vectors.location, false);
+		theBridge.AddToUpdate(0, ioVehicle->vectors.velocity, false);
+		theBridge.AddToUpdate(0, ioVehicle->vectors.acceleration, false);
+		theBridge.AddToUpdate(0, mPhysicsMetrics.mLocalVel, false);
+		theBridge.AddToUpdate(0, mPhysicsMetrics.mLocalAccel, false);
+		theBridge.AddToUpdate(0, ioRotationQuat, true);
+		theBridge.AddToUpdate(0, mPhysicsMetrics.mAngularVelocity, false);
+	}
+	else {
+		theBridge.AddToUpdate(0, mPhysicsMetrics.mPosition + mRenderOffset, false);
+		theBridge.AddToUpdate(0, mPhysicsMetrics.mVelocity, false);
+		theBridge.AddToUpdate(0, mPhysicsMetrics.mAcceleration, false);
+		theBridge.AddToUpdate(0, mPhysicsMetrics.mLocalVel, false);
+		theBridge.AddToUpdate(0, mPhysicsMetrics.mLocalAccel, false);
+		theBridge.AddToUpdate(0, mPhysicsMetrics.mOrientationQuat, true);
+		theBridge.AddToUpdate(0, mPhysicsMetrics.mAngularVelocity, false);
+	}
+#else
+\end{codelist}
+
+\begin{codelist}{Participant.cpp --- FeedTheBridge()}{2774}
+#ifndef IOTECH_OFF
+	if (ioIsOverriding) {
+		for (u32 wheel = 0; wheel < MAX_WHEELS; wheel++) {
+			theBridge.AddToUpdate(0, static_cast<BReal>(mPhysicsMetrics.mWheelTerrainValid[wheel] ? Rv(1.0) : Rv(0.0)));
+			theBridge.AddToUpdate(0, ioVehicle->vectors.location, false);
+
+			theBridge.AddToUpdate(0, ioVehicle->vectors.wheelRotation[wheel], true);
+			theBridge.AddToUpdate(0, ioVehicle->vectors.wheelPosition[wheel], false);
+			theBridge.AddToUpdate(0, ioVehicle->vectors.wheelRotation[wheel], true);
+			theBridge.AddToUpdate(0, ioVehicle->vectors.wheelRotation[wheel], true);
+
+			theBridge.AddToUpdate(0, ioVehicle->vectors.location, false);
+		}
+	}
+	else {
+		for (u32 wheel = 0; wheel < MAX_WHEELS; wheel++) {
+			theBridge.AddToUpdate(0, static_cast<BReal>(mPhysicsMetrics.mWheelTerrainValid[wheel] ? Rv(1.0) : Rv(0.0)));
+			theBridge.AddToUpdate(0, mPhysicsMetrics.mWheelTerrainPos[wheel], false);
+
+			theBridge.AddToUpdate(0, mPhysicsMetrics.mWheelOrientationQuat[wheel], true);
+			theBridge.AddToUpdate(0, mPhysicsMetrics.mWheelSteeringMatrix[wheel].t, false);
+			theBridge.AddToUpdate(0, mPhysicsMetrics.mWheelSteeringOrientationQuat[wheel], true);
+			theBridge.AddToUpdate(0, mPhysicsMetrics.mWheelPitchLocalOrientationQuat[wheel], true);
+
+			theBridge.AddToUpdate(0, mPhysicsMetrics.mWheelPosition[wheel], false);
+		}
+	}
+#else
+\end{codelist}
+
+All the code modifications made on the rendering module are guarded by preprocessor definitions, to allow an easy exclusion of the additional code. Adding \code{IOTECH_OFF} to the defined preprocessor words compiles without any of the integration additions, for testing and comparison purposes.
+
 \section{Limitations}\label{sc:integration:limitations}
 
 \section{Recap}\label{sc:integration:recap}
