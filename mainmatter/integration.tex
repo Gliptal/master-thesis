@@ -333,4 +333,15 @@ All the code modifications made on the rendering module are guarded by preproces
 
 \section{Limitations}\label{sc:integration:limitations}
 
+As mentioned in \fref{sc:integration:approach}, splicing at render time has a number of limitations, some major. All the following apply to non-player vehicles only.
+
+\begin{itemize}
+	\item \FONTbold{Sound} --- Sounds are played based on the data received by the physics layer. No easy way of overriding this behaviour was found.
+	\item \FONTbold{Lights} --- The vehicle lights (brakes especially) are not synchronized with the rendered behaviour from the \gls{ts}, since they are activated by acceleration and braking inputs provided by the physics layer.
+	\item \FONTbold{Collisions} --- Collisions are also handled by the physics layers, hence the rendered vehicles lack a collision model with the player, between themselves, or the scenery. The latter two though can be handled by the \gls{ts}, since a collision there is synchronized with an appropriate state vectors change in \gls{me}.
+	\item \FONTbold{Tires} --- Tires are handled separately from the rest of the vehicle model in \gls{me}, to allow for advanced behaviour and rendering. Although simple position vectors can be supplied, other properties like spin, relative offsets (e.g.\ suspensions), deformation, and more are all handled by the physics layer. Tire spinning was nonetheless added, by adding packets history at \gls{me}'s level.
+\end{itemize}
+
 \section{Recap}\label{sc:integration:recap}
+
+In \fref{sc:integration:approach} three different options to integrate a \gls{ts} in \gls{me} were listed: based on the constraints put on this project, and the pros of each option, a render-time splice was chosen. \fref{sc:integration:trafficmodule} details how the \gls{middleware} was used to create a traffic module within \gls{me}, and how that is in turn integrated within the engine's rendering code. Related, \fref{sc:integration:renderingcode} roughly describes how the module is integrated into \gls{me}'s own code. \fref{sc:integration:limitations} finally broadly lists the main limitations of the chose approach, due to the physics layer not being affected by the modifications.
