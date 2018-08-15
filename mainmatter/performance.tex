@@ -15,6 +15,8 @@ Hardware, graphics settings, and scene are identical for all of the performance 
 \begin{definition}{framerate}
 \end{definition}
 
+\input{mainmatter/tables/performance/framerate}
+
 \gls{me}'s \gls{framerate} is analysed, since the user's visual experience depends on it. Higher \glspl{framerate} are obviously better: the minimum acceptable \gls{framerate} is around \SI{30}{\fps}, with \SI{60}{\fps} or more being optimal on the more common \SI{60}{\hertz} monitors. %FIXME units with fps
 
 A game engine's \gls{framerate} depends on a large number of conditions, mainly graphics settings, how busy the scene is, underlying \gls{os} usage, hardware availability, and network issues. Generally speaking, better frames are achieved by:
@@ -27,10 +29,18 @@ A game engine's \gls{framerate} depends on a large number of conditions, mainly 
 	\item \FONTbold{stable network} --- Low latency, no or minimal packet loss.
 \end{itemize}
 
-Measures were obtained with the benchmark feature of \software{Fraps} $3.5.99$. For each configuration (\gls{os} sockets, \software{0mq} sockets, unmodified \gls{me}) the measures were repeated \num{20} times, obtaining the minimum, maximum, and average \gls{fps} values; each of these $3\times3=9$ values was then averaged, and a \num{0,999} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
+Measures were obtained with the benchmark feature of \software{Fraps} $3.5.99$. For each configuration (\gls{os} sockets, \software{0mq} sockets, unmodified \gls{me}) the measures were repeated \num{20} times (\SI{30}{\second} per run), obtaining three quantities:
+
+\begin{itemize}
+	\item \FONTbold{minimum} --- The minimum \gls{fps} reached during the \SI{30}{\second} run.
+	\item \FONTbold{maximum} --- The maximum \gls{fps} reached during the \SI{30}{\second} run.
+	\item \FONTbold{average} --- The average \gls{fps} of the \SI{30}{\second} run.
+\end{itemize}
+
+\FLOATnoindent Each of these $3\times3=9$ values was then averaged, and a \num{0,999} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
 
 \begin{image}
-	{performance/framerate}{1.0}
+	{performance/framerate}{0.6}
 	{framerate results}
 	{im:performance:framerate}
 	{draft=false}
@@ -41,6 +51,48 @@ The tests show no appreciable difference in performance between \gls{os} sockets
 In conclusion, \software{0mq} sockets do provide slightly better average performance than \gls{os} sockets; minimum and maximum \gls{fps} are not affected.
 
 \section{Network}\label{sc:performance:network}
+
+\begin{definition}{netcode}
+\end{definition}
+
+\input{mainmatter/tables/performance/network}
+
+Data about network performance (the \gls{netcode}) is also collected. In a realistic working environment, \gls{me} and the \gls{ts} would most probably reside on a high-speed, dedicated wired connection. As such, performance measures like ping and packet loss are not collected: both depend heavily on the network infrastructure, so any results would not be easily transferable to real life situations.
+
+Collection and basic analysis were done with the statistics feature of \software{Wireshark} $2.6.1$. As with \fref{sc:performance:framerate} for each configuration (\gls{os} sockets, \software{0mq} sockets, unmodified \gls{me}) the measures were repeated \num{20} times (\SI{30}{\second} per run),to obtain three quantities:
+
+\begin{itemize}
+	\item \FONTbold{packets per second} --- The average number of packets that each second insists on the channel (i.e.\ sent and received by both \gls{me} and \gls{vtd}).
+	\item \FONTbold{load per second} --- The average amount of data that each second insists on the channel (i.e.\ sent and received by both \gls{me} and \gls{vtd}).
+	\item \FONTbold{total load} --- The total amount of data exchanged between \gls{me} and \gls{vtd} in the whole duration of the run (\SI{30}{\second}).
+\end{itemize}
+
+\FLOATnoindent Each of these $3\times2=6$ values was then averaged, and a \num{0,999} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
+
+\begin{image}
+	{performance/networkfrequency}{0.6}
+	{network results (packet frequency)}
+	{im:performance:networkfrequency}
+	{draft=false}
+\end{image}
+
+\begin{image}
+	{performance/networkdata}{0.6}
+	{network results (data frequency)}
+	{im:performance:networkdata}
+	{draft=false}
+\end{image}
+
+\begin{image}
+	{performance/networkload}{0.6}
+	{network results (total data)}
+	{im:performance:networkload}
+	{draft=false}
+\end{image}
+
+As expected, total load and data frequency are identical, when taking into account the confidence intervals. This is because the bulk of the packets is formed by the payload: the data is relatively heavy due to the lack of encoding, hence the protocol's overhead bytes are mostly irrelevant. Packet frequency is instead completely different, due to the different protocols used. \gls{os} sockets with \gls{udp} only send about \SI{341}{\packets\per\second}, whilst \software{0mq} sockets with \gls{tcp} send twice that amount: \gls{tcp} (and in part \software{0mq}'s overhead) require small acknowledgement packets to be exchanged during the communication.\footnote{Note that all the results heavily depend on the sendrates: trivially, the higher, the more packets and data are exchanged.}
+
+To conclude the network analysis, \gls{os} sockets only have an advantage in the packets frequency. Given the dedicated nature of the network infrastructure that is usually utilized in these projects, this advantage is hardly relevant: \software{0mq} thus shows it has no negative impact on network performance.
 
 \section{Hardware}\label{sc:performance:hardware}
 
