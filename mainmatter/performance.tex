@@ -1,6 +1,44 @@
 \chapter{Performance Analysis}\label{ch:performance}
 
+\begin{keywords}
+	me, vtd
+\end{keywords}
+
+The two following chapters are devoted to analysing the differences in performance and coding between the \gls{os} sockets and \software{0mq} sockets approach. The goal is to provide a consistent and valid set of data, that can be used to empower proper decision making, by weighting the pros and cons of each of the two approaches. As such measures are repeated multiple times in identical conditions, to obtain datasets with proper confidence levels.
+
+Hardware, graphics settings, and scene are identical for all of the performance tests: the simulation is ran on the test 8-track, with \num{1} player, \num{2} \gls{ai} vehicles controlled by \gls{vtd}, a variable \gls{me} \gls{sendrate} (dependent on the \gls{framerate}), and a \SI{120}{\hertz} \gls{vtd} \gls{sendrate}. See \fref{tb:performance:hardware} for the hardware specifications.
+
+\input{mainmatter/tables/performance/hardware}
+
 \section{Framerate}\label{sc:performance:framerate}
+
+\begin{definition}{framerate}
+\end{definition}
+
+\gls{me}'s \gls{framerate} is analysed, since the user's visual experience depends on it. Higher \glspl{framerate} are obviously better: the minimum acceptable \gls{framerate} is around \SI{30}{\fps}, with \SI{60}{\fps} or more being optimal on the more common \SI{60}{\hertz} monitors. %FIXME units with fps
+
+A game engine's \gls{framerate} depends on a large number of conditions, mainly graphics settings, how busy the scene is, underlying \gls{os} usage, hardware availability, and network issues. Generally speaking, better frames are achieved by:
+
+\begin{itemize}
+	\item \FONTbold{low graphics settings} --- Lower rendering resolution ($1080p$ or less), low quality/amount of \gls{fx}, basic shaders, no reflections, reduced \gls{pp} effects like \gls{dof}, blur, bloom, no \gls{aa} techniques.
+	\item \FONTbold{sparse scenes} --- Scenes with less and/or more simple objects, like buildings, vehicles, or drivers.
+	\item \FONTbold{idle \gls{os}} --- None or limited \gls{os} processes running in the background and utilizing the available hardware.
+	\item \FONTbold{high-end hardware} --- High-clock \glspl{cpu}\footnote{Note that for game engines higher single core clock is usually more important than high thread counts.}, high-end gaming \glspl{gpu}, large (\SI{32}{\giga\byte} or more) amounts of fast \gls{ram}, \glspl{ssd} as opposed to \glspl{hdd}.
+	\item \FONTbold{stable network} --- Low latency, no or minimal packet loss.
+\end{itemize}
+
+Measures were obtained with the benchmark feature of \software{Fraps} $3.5.99$. For each configuration (\gls{os} sockets, \software{0mq} sockets, unmodified \gls{me}) the measures were repeated \num{20} times, obtaining the minimum, maximum, and average \gls{fps} values; each of these $3\times3=9$ values was then averaged, and a \num{0,999} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
+
+\begin{image}
+	{performance/framerate}{1.0}
+	{framerate results}
+	{im:performance:framerate}
+	{draft=false}
+\end{image} % TODO finish collecting FPS data
+
+The tests show no appreciable difference in performance between \gls{os} sockets and \software{0mq} sockets. Maximum is \SI{143}{\fps} for both, with only a higher variability in the \software{0mq} case ($\pm$\SI{1,75}{\fps} as opposed to \SI{0,38}{\fps}). Minimum shows again a much greater variability for \software{0mq} ($\pm$\SI{6,66}{\fps}): with \SI{99,9}{\percent} confidence it can be assumed the minimums \gls{fps} are the same. Average \gls{framerate} displays more interesting results: \software{0mq} sockets are better performing by a very small margin, between \SI{0,10}{\fps} and \SI{7,90}{\fps} taking into account the confidence intervals.
+
+In conclusion, \software{0mq} sockets do provide slightly better average performance than \gls{os} sockets; minimum and maximum \gls{fps} are not affected.
 
 \section{Network}\label{sc:performance:network}
 

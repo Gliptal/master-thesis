@@ -27,7 +27,7 @@ Data about the traffic entities flows from \gls{vtd} to the \gls{middleware} in 
 
 This feedback loop is repeated continuously for the entire duration of the simulation. The right-to-left flow moves the "ego" car within the traffic simulation, allowing its entities to react in real time; the left-to-right flow allows \gls{me} to render the traffic entities on screen, displaying them to the end-user. Time and spatial synchronization issues are omitted in this simplified description, details can be found in \fref{sc:integration:approach}. % FIXME check correct ref
 
-This structure is akin to a client-server paradigm: here the client is \gls{me}, and the server is \gls{vtd}\footnote{This distinction is purely arbitrary, since it is a 1:1 communication loop.}. \Glspl{sendrate} and \glspl{tickrate} are not synchronized: both software are running at their own simulation paces; \gls{vtd}'s sendrate is fully configurable; \gls{me}'s sendrate is equal to its framerate.
+This structure is akin to a client-server paradigm: here the client is \gls{me}, and the server is \gls{vtd}\footnote{This distinction is purely arbitrary, since it is a 1:1 communication loop.}. \Glspl{sendrate} and \glspl{tickrate} are not synchronized: both software are running at their own simulation paces; \gls{vtd}'s \gls{sendrate} is fully configurable; \gls{me}'s \gls{sendrate} is equal to its framerate.
 
 \section{Madness Engine}\label{sc:software:madnessengine}
 
@@ -150,7 +150,7 @@ Rotations are exposed as Euclidean angles. Measures are in degrees \si{\degree}.
 
 Details on how this data is formatted are of limited importance. \gls{vtd} does provide an extensive \planguage{c}/\planguage{c++} \glspl{api} to parse, read, and generate \gls{rdb} \glspl{packet}; this greatly eases the procedure of composing and understanding \gls{rdb} messages. The takeaway is that, given any set of raw measures, an \gls{rdb} \gls{packet} can be efficiently built with the certainty that it adheres to the standard and is accepted by \gls{vtd}.
 
-Based on the configuration parameters, \gls{rdb} \glspl{packet} containing specific data may be sent from \gls{vtd} to an arbitrary software residing on an \code{ip:port} over the network (data is sent to port \num{28190}). Likewise data may be sent to \gls{vtd} from an arbitrary software by connecting to \gls{vtd} on \code{ip:28191}.\footnote{Note that the port numbers presented here are not the real ones.} The frequency of the sent data can be freely varied (with a soft limit of \SI{1000}{\hertz}); \gls{vtd} on the other hand can gracefully handle any receiving rate when the synchronization is set to \code{real-time}, allowing a variable \nth{3}-party sendrate. % FIXME explain ports better
+Based on the configuration parameters, \gls{rdb} \glspl{packet} containing specific data may be sent from \gls{vtd} to an arbitrary software residing on an \code{ip:port} over the network (data is sent to port \num{28190}). Likewise data may be sent to \gls{vtd} from an arbitrary software by connecting to \gls{vtd} on \code{ip:28191}.\footnote{Note that the port numbers presented here are not the real ones.} The frequency of the sent data can be freely varied (with a soft limit of \SI{1000}{\hertz}); \gls{vtd} on the other hand can gracefully handle any receiving rate when the synchronization is set to \code{real-time}, allowing a variable \nth{3}-party \gls{sendrate}. % FIXME explain ports better
 
 \input{mainmatter/tables/software/rdb}
 
