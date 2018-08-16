@@ -1,11 +1,11 @@
 \begin{table}[!ht]
 	\centering
-    \begin{tabular}{lllll}
-    	\TABLEmulticolumn{1}{c}{\acrshort{os}} & \TABLEmulticolumn{1}{c}{\acrshort{cpu}} & \TABLEmulticolumn{1}{c}{\acrshort{ram}} & \TABLEmulticolumn{1}{c}{disk drive} & \TABLEmulticolumn{1}{c}{\acrshort{gpu}} \\
-		\TABLEmidruler
-        Windows 10 Home & Intel i7-6820HK & \SI{32}{\giga\byte} \SI{2.4}{\giga\hertz} & \SI{1}{\tera\byte} \acrshort{hdd} & GeForce GTX 1080 (\SI{8}{\giga\byte}) \\
-        \TABLEbottomruler
+    \begin{tabular}{l|l}
+        hardware & Windows 10 Home, Intel i7-6820HK, 32GB 2.4GHz, 1TB HDD, GeForce GTX 1080 (8GB) \\
+		source & Windows Performance Monitor \\
+		conditions & 10 runs (20s), 1 player + 2 AIs, variable / 120Hz \\
+		confidence & 0,950 \\
     \end{tabular}
 
-    \caption{testing hardware}\label{tb:performance:hardware}
+    \caption{hardware testing environment}\label{tb:performance:hardware}
 \end{table}

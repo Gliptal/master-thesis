@@ -8,7 +8,7 @@ The two following chapters are devoted to analysing the differences in performan
 
 Hardware, graphics settings, and scene are identical for all of the performance tests: the simulation is ran on the test 8-track, with \num{1} player, \num{2} \gls{ai} vehicles controlled by \gls{vtd}, a variable \gls{me} \gls{sendrate} (dependent on the \gls{framerate}), and a \SI{120}{\hertz} \gls{vtd} \gls{sendrate}. See \fref{tb:performance:hardware} for the hardware specifications.
 
-\input{mainmatter/tables/performance/hardware}
+\input{mainmatter/tables/performance/specifications}
 
 \section{Framerate}\label{sc:performance:framerate}
 
@@ -43,10 +43,10 @@ Measures were obtained with the benchmark feature of \software{Fraps} $3.5.99$. 
 	{performance/framerate}{0.6}
 	{framerate results}
 	{im:performance:framerate}
-	{draft=false}
+	{}
 \end{image} % TODO finish collecting FPS data
 
-The tests show no appreciable difference in performance between \gls{os} sockets and \software{0mq} sockets. Maximum is \SI{143}{\fps} for both, with only a higher variability in the \software{0mq} case ($\pm$\SI{1,75}{\fps} as opposed to \SI{0,38}{\fps}). Minimum shows again a much greater variability for \software{0mq} ($\pm$\SI{6,66}{\fps}): with \SI{99,9}{\percent} confidence it can be assumed the minimums \gls{fps} are the same. Average \gls{framerate} displays more interesting results: \software{0mq} sockets are better performing by a very small margin, between \SI{0,10}{\fps} and \SI{7,90}{\fps} taking into account the confidence intervals.
+The tests show no appreciable difference in performance between \gls{os} sockets and \software{0mq} sockets. Maximum is \SI{143}{\fps} for both, with only a higher variability in the \software{0mq} case ($\pm$\SI{1,8}{\fps} as opposed to \SI{0,38}{\fps}). Minimum shows again a much greater variability for \software{0mq} ($\pm$\SI{6,7}{\fps}): with \SI{99,9}{\percent} confidence it can be assumed the minimums \gls{fps} are the same. Average \gls{framerate} displays more interesting results: \software{0mq} sockets are better performing by a very small margin, between \SI{0,10}{\fps} and \SI{7,90}{\fps} taking into account the confidence intervals.
 
 In conclusion, \software{0mq} sockets do provide slightly better average performance than \gls{os} sockets; minimum and maximum \gls{fps} are not affected.
 
@@ -73,21 +73,21 @@ Collection and basic analysis were done with the statistics feature of \software
 	{performance/networkfrequency}{0.6}
 	{network results (packet frequency)}
 	{im:performance:networkfrequency}
-	{draft=false}
+	{}
 \end{image}
 
 \begin{image}
 	{performance/networkdata}{0.6}
 	{network results (data frequency)}
 	{im:performance:networkdata}
-	{draft=false}
+	{}
 \end{image}
 
 \begin{image}
 	{performance/networkload}{0.6}
 	{network results (total data)}
 	{im:performance:networkload}
-	{draft=false}
+	{}
 \end{image}
 
 As expected, total load and data frequency are identical, when taking into account the confidence intervals. This is because the bulk of the packets is formed by the payload: the data is relatively heavy due to the lack of encoding, hence the protocol's overhead bytes are mostly irrelevant. Packet frequency is instead completely different, due to the different protocols used. \gls{os} sockets with \gls{udp} only send about \SI{341}{\packets\per\second}, whilst \software{0mq} sockets with \gls{tcp} send twice that amount: \gls{tcp} (and in part \software{0mq}'s overhead) require small acknowledgement packets to be exchanged during the communication.\footnote{Note that all the results heavily depend on the sendrates: trivially, the higher, the more packets and data are exchanged.}
@@ -95,6 +95,39 @@ As expected, total load and data frequency are identical, when taking into accou
 To conclude the network analysis, \gls{os} sockets only have an advantage in the packets frequency. Given the dedicated nature of the network infrastructure that is usually utilized in these projects, this advantage is hardly relevant: \software{0mq} thus shows it has no negative impact on network performance.
 
 \section{Hardware}\label{sc:performance:hardware}
+
+\input{mainmatter/tables/performance/hardware}
+
+Hardware performance is also collected, to analyse which between \gls{os} or \software{0mq} sockets has the higher impact on \gls{cpu} and \gls{ram} usage. The same values were also taken with the unmodified \gls{me}, to obtain a baseline and see if the \gls{middleware} has any impact on resource usage.
+
+Data was obtained with Windows' built-in performance monitor features. To ensure as best as possible independent subsequent runs, both \gls{me} and \gls{vtd} were restarted each time; additionally, instead of absolute \gls{ram} values relative deltas are used. Four quantities per \gls{middleware} configuration are measured:
+
+\begin{itemize}
+	\item \FONTbold{minimum \gls{cpu}} --- The minimum overall \gls{cpu} usage reached during the \SI{20}{\second} run.
+	\item \FONTbold{maximum \gls{cpu}} --- The maximum overall \gls{cpu} usage reached during the \SI{20}{\second} run.
+	\item \FONTbold{average \gls{cpu}} --- The average overall \gls{cpu} usage of the \SI{20}{\second} run.
+	\item \FONTbold{\gls{ram} delta} --- The difference in used \gls{ram} between the moment the run starts and the moment it ends.
+\end{itemize}
+
+\FLOATnoindent Each of these $4\times3=12$ values was then averaged, and a \num{0,950} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
+
+\begin{image}
+	{performance/hardwarecpu}{0.6}
+	{hardware results (\gls{cpu} usage)}
+	{im:performance:hardwarecpu}
+	{}
+\end{image}
+
+\begin{image}
+	{performance/hardwareram}{0.6}
+	{hardware results (\gls{ram} usage)}
+	{im:performance:hardwareram}
+	{}
+\end{image}
+
+Again, taking into account the confidence intervals, the \gls{middleware} with the \gls{os} sockets implementation has no impact on four out of five quantities: only the average \gls{cpu} usage shows a minimal impact. Interestingly, the \software{0mq} sockets implementation has a relevant effect on \gls{cpu} usage: between an \SI{4,8}{\percent} and \SI{19}{\percent} increase in maximum load; between an \SI{6,5}{\percent} and \SI{12}{\percent} increase in minimum load; between an \SI{5,4}{\percent} and \SI{13}{\percent} increase in average load. This is probably due to the additional overhead introduced by \software{0mq}'s high level functions, and the additional packets required by the \gls{tcp} protocol and \software{0mq}'s \FONTsmallcaps{pub/sub} model. \gls{ram} delta variability is too high to appreciate any changes between the implementations.
+
+When hardware usage is concerned, \gls{os} sockets have a significant advantage over \software{0mq}, with lower all-around hardware usage. It must be noted though that the higher hardware usage does not translate in lower \gls{me} performance (see \fref{sc:performance:framerate}): hypothetically, this should hold true until \gls{me}'e performance is not \gls{cpu} bound.
 
 \section{Proxy}\label{sc:performance:proxy}
 
