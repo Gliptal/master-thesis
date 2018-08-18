@@ -40,7 +40,7 @@ Measures were obtained with the benchmark feature of \software{Fraps} $3.5.99$. 
 \FLOATnoindent Each of these $3\times3=9$ values was then averaged, and a \num{0,999} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
 
 \begin{image}
-	{performance/framerate}{0.6}
+	{performance/framerate}{0.7}
 	{framerate results}
 	{im:performance:framerate}
 	{}
@@ -70,21 +70,21 @@ Collection and basic analysis were done with the statistics feature of \software
 \FLOATnoindent Each of these $3\times2=6$ values was then averaged, and a \num{0,999} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
 
 \begin{image}
-	{performance/networkfrequency}{0.6}
+	{performance/networkfrequency}{0.7}
 	{network results (packet frequency)}
 	{im:performance:networkfrequency}
 	{}
 \end{image}
 
 \begin{image}
-	{performance/networkdata}{0.6}
+	{performance/networkdata}{0.7}
 	{network results (data frequency)}
 	{im:performance:networkdata}
 	{}
 \end{image}
 
 \begin{image}
-	{performance/networkload}{0.6}
+	{performance/networkload}{0.7}
 	{network results (total data)}
 	{im:performance:networkload}
 	{}
@@ -112,14 +112,14 @@ Data was obtained with Windows' built-in performance monitor features. To ensure
 \FLOATnoindent Each of these $4\times3=12$ values was then averaged, and a \num{0,950} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
 
 \begin{image}
-	{performance/hardwarecpu}{0.6}
+	{performance/hardwarecpu}{0.7}
 	{hardware results (\gls{cpu} usage)}
 	{im:performance:hardwarecpu}
 	{}
 \end{image}
 
 \begin{image}
-	{performance/hardwareram}{0.6}
+	{performance/hardwareram}{0.7}
 	{hardware results (\gls{ram} usage)}
 	{im:performance:hardwareram}
 	{}
@@ -130,6 +130,88 @@ Again, taking into account the confidence intervals, the \gls{middleware} with t
 When hardware usage is concerned, \gls{os} sockets have a significant advantage over \software{0mq}, with lower all-around hardware usage. It must be noted though that the higher hardware usage does not translate in lower \gls{me} performance (see \fref{sc:performance:framerate}): hypothetically, this should hold true until \gls{me}'e performance is not \gls{cpu} bound.
 
 \section{Proxy}\label{sc:performance:proxy}
+
+\input{mainmatter/tables/performance/proxy}
+
+To ensure the \gls{proxy} has no noticeable ill effects in testing \software{0mq} sockets, the amount of time a packet spends in the \gls{proxy} has been measured. These are more precisely three measures: the minimum, maximum, and average time passed between the moment a packet is received by the \gls{proxy}, and the moment that same packet is sent. \planguage{c}'s \code{clock()} function is used to calculate this time delta: a basic \code{Evaluator} namespace was coded for this purpose. See \fref{ax:code:proxy} to see where its functions are used in the proxy code (lines \num{167} and \num{203}).
+
+\begin{codelist}{Evaluator.cpp}{10}
+namespace ZMQBridge {
+
+clock_t Evaluator::m_timeIn;
+clock_t Evaluator::m_timeOut;
+
+std::vector<float> Evaluator::m_deltas;
+
+std::ofstream Evaluator::m_file;
+
+void Evaluator::start() {
+    m_timeIn = clock();
+}
+
+void Evaluator::end() {
+    m_timeOut = clock();
+}
+
+void Evaluator::compute_delta() {
+    m_deltas.push_back(((float) (m_timeOut - m_timeIn)) / CLOCKS_PER_SEC);
+}
+
+void Evaluator::log_data() {
+    m_file.open("perf.csv", std::ios::out | std::ios::app);
+
+    if (m_file.is_open()) {
+        m_file << "delta\n"
+               << std::fixed;
+
+        for (std::vector<float>::const_iterator iter = m_deltas.begin(); iter != m_deltas.end(); iter++) {
+            m_file << *iter << "\n";
+        }
+    }
+
+    m_file.close();
+}
+
+}
+\end{codelist}
+
+\FLOATnoindent Each of these \num{3} values was then averaged, and a \num{0,950} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
+
+\begin{image}
+	{performance/proxy}{0.7}
+	{proxy results}
+	{im:performance:proxy}
+	{}
+\end{image}
+
+Even at its maximum value, the time a packet spends in the proxy is only between \SI{0,834}{\milli\second} and \SI{1,614}{\milli\second} (keeping into account the confidence range around the \SI{1,224}{\milli\second} value). Average is much smaller still (\SI{0,136}{\milli\second} $\pm$ \SI{0,103}{\milli\second}). To understand what this delay means to the user on \gls{me}'s side, the impact the proxy has on correct frame pacing is analysed. Frame pacing is the time that passes between two consecutive frames, and is generally tied to \gls{framerate}: that is, assuming frames are spaced evenly (which is often not the case in real-life engines), frame spacing may be calculated by dividing a second by the \gls{fps}.
+
+\begin{image}
+	{performance/proxyspacing}{0.7}
+	{\gls{framerate} pacing}
+	{im:performance:proxyspacing}
+	{draft=false}
+\end{image}
+
+In \fref{im:performance:proxylandscape} the \gls{framerate} and dwell time are plotted (respectively the \code{x} and \code{y} axis), and the resulting coloured landscape represents the frame delay (in percentage of a single frame) introduced by the proxy. The lines represent increments of \SI{5}{\percent}, and the more the colour is saturated the higher the percentage. Clearly, higher percentages (more delay) happen with high proxy dwell times, and high \gls{framerate} (i.e.\ low frame times); also, higher proxy dwell times have a broader variation in frame delay along the possible \gls{framerate}, \SI{0}{\percent} to \SI{40}{\percent} as opposed to \SI{0}{\percent} to \SI{20}{\percent} in the lower dwell time. The dwell times analysed are those within the maximum dwell time confidence interval.
+
+\begin{image}
+	{performance/proxylandscape}{1.0}
+	{frame delay landscape}
+	{im:performance:proxylandscape}
+	{draft=false}
+\end{image}
+
+"Slicing" this landscape through a specific \gls{framerate} can more clearly show the frame delay behaviour across the proxy dwell time interval: \fref{im:performance:proxyslice} shows such a slice on the average \gls{framerate} (see \fref{sc:performance:framerate}). The relationship is linear, but with the real average framerate found during testing even at maximum dwell times the frame delay is of only \SI{20}{\percent}.
+
+\begin{image}
+	{performance/proxyslice}{0.7}
+	{average \gls{framerate} slice}
+	{im:performance:proxyslice}
+	{draft=false}
+\end{image}
+
+In conclusion, the proxy has little to no impact on the system, up to \SI{20}{\percent} of a frame, so the tests and analyses made on \software{0mq} sockets are not invalidated by the inability to properly modify \gls{vtd} to integrate \software{0mq}.
 
 \section{Results}\label{sc:performance:results}
 
