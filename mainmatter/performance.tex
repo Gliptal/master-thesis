@@ -17,7 +17,7 @@ Hardware, graphics settings, and scene are identical for all of the performance 
 
 \input{mainmatter/tables/performance/framerate}
 
-\gls{me}'s \gls{framerate} is analysed, since the user's visual experience depends on it. Higher \glspl{framerate} are obviously better: the minimum acceptable \gls{framerate} is around \SI{30}{\fps}, with \SI{60}{\fps} or more being optimal on the more common \SI{60}{\hertz} monitors. %FIXME units with fps
+\gls{me}'s \gls{framerate} is analysed, since the user's visual experience depends on it. Higher \glspl{framerate} are obviously better: the minimum acceptable \gls{framerate} is around \SI{30}{\fps}, with \SI{60}{\fps} or more being optimal on the more common \SI{60}{\hertz} monitors.
 
 A game engine's \gls{framerate} depends on a large number of conditions, mainly graphics settings, how busy the scene is, underlying \gls{os} usage, hardware availability, and network issues. Generally speaking, better frames are achieved by:
 
@@ -125,7 +125,7 @@ Data was obtained with Windows' built-in performance monitor features. To ensure
 	{}
 \end{image}
 
-Again, taking into account the confidence intervals, the \gls{middleware} with the \gls{os} sockets implementation has no impact on four out of five quantities: only the average \gls{cpu} usage shows a minimal impact. Interestingly, the \software{0mq} sockets implementation has a relevant effect on \gls{cpu} usage: between an \SI{4,8}{\percent} and \SI{19}{\percent} increase in maximum load; between an \SI{6,5}{\percent} and \SI{12}{\percent} increase in minimum load; between an \SI{5,4}{\percent} and \SI{13}{\percent} increase in average load. This is probably due to the additional overhead introduced by \software{0mq}'s high level functions, and the additional packets required by the \gls{tcp} protocol and \software{0mq}'s \FONTsmallcaps{pub/sub} model. \gls{ram} delta variability is too high to appreciate any changes between the implementations.
+Again, taking into account the confidence intervals, the \gls{middleware} with the \gls{os} sockets implementation has no impact on four out of five quantities: only the average \gls{cpu} usage shows a minimal impact. Interestingly, the \software{0mq} sockets implementation has a relevant effect on \gls{cpu} usage: between a \SI{6,5}{\percent} and \SI{12}{\percent} increase in minimum load; between a \SI{4,8}{\percent} and \SI{19}{\percent} increase in maximum load; between a \SI{5,4}{\percent} and \SI{13}{\percent} increase in average load. This is probably due to the additional overhead introduced by \software{0mq}'s high level functions, and the additional packets required by the \gls{tcp} protocol and \software{0mq}'s \FONTsmallcaps{pub/sub} model. \gls{ram} delta variability is too high to appreciate any changes between the implementations.
 
 When hardware usage is concerned, \gls{os} sockets have a significant advantage over \software{0mq}, with lower all-around hardware usage. It must be noted though that the higher hardware usage does not translate in lower \gls{me} performance (see \fref{sc:performance:framerate}): hypothetically, this should hold true until \gls{me}'e performance is not \gls{cpu} bound.
 
@@ -215,4 +215,14 @@ In conclusion, the proxy has little to no impact on the system, up to \SI{20}{\p
 
 \section{Results}\label{sc:performance:results}
 
+What follows is a recap of the test results. The main focus is \gls{os} sockets versus \software{0mq} sockets, and the advantages and drawbacks of each solution: the results are summarized in \fref{tb:performance:results}.
+
+\input{mainmatter/tables/performance/results}
+
+The advantage in rate (i.e. \si{\packets\per\second}) is intrinsic in the \gls{tcp} protocol available in \software{0mq}, but has a limited impact in a real-life enterprise environment, where network connections are mostly fault-proof and high-speed. The framerate average is very lightly skewed in \software{0mq}'s favour, in any case not pushing the framerate above any relevant value (like \SI{120}{\fps} or \SI{144}{\fps} for higher refresh rate monitors). The real difference is in hardware usage, although with no actual impact on performance. Provided the system running \gls{me} is not \gls{cpu} bounded, the advantages of \gls{os} sockets are numerical only: framerate is not affected.
+
+All in all, it is fair to deem the performance to be largely equal between \gls{os} sockets and \software{0mq} sockets: the advantages one has on the other are either small, or not impactful in a real life scenario. Performance not being the choosing point, code ease and complications will be analysed next.
+
 \section{Recap}\label{sc:performance:recap}
+
+This chapter has been devoted to the analysis of the performance of a number of elements in the system. It was found that neither \gls{os} sockets or \software{0mq} sockets have a noticeable impact in \gls{me} in \fref{sc:performance:framerate}, although they show some key differences mainly in networking and \gls{cpu} usage (\fref{sc:performance:network} and \fref{sc:performance:hardware}). The proxy allowing the \software{0mq} solution to work was also shown to be unimpactful on the rest of the performance (\fref{sc:performance:proxy}).
