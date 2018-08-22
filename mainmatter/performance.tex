@@ -190,7 +190,7 @@ Even at its maximum value, the time a packet spends in the proxy is only between
 	{performance/proxyspacing}{0.7}
 	{\gls{framerate} pacing}
 	{im:performance:proxyspacing}
-	{draft=false}
+	{}
 \end{image}
 
 In \fref{im:performance:proxylandscape} the \gls{framerate} and dwell time are plotted (respectively the \code{x} and \code{y} axis), and the resulting coloured landscape represents the frame delay (in percentage of a single frame) introduced by the proxy. The lines represent increments of \SI{5}{\percent}, and the more the colour is saturated the higher the percentage. Clearly, higher percentages (more delay) happen with high proxy dwell times, and high \gls{framerate} (i.e.\ low frame times); also, higher proxy dwell times have a broader variation in frame delay along the possible \gls{framerate}, \SI{0}{\percent} to \SI{40}{\percent} as opposed to \SI{0}{\percent} to \SI{20}{\percent} in the lower dwell time. The dwell times analysed are those within the maximum dwell time confidence interval.
@@ -199,7 +199,7 @@ In \fref{im:performance:proxylandscape} the \gls{framerate} and dwell time are p
 	{performance/proxylandscape}{1.0}
 	{frame delay landscape}
 	{im:performance:proxylandscape}
-	{draft=false}
+	{}
 \end{image}
 
 "Slicing" this landscape through a specific \gls{framerate} can more clearly show the frame delay behaviour across the proxy dwell time interval: \fref{im:performance:proxyslice} shows such a slice on the average \gls{framerate} (see \fref{sc:performance:framerate}). The relationship is linear, but with the real average framerate found during testing even at maximum dwell times the frame delay is of only \SI{20}{\percent}.
@@ -208,7 +208,7 @@ In \fref{im:performance:proxylandscape} the \gls{framerate} and dwell time are p
 	{performance/proxyslice}{0.7}
 	{average \gls{framerate} slice}
 	{im:performance:proxyslice}
-	{draft=false}
+	{}
 \end{image}
 
 In conclusion, the proxy has little to no impact on the system, up to \SI{20}{\percent} of a frame, so the tests and analyses made on \software{0mq} sockets are not invalidated by the inability to properly modify \gls{vtd} to integrate \software{0mq}.

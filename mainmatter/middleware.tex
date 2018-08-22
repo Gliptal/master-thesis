@@ -120,7 +120,7 @@ The netcode is fully handled by the core \code{UDPConnector} class: more specifi
 
 Note that all the following code snippets have comments, debugging, and cross-compiler options removed for functional clarity. See \fref{ax:code:netcode} for an example of unmodified code.
 
-\subsection{\FONTsmallcaps{os} Sockets}
+\subsection{OS Sockets}
 
 Windows \gls{os} sockets are provided by the \file{<Ws2tcpip.h>} standard \planguage{c} header. Socket references are saved in \code{int} variables, that represent a file descriptor for that specific socket.
 
@@ -334,7 +334,7 @@ bool UDPConnector::send_packet() {
 }
 \end{codelist}
 
-\section{\FONTsmallcaps{vtd} Implementation}\label{sc:middleware:implementation}
+\section{VTD Implementation}\label{sc:middleware:implementation}
 
 For testing purposes and as a proof-of-concept, the implementation of \gls{vtd} was coded during the development of the \gls{middleware}.
 
