@@ -1,27 +1,25 @@
-\chapter{Feasibility Analysis}\label{ch:feasibility}
+\chapter{State of the Art}\label{ch:stateoftheart} % CONTENT how can I connect this directly to the thesis? maybe it's better to just keep it incidental
 
 \begin{keywords}
 	attribute, easiness, feasibility, feature, framework, practicability
 \end{keywords}
 
-This chapter describes the analysis performed on behalf of \gls{unitn} on some of the main competitors in the driving simulator market. Informed decision may then be made with regards to which simulation \gls{framework} might best suit the ongoing research projects: more specifically, the results show the reasons behind the internship collaboration with \gls{sms}.
+This chapter describes the analysis performed on behalf of \gls{unitn} on some of the main competitors in the driving simulator market. Informed decision may then be made with regards to which simulation \gls{framework} might best suit the ongoing research projects. The work on the \gls{middleware} stems from a specific feature of the ones presented ("traffic"), specifically developed on \software{Project Cars}, but with any other \gls{framework} in mind; as such, this chapter is only tangentially related with the focus of the thesis, and serves as an introduction on how the requirements for the \gls{middleware} came to be.
 
-\fref{sc:feasibility:features} lists and describes the set of \glspl{feature} required by \gls{unitn} to deem the simulator feature-complete. \fref{sc:feasibility:frameworks} lists and describes a number of existing simulation \glspl{framework}, analysing the main advantages and shortcomings of each. \fref{sc:feasibility:comparison} compares the various \glspl{framework} by scoring two \glspl{attribute} for each \gls{feature}, providing an overall weighted score used to numerically compare the different \glspl{framework}.
+\fref{sc:stateoftheart:features} lists and describes the set of \glspl{feature} required by \gls{unitn} to deem the project feature-complete. \fref{sc:stateoftheart:frameworks} lists and describes a number of existing simulation \glspl{framework}, analysing the main advantages and shortcomings of each. \fref{sc:stateoftheart:comparison} compares the various \glspl{framework} by scoring two \glspl{attribute} for each \gls{feature}, providing an overall weighted score used to numerically compare the different \glspl{framework}.
 
 The following analysis was written without taking into account the information and experience collected during the collaboration with \company{ioTech}.
 
-\section{Features}\label{sc:feasibility:features}
+\section{Features}\label{sc:stateoftheart:features}
 
 \begin{definition}{feature}
 \end{definition}
 
-In the scope of feasibility analysis, detailing specific \glspl{feature} eases the comparison between the different \glspl{framework}.
+In the scope of state of the art analysis, detailing specific \glspl{feature} eases the comparison between the different \glspl{framework}. Note that there is no requirement that any of these \glspl{feature} be developed from the ground-up, and/or in-house: a valid alternative might be to integrate pre-existing solutions in the \gls{framework}.
 
-\Glspl{feature} are separated based on their domain, either software or hardware; in each section, the \glspl{feature} are listed in order of importance. An associated weight $w$ is also given to every \gls{feature}\footnote{$w \in \MATHSrationals: 0 \leqslant w \leqslant 1$} (see \cref{tb:feasibility:weights}), as to numerically quantify the relative importance of each: this weight is then used when comparing the various \glspl{framework} in \fref{sc:feasibility:comparison}. The values were chosen in accordance with \gls{unitn} requirements, based on their current and future research projects.
+\Glspl{feature} are separated based on their domain, either software or hardware; in each section, the \glspl{feature} are listed in order of perceived importance. An associated weight $w$ is also given to every \gls{feature}\footnote{$w \in \MATHSrationals: 0 < w \leqslant 1$} (see \cref{tb:stateoftheart:weights}), as to numerically quantify the relative importance of each: this weight is then used when comparing the various \glspl{framework} in \fref{sc:stateoftheart:comparison}. The values are arbitrarily chosen in accordance with \gls{unitn} requirements, based on their current and future research projects.
 
-Note that there is no requirement that any of these \glspl{feature} be developed from the ground-up, and in-house: a valid alternative might be to integrate pre-existing solutions in the \gls{framework}.
-
-\input{mainmatter/tables/feasibility/weights}
+\input{mainmatter/tables/stateoftheart/weights}
 
 \subsection{Software}
 
@@ -108,12 +106,12 @@ A number of technologies make this possible, normally cantered around a motor th
 	\item Specific signals may be translated into matching low frequency sounds, that then drive a weighted motor: this may give remarkably precise and distinct rumbling effects.~\cite{feasibility:buttkicker}
 \end{itemize}
 
-\section{Frameworks}\label{sc:feasibility:frameworks}
+\section{Frameworks}\label{sc:stateoftheart:frameworks}
 
 \begin{definition}{framework}
 \end{definition}
 
-The simulation software listed here can all be considered \glspl{framework} due to their general capability of being modified (at different depth levels) by the user.
+The simulation software listed here can all be considered \glspl{framework} due to their general capability of being modified (at different depth levels) by the user, and are considered as such.
 
 \subsubsection{OpenDS}
 
@@ -135,7 +133,7 @@ The simulation software listed here can all be considered \glspl{framework} due 
 
 \software{OpenDS} also provides high-level analysis and scenery creation tools, geared towards evaluating the performance of a driver in an arbitrary driving scenario. It thus lacks an accurate simulation of both the behaviour of the car, and the physical interactions it may have with the surrounding environment.
 
-Six different purchase tiers are available, ranging from a \SI{99}{\$} "Student" option to a \SI{3150}{\$} "Pro Complete \FONTsmallcaps{ce}" option: notably, only the latter pricier tier includes the automated scenery generation tools. As such, the analysis of this \gls{framework} in \fref{sc:feasibility:comparison} is based on the "Pro Complete \FONTsmallcaps{ce}" tier.
+Six different purchase tiers are available, ranging from a \SI{99}{\$} "Student" option to a \SI{3150}{\$} "Pro Complete \FONTsmallcaps{ce}" option: notably, only the latter pricier tier includes the automated scenery generation tools. As such, the analysis of this \gls{framework} in \fref{sc:stateoftheart:comparison} is based on the "Pro Complete \FONTsmallcaps{ce}" tier.
 
 \subsubsection{VDrift}
 
@@ -143,12 +141,12 @@ Six different purchase tiers are available, ranging from a \SI{99}{\$} "Student"
     VDrift is a cross-platform, open source driving simulation made with drift racing in mind.
 \end{excerpt}
 
-\software{VDrift} is centred around simulation-grade driving physics. Unlike \software{OpenDS} the focus is on racing and proper physics simulation, with little to no effort put into systems and analysis. Features of interest are limited:
+\software{VDrift} is centred around simulation-grade driving physics. Unlike \software{OpenDS} the focus is on racing and proper physics simulation, with little to no effort put into systems and analysis. Features of interest are limited to:
 
 \begin{itemize}
-	\item numerous tracks and vehicles
-    \item limited racing \gls{ai}
-    \item limited \gls{ff} support
+	\item numerous tracks and vehicles;
+    \item limited racing \gls{ai};
+    \item limited \gls{ff} support.
 \end{itemize}
 
 Additionally, the last release dates back to \printdate{2014-10-20}, with slow development times, and a small number of contributors.
@@ -174,11 +172,11 @@ Three monthly subscription tiers are available, ranging from a free "Personal" o
 \software{Panthera} is a full-stack, modular software suite by \company{Cruden}; initially tailored for in-house \gls{hil} and \gls{sil} solutions, it has been since ported as a stand-alone desktop simulator. It \enquote{uses high-end physics and \CHARomissis\ It contains controllers for motion platforms, steering feedback, pedals, dashboard, audio etc.\ as well as a scripting engine to define and customize the simulation.}{\cite{feasibility:panthera}} More specifically it includes:
 
 \begin{itemize}
-	\item a generic interface that allows custom built simulation models
-    \item interfaces for scenarios and traffic
-    \item extensive output hardware customization
-    \item a dedicated tire simulation
-    \item \gls{hil} and \gls{sil} support
+	\item a generic interface that allows custom built simulation models;
+    \item interfaces for scenarios and traffic;
+    \item extensive output hardware customization;
+    \item a dedicated tire simulation;
+    \item \gls{hil} and \gls{sil} support.
 \end{itemize}
 
 Visuals are unmatched by any other professional engineering simulation available. It is unclear whether \gls{vr} support is available or not: a reference is made about \enquote{\glspl{hmd} [being] a factor in our next Panthera Free simulator software upgrade}{\cite{feasibility:pantheravr}}, but no mention can be found in the features lists; it is apparent though that \gls{vr} can be supported by the rendering engine.
@@ -206,9 +204,9 @@ SCANeR studio is a complete software tool meeting all the challenges of driving 
 \software{SCANeR} is a modular simulation \gls{framework} that provides dedicated \glspl{gui} to create, alter, or configure its different parts; visual and audio rendering are basic, following a "function before form" paradigm. Relevant \glspl{feature} are:
 
 \begin{itemize}
-	\item dynamic traffic and pedestrians
-    \item tunable vehicle model
-    \item \texttt{XML}-based scenario creation
+	\item dynamic traffic and pedestrians;
+    \item tunable vehicle model;
+    \item \texttt{XML}-based scenario creation.
 \end{itemize}
 
 Available information of the full set of capabilities is limited; the strong focus on the \gls{gui} of the sales pitch though seems to imply limited expandability out of the scope of what the original developers intended. Development might be forced to occur not on the source code of the software itself, but rather on a limited set of \glspl{api} or on separate parsers and configurators.
@@ -226,17 +224,17 @@ Whether for occupational therapy assessment and rehabilitation, driver training,
 The possibilities of meaningfully extending the \gls{framework} seem limited by the scenario-centred list~\cite{feasibility:stisimdrivefeatures} of capabilities, that contains no mentions to peripherals, physics simulation and interaction, on-board systems, or smart sensors:
 
 \begin{itemize}
-	\item proprietary scenario definition language
-    \item modular programming
-    \item realistic roadway environments
-    \item data collection and analysis
+	\item proprietary scenario definition language;
+    \item modular programming;
+    \item realistic roadway environments;
+    \item data collection and analysis.
 \end{itemize}
 
 Minor importance is clearly given to the realism of the physical simulation, the quality of the graphics and audio, and the integration with input and output peripherals.
 
 No pricing is publicly listed, although numerous pre-built solutions are proposed by the developing company, in the form of bundles of software and hardware.
 
-\section{Comparison}\label{sc:feasibility:comparison}
+\section{Comparison}\label{sc:stateoftheart:comparison}
 
 \subsection{Attributes}
 
@@ -252,9 +250,9 @@ For example, a framework with a large number of \glspl{api} but limited access t
 
 \subsection{Scoring}
 
-Scoring is based on both objective and subjective observations on the capabilities and tools of the analysed \gls{framework}. A score between $1$ and $5$ is given to the \gls{practicability} ($s_p$) and \gls{easiness} ($s_e$) \gls{attribute} of each \gls{feature}: \cref{tb:feasibility:scoring} lists these scores.
+Scoring is based on both objective and subjective observations on the capabilities and tools of the analysed \gls{framework}. A score between \num{1} and \num{5} is given to the \gls{practicability} ($s_p$) and \gls{easiness} ($s_e$) \gls{attribute} of each \gls{feature}: \cref{tb:stateoftheart:scoring} lists these scores.
 
-\input{mainmatter/tables/feasibility/scoring}
+\input{mainmatter/tables/stateoftheart/scoring}
 
 \subsection{Analysis}
 
@@ -263,28 +261,28 @@ To aid in the ordering of \glspl{framework}, a third \gls{attribute} ($s_f$) is 
 \begin{definition}{feasibility}
 \end{definition}
 
-Weighing allows importance to be shifted between \gls{practicability} and \gls{easiness}.\footnote{See \fref{ax:math:feasibility} for the mathematical description of the function.} Additionally, an overall score ($s$) is given to each \gls{framework} by applying a weighted mean to the \gls{feasibility} values\footnote{See \fref{ax:math:mean} for the mathematical description of the function.}: see \fref{sc:feasibility:features} for the weights of the \glspl{feature}.
+Weighing allows importance to be shifted between \gls{practicability} and \gls{easiness}.\footnote{See \fref{ax:math:feasibility} for the mathematical description of the function.} Additionally, an overall score ($s$) is given to each \gls{framework} by applying a weighted mean to the \gls{feasibility} values\footnote{See \fref{ax:math:mean} for the mathematical description of the function.}: see \fref{sc:stateoftheart:features} for the weights of the \glspl{feature}.
 
 Three different rankings are provided, each in order of overall score (from the best to the worst):
 
 \begin{itemize}
-	\item in \cref{tb:feasibility:equal} equal weight is given to \gls{practicability} ($0.5$) and \gls{easiness} ($0.5$);
-    \item in \cref{tb:feasibility:practicability} larger importance is given to \gls{practicability} ($0.7$) than \gls{easiness} ($0.3$), highlighting those \glspl{framework} that would best provide a complete implementation of the simulator;
-    \item in \cref{tb:feasibility:easiness} larger importance is instead given to \gls{easiness} ($0.7$) than \gls{practicability} ($0.3$), highlighting those \glspl{framework} that would best provide easier to use tools and faster development times.
+	\item in \cref{tb:stateoftheart:equal} equal weight is given to \gls{practicability} (\num{0,5}) and \gls{easiness} (\num{0,5});
+    \item in \cref{tb:stateoftheart:practicability} larger importance is given to \gls{practicability} (\num{0,7}) than \gls{easiness} (\num{0,3}), highlighting those \glspl{framework} that would best provide a complete implementation of the simulator;
+    \item in \cref{tb:stateoftheart:easiness} larger importance is instead given to \gls{easiness} (\num{0,7}) than \gls{practicability} (\num{0,3}), highlighting those \glspl{framework} that would best provide easier to use tools and faster development times.
 \end{itemize}
 
-\input{mainmatter/tables/feasibility/analysis}
+\input{mainmatter/tables/stateoftheart/analysis}
 
-As expected, \software{Unity} scores the highest (the only \gls{framework} to score above $4.0$ across all analyses) when the \gls{feasibility} score is calculated with a \gls{practicability} bias: this reflects its highly adaptive and extensible nature, it being a generic game engine and not a pre-existing driving simulation engine. At the same time though, \software{Unity} scores poorly ($3.2$) when importance is given to easiness, due to the lack of high-level \glspl{api} and the need to build the simulator from the ground up.
+As expected, \software{Unity} scores the highest (the only \gls{framework} to score above \num{4,0} across all analyses) when the \gls{feasibility} score is calculated with a \gls{practicability} bias: this reflects its highly adaptive and extensible nature, it being a generic game engine and not a pre-existing driving simulation engine. At the same time though, \software{Unity} scores poorly (\num{3,2}) when importance is given to easiness, due to the lack of high-level \glspl{api} and the need to build the simulator from the ground up.
 
-At $4.0$ and $3.8$ respectively \software{Panthera} and \software{Project Cars} are close seconds in the \gls{practicability} bias classification, also scoring the highest ($3.5$ both) when \gls{easiness} is concerned: the availability of high-level \glspl{api}, along with the pre-existing implementation of a number of highly weighted \glspl{feature} make for an ideal combination.
+At \num{4,0} and \num{3,8} respectively \software{Panthera} and \software{Project Cars} are close seconds in the \gls{practicability} bias classification, also scoring the highest (\num{3,5} both) when \gls{easiness} is concerned: the availability of high-level \glspl{api}, along with the pre-existing implementation of a number of highly weighted \glspl{feature} make for an ideal combination.
 
-\software{Panthera}, \software{Project Cars}, and \software{Unity} are the highest scorers $3.7$ when no bias is given in the \gls{feasibility} calculation, further proving their edge over the other options.
+\software{Panthera}, \software{Project Cars}, and \software{Unity} are the highest scorers \num{3,7} when no bias is given in the \gls{feasibility} calculation, further proving their edge over the other options.
 
-\software{STISIM Drive} scores low ($2.5$ or below) on all classifications, due to its lack of focus on aspects relevant to the simulator; \software{SCANeR} scores identically, although it does so due to code access concerns. \software{VDrift} on the other hand suffers its open-source nature ($2.2$ or below), with slow development times and the lack of a supporting company further undermining its possibilities.
+\software{STISIM Drive} scores low (\num{2,5} or below) on all classifications, due to its lack of focus on aspects relevant to the simulator; \software{SCANeR} scores identically, although it does so due to code access concerns. \software{VDrift} on the other hand suffers its open-source nature (\num{2,2} or below), with slow development times and the lack of a supporting company further undermining its possibilities.
 
-Both \software{Project Cars} and \software{Panthera} appear to be the ideal solutions: the choice of the former though depends on the access level to the engine, as determined by the developers \gls{sms}; the latter is a more mature and supported professional option, although with less potential capabilities. \software{Unity} becomes the third choice only if enough time and work-hours are available to develop the simulator from the outright basis: everything from the physics engine to the peripherals support will have to be coded in their entirety. \software{OpenDS} is thus the realistic third choice, in case \software{Unity} is deemed a too time-intensive solution: it scores right behind \software{Project Cars} and \software{Unity} in the non-biased calculations, and is on par with \software{Unity} w.r.t.\ \gls{easiness}. It provides high-level \glspl{api}, existing scenario building options, and basic peripherals integration; the immersion potentiality is lower though, due to the basic graphics and audio rendering.
+Both \software{Project Cars} and \software{Panthera} appear to be the ideal solutions: the choice of the former though depends on the access level to the engine, as determined by the developers \gls{sms}; the latter is a more mature and supported professional option, although with less potential capabilities. \software{Unity} becomes the third choice only if enough time and work-hours are available to develop the simulator from the outright basis: everything from the physics engine to the peripherals support will have to be coded in their entirety. \software{OpenDS} is thus the realistic third choice, in case \software{Unity} is deemed a too time-intensive solution: it scores right behind \software{Project Cars} and \software{Unity} in the non-biased calculations, and is on par with \software{Unity} w.r.t.\ \gls{easiness}. It provides high-level \glspl{api}, existing scenario building options, and basic peripherals integration; the immersion potentiality is lower though, due to the basic graphics and audio rendering. % FORMATTING this trickles in the following page, get rid of it
 
-\section{Recap}\label{sc:feasibility:recap}
+\section{Recap}\label{sc:stateoftheart:recap}
 
-In \fref{sc:feasibility:features} ten different \glspl{feature} were presented, listing all those requirements the simulator must adhere to. In \fref{sc:feasibility:frameworks} five \glspl{framework} were analysed. In \fref{sc:feasibility:comparison} the value of each \gls{framework} were quantified through weighting and means, to generate three classifications: from those, a general analysis was performed and \FONTsmallcaps{Project Cars} or \FONTsmallcaps{Panthera} were chosen as the best overall \gls{framework} for the development of the simulator, with \FONTsmallcaps{Unity} and \FONTsmallcaps{OpenDS} as the fall-back solutions.
+In \fref{sc:stateoftheart:features} ten different \glspl{feature} were presented, listing all those requirements the simulator must adhere to. In \fref{sc:stateoftheart:frameworks} five \glspl{framework} were analysed. In \fref{sc:stateoftheart:comparison} the value of each \gls{framework} were quantified through weighting and means, to generate three classifications: from those, a general analysis was performed and \software{Project Cars} or \software{Panthera} were chosen as the best overall \gls{framework} for the development of the simulator, with \software{Unity} and \software{OpenDS} as the fall-back solutions.
