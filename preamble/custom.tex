@@ -1,6 +1,6 @@
 % chktex-file 1
 
-\newcommand      {\CAPTIONadd}[1]            {\FLOATverticalspace{1ex}\FONTitalics{#1}}
+\newcommand      {\CAPTIONadd}[1]            {\FLOATverticalspace{1ex}\parbox{\linewidth}{\FONTitalics{#1}}}
 
 \newcommand      {\CHARnodot}[1]             {}
 \newcommand      {\CHARomissis}              {\FONTnormal{[\CHARdots\FONTunkern]}}
@@ -84,12 +84,13 @@
 	\enditemize
 	}
 
-\COREnewenv{image}[5]
+\COREnewenv{image}[6]
 	{
 	\begin{figure}[!ht]
 	\FLOATcenter
 	\FIGUREinclude[width=#2\FLOATtextwidth,#5]{mainmatter/images/#1.pdf}
 	\caption{#3}\label{#4}
+	\CAPTIONadd{#6}
 	}
 	{
 	\end{figure}

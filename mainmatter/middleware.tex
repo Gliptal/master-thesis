@@ -93,6 +93,7 @@ Summarily, the execution flow is as follows:
 	{\gls{middleware} execution flow}
 	{im:middleware:flow}
 	{}
+	{}
 \end{image}
 
 A destructor is also used to properly close the connections and free all the used memory. Note that there is no requirement for a 1:1 relation between \glspl{packet} sent and \glspl{packet} received: both may happen independently and at different rates.
@@ -521,6 +522,7 @@ Testing was done continuously during the development process, by comparing the v
 	{testing environment}
 	{im:middleware:environment}
 	{}
+	{}
 \end{image} % FIXME check the ports on the MSI
 
 \software{0mq} requires all the entities part of the network to implement their sockets. This becomes a problem when testing \gls{vtd} with \software{0mq}, since \gls{vtd} is closed source and does not use \software{0mq} sockets. To avoid this issue, a \gls{proxy} was coded, such that it receives/sends from \gls{vtd} on normal sockets, and forwards the \gls{payload} sending/receiving to the \gls{middleware} on \software{0mq} sockets.
@@ -536,6 +538,7 @@ This \gls{proxy} resides on the \gls{vm} hosting \gls{vtd}; additionally, the ex
 	{middleware/zmqenvironment}{1.0}
 	{\software{0mq} testing environment}
 	{im:middleware:zmqenvironment}
+	{}
 	{}
 \end{image}
 

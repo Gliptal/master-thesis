@@ -12,7 +12,7 @@ Additionally, the two socket libraries methods used to implement two distinct ve
 
 Before analysing in detail each software an overall view is presented, treating each as a black box with a specific function. The \gls{middleware} offers two functions (or a two-way function): it converts data from a proprietary format (like \gls{rdb}) to \gls{me}'s accepted format, and the opposite. Details on how it accomplishes this, how it abstracts to any possible proprietary format, and the intermediate third \gls{sae} format can be found in \fref{ch:middleware}.
 
-\input{mainmatter/tables/software/functions}
+\input{mainmatter/tables/software/inputoutputs}
 
 The overall black box structure is summarized as in \fref{im:software:structure}. The difference in implementation between \gls{os} sockets and \software{0mq} sockets is only visible after grey boxing the \gls{middleware} and \gls{vtd}, so it is omitted here.
 
@@ -21,6 +21,7 @@ The overall black box structure is summarized as in \fref{im:software:structure}
 	{overall structure}
 	{im:software:structure}
 	{}
+	{The structure in this diagram is a high-level description of the role of each element, and how these elements are connected to each other. The game engine and the middleware reside on the same host \gls{os}, since the data connections is in-memory; the traffic software and the middleware may instead reside on different host \glspl{os}, since communication is done over the network.}
 \end{image}
 
 Data about the traffic entities flows from \gls{vtd} to the \gls{middleware} in the \gls{rdb} format; their respective \code{in} and \code{out} ports are network sockets, with the two host \glspl{os} being reachable via \gls{ip} with each other. The data is converted into an \gls{me} digestible format by the \gls{middleware}, and then supplied to \gls{me}: this is actually done in-memory (the implementation of the \gls{middleware} runs within \gls{me}), hence the ports are in this case abstractions for memory management. Similarly, data about the player vehicle flows in the opposite way: \gls{me} supplies the \gls{middleware} with the data, the \gls{middleware} converts it into the \gls{rdb} format, and sends it to \gls{vtd}.
@@ -47,6 +48,7 @@ The details on how the engine operates at mid to low level are covered by \gls{n
 	{\gls{me} simulation stack}
 	{im:software:mestack}
 	{}
+	{}
 \end{image}
 
 A vague example could be that of an \gls{ai} car that wants to overtake a slower player, during a race. This would take an unknown amount of simulation tick, each flowing summarily as follows:
@@ -66,6 +68,7 @@ Although the nature of the data passed in the logic-\gls{ai} and \gls{ai}-physic
 	{software/mecoords}{1.0}
 	{\gls{me} coordinate system}
 	{im:software:mecoords}
+	{}
 	{}
 \end{image}
 
@@ -113,6 +116,7 @@ The \software{v-traffic} module specifically provides \enquote{Vehicles \FONTnor
 	{software/vtdcoords}{1.0}
 	{\gls{vtd} coordinate system}
 	{im:software:vtdcoords}
+	{}
 	{}
 \end{image}
 

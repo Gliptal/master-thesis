@@ -44,6 +44,7 @@ Measures were obtained with the benchmark feature of \software{Fraps} $3.5.99$. 
 	{framerate results}
 	{im:performance:framerate}
 	{}
+	{}
 \end{image} % TODO finish collecting FPS data
 
 The tests show no appreciable difference in performance between \gls{os} sockets and \software{0mq} sockets. Maximum is \SI{143}{\fps} for both, with only a higher variability in the \software{0mq} case ($\pm$\SI{1,8}{\fps} as opposed to \SI{0,38}{\fps}). Minimum shows again a much greater variability for \software{0mq} ($\pm$\SI{6,7}{\fps}): with \SI{99,9}{\percent} confidence it can be assumed the minimums \gls{fps} are the same. Average \gls{framerate} displays more interesting results: \software{0mq} sockets are better performing by a very small margin, between \SI{0,10}{\fps} and \SI{7,90}{\fps} taking into account the confidence intervals.
@@ -74,6 +75,7 @@ Collection and basic analysis were done with the statistics feature of \software
 	{network results (packet frequency)}
 	{im:performance:networkfrequency}
 	{}
+	{}
 \end{image}
 
 \begin{image}
@@ -81,12 +83,14 @@ Collection and basic analysis were done with the statistics feature of \software
 	{network results (data frequency)}
 	{im:performance:networkdata}
 	{}
+	{}
 \end{image}
 
 \begin{image}
 	{performance/networkload}{0.7}
 	{network results (total data)}
 	{im:performance:networkload}
+	{}
 	{}
 \end{image}
 
@@ -116,12 +120,14 @@ Data was obtained with Windows' built-in performance monitor features. To ensure
 	{hardware results (\gls{cpu} usage)}
 	{im:performance:hardwarecpu}
 	{}
+	{}
 \end{image}
 
 \begin{image}
 	{performance/hardwareram}{0.7}
 	{hardware results (\gls{ram} usage)}
 	{im:performance:hardwareram}
+	{}
 	{}
 \end{image}
 
@@ -182,6 +188,7 @@ void Evaluator::log_data() {
 	{proxy results}
 	{im:performance:proxy}
 	{}
+	{}
 \end{image}
 
 Even at its maximum value, the time a packet spends in the proxy is only between \SI{0,834}{\milli\second} and \SI{1,614}{\milli\second} (keeping into account the confidence range around the \SI{1,224}{\milli\second} value). Average is much smaller still (\SI{0,136}{\milli\second} $\pm$ \SI{0,103}{\milli\second}). To understand what this delay means to the user on \gls{me}'s side, the impact the proxy has on correct frame pacing is analysed. Frame pacing is the time that passes between two consecutive frames, and is generally tied to \gls{framerate}: that is, assuming frames are spaced evenly (which is often not the case in real-life engines), frame spacing may be calculated by dividing a second by the \gls{fps}.
@@ -190,6 +197,7 @@ Even at its maximum value, the time a packet spends in the proxy is only between
 	{performance/proxyspacing}{0.7}
 	{\gls{framerate} pacing}
 	{im:performance:proxyspacing}
+	{}
 	{}
 \end{image}
 
@@ -200,6 +208,7 @@ In \fref{im:performance:proxylandscape} the \gls{framerate} and dwell time are p
 	{frame delay landscape}
 	{im:performance:proxylandscape}
 	{}
+	{}
 \end{image}
 
 "Slicing" this landscape through a specific \gls{framerate} can more clearly show the frame delay behaviour across the proxy dwell time interval: \fref{im:performance:proxyslice} shows such a slice on the average \gls{framerate} (see \fref{sc:performance:framerate}). The relationship is linear, but with the real average framerate found during testing even at maximum dwell times the frame delay is of only \SI{20}{\percent}.
@@ -208,6 +217,7 @@ In \fref{im:performance:proxylandscape} the \gls{framerate} and dwell time are p
 	{performance/proxyslice}{0.7}
 	{average \gls{framerate} slice}
 	{im:performance:proxyslice}
+	{}
 	{}
 \end{image}
 

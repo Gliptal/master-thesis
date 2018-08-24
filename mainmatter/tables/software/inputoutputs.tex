@@ -1,0 +1,13 @@
+\begin{table}[!ht]
+    \begin{tabularx}{\FLOATtextwidth}{lXX}
+    	software & input & output \\
+		\TABLEmidruler
+        game engine      & data on traffic entitles & data on player vehicle \\
+        traffic software & data on player entity & data on traffic entities \\
+        \gls{middleware} & \MAKECELLcell[l]{data in traffic software format \\ data in game engine format} & \MAKECELLcell[l]{data in game engine format \\ data in traffic software format} \\
+        \TABLEbottomruler
+    \end{tabularx}
+
+	\caption{Software Descriptions: input and outputs}\label{tb:software:inputoutputs}
+	\CAPTIONadd{This table lists the inputs and outputs of each software in the generic overall structure. In this project's case, the game engine is \gls{me}, the traffic software is \gls{vtd}, and the traffic software format is \gls{rdb}.}
+\end{table}

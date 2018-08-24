@@ -23,6 +23,7 @@ Due to time, support, and knowledge constraints the easier but more limited appr
 	{rendering splice}
 	{im:integration:splice}
 	{}
+	{}
 \end{image}
 
 Sending player data to the \gls{ts} is instead straightforward: telemetry metrics about the player (update on each tick) are available at all times within \gls{me}, and basic state vectors can be easily obtained and packaged for the \gls{middleware}.
@@ -35,6 +36,7 @@ The integrating code is entirely contained in a separate \gls{me} module, with o
 	{integration/flow}{0.6}
 	{traffic module flow}
 	{im:integration:flow}
+	{}
 	{}
 \end{image}
 
@@ -124,7 +126,8 @@ void Traffic::init(const INIT_RESOURCE_e resource) {
 	{integration/update}{1.0}
 	{traffic module update}
 	{im:integration:update}
-	{draft=false}
+	{}
+	{}
 \end{image}
 
 An \code{update()} function handles everything required to update the data about all the \gls{ts} entities. Each time it's called, the player data is first sent to the \gls{ts}, and then the traffic data from the \gls{ts} is handled:
