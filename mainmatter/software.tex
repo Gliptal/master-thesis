@@ -4,72 +4,142 @@
 	me, middleware, vtd
 \end{keywords}
 
-This chapter describes the software involved in the development. \gls{me} is the game engine on top of which \software{Project Cars} is built; \gls{vtd} by \company{Vires Simulationstechnologie GmbH} contains the traffic software, that sends and accepts data about its entities in the proprietary \gls{rdb} format; the \gls{middleware} is a home-grown solution to connect the two previous software.
+This chapter describes the different software involved in the project's development. \fref{sc:software:middleware} is a home-grown solution to connect any game engine with any traffic software: in this specific project's case, the former is the \gls{me} (\fref{sc:software:madnessengine}), on top of which \software{Project Cars} is built; the latter is \gls{vtd} by \company{Vires Simulationstechnologie GmbH} (\fref{sc:software:vtd}), that sends and accepts data about its entities in the proprietary \gls{rdb} format.
 
-Additionally, the two socket libraries methods used to implement two distinct versions of the \gls{middleware} are also summarily presented. More information and details on their implementation can be found in \fref{ch:middleware}.
+Additionally, the two socket libraries used in the two distinct versions of the \gls{middleware}'s netcode are also summarily presented. More information and details on their implementation are in \fref{ch:middleware}.
 
 \section{Overall Structure}\label{sc:software:overall}
 
-Before analysing in detail each software an overall view is presented, treating each as a black box with a specific function. The \gls{middleware} offers two functions (or a two-way function): it converts data from a proprietary format (like \gls{rdb}) to \gls{me}'s accepted format, and the opposite. Details on how it accomplishes this, how it abstracts to any possible proprietary format, and the intermediate third \gls{sae} format can be found in \fref{ch:middleware}.
+The project's overall structure is presented by treating each of the software involved as a black box with a specific  set of inputs and outputs. Neither the inner workings, nor the true nature of the software are relevant for this broad analysis. The \gls{middleware} handles two functions (or a single two-way function): it proxies the exchange of data between the \gls{ts} and game engine, converting data from a proprietary format (like \gls{rdb}) to/from a generic format easily acceptable by a game engine. Details on how it accomplishes this, how it manages to abstract to any possible proprietary format, and the intermediate third \gls{sae} format defined can be found in \fref{ch:middleware}.
 
 \input{mainmatter/tables/software/inputoutputs}
 
-The overall black box structure is summarized as in \fref{im:software:structure}. The difference in implementation between \gls{os} sockets and \software{0mq} sockets is only visible after grey boxing the \gls{middleware} and \gls{vtd}, so it is omitted here.
+The black box structure is visualized in \fref{im:software:structure}. The difference in implementation between \gls{os} sockets and \software{0mq} sockets is only visible after grey boxing the \gls{middleware}, so it is omitted here.
 
 \begin{image}
 	{software/structure}{1.0}
-	{overall structure}
+	{Software Descriptions: overall structure}
 	{im:software:structure}
 	{}
-	{The structure in this diagram is a high-level description of the role of each element, and how these elements are connected to each other. The game engine and the middleware reside on the same host \gls{os}, since the data connections is in-memory; the traffic software and the middleware may instead reside on different host \glspl{os}, since communication is done over the network.}
+	{The structure in this diagram is a high-level description of the role of each software, and how these software are connected to each other. The game engine and the \gls{middleware} reside on the same host \gls{os}, since the data connections is in-memory; the traffic software and the \gls{middleware} may instead reside on different host \glspl{os}, since communication is done over the network.}
 \end{image}
 
-Data about the traffic entities flows from \gls{vtd} to the \gls{middleware} in the \gls{rdb} format; their respective \code{in} and \code{out} ports are network sockets, with the two host \glspl{os} being reachable via \gls{ip} with each other. The data is converted into an \gls{me} digestible format by the \gls{middleware}, and then supplied to \gls{me}: this is actually done in-memory (the implementation of the \gls{middleware} runs within \gls{me}), hence the ports are in this case abstractions for memory management. Similarly, data about the player vehicle flows in the opposite way: \gls{me} supplies the \gls{middleware} with the data, the \gls{middleware} converts it into the \gls{rdb} format, and sends it to \gls{vtd}.
+Data about the traffic entities flows from the \gls{ts} to the \gls{middleware} in \gls{ts}'s format; both their \code{in} and \code{out} ports are network sockets, assuming the two host \glspl{os} are reachable via \gls{ip} with each other. The data is converted into a game engine digestible format by the \gls{middleware}, and then supplied to the game engine itself in-memory (i.e.\ the implementation of the \gls{middleware} runs within \gls{me}). Similarly, data about the player vehicle flows in the opposite way: the game engine supplies the \gls{middleware} with the data, the \gls{middleware} converts it into \gls{ts}'s format, and sends it to the \gls{ts}.
 
-This feedback loop is repeated continuously for the entire duration of the simulation. The right-to-left flow moves the "ego" car within the traffic simulation, allowing its entities to react in real time; the left-to-right flow allows \gls{me} to render the traffic entities on screen, displaying them to the end-user. Time and spatial synchronization issues are omitted in this simplified description, details can be found in \fref{sc:integration:approach}. % FIXME check correct ref
+This feedback loop is continuously repeated for the entire duration of the simulation. The right-to-left flow moves the "ego" vehicle (the vehicle driven by the user) within the traffic simulation, allowing its entities to react in real time; the left-to-right flow allows the game engine to render the traffic entities on screen, displaying them to the end-user. Time and spatial synchronization issues are omitted in this simplified description, with some available in \fref{ch:integration}.
 
-This structure is akin to a client-server paradigm: here the client is \gls{me}, and the server is \gls{vtd}\footnote{This distinction is purely arbitrary, since it is a 1:1 communication loop.}. \Glspl{sendrate} and \glspl{tickrate} are not synchronized: both software are running at their own simulation paces; \gls{vtd}'s \gls{sendrate} is fully configurable; \gls{me}'s \gls{sendrate} is equal to its framerate.
+This entire structure is akin to a generic client-server paradigm, where the client is the game engine, and the server is the \gls{ts}.\footnote{This distinction is purely arbitrary, since the communication loop is effectively \num{1}:\num{1}.} Both the game engine's and the \gls{ts}'s \glspl{sendrate} and \glspl{tickrate} are not synchronized, given how both software may run at their own pace; in this specific project's case \gls{vtd}'s \gls{sendrate} is fully configurable, whilst \gls{me}'s \gls{sendrate} is equal to its framerate.
+
+\section{Middleware}\label{sc:software:middleware}
+
+The middleware is an home-grown library, written in \planguage{c++}, added at compile time to the game engine. Its purpose is to bridge any game engine with any arbitrary traffic software, provided the former can handle in-memory data and the latter adheres to some basic constraints:
+
+\begin{itemize}
+	\item it can communicate over the network, using standardized protocols;
+	\item it sends raw data about its traffic entities in real-time;
+	\item it is capable of accepting data about a player entity in real-time.
+\end{itemize}
+
+A set of \glspl{api} is exposed by \planguage{c++} headers, such that any \nth{3}-party may independently integrate the traffic software of their choice, without needing direct access to the game engine. Details on how this is achieved are in \fref{ch:middleware}, but the general idea is that the \nth{3}-party only needs to code the conversion process between the data in the traffic system's format and the \gls{middleware}'s. There is no requirement (nor possibility) for the \nth{3}-part to handle the connection or work with the game engine's coordinate system. The role of this \gls{middleware} once the \gls{ts} and game engine are grey boxed is described in detail in \fref{im:software:middleware}.
+
+\begin{image}
+	{software/middleware}{1.0}
+	{Software Descriptions: \gls{middleware} role}
+	{im:software:middleware}
+	{}
+	{The \gls{middleware}'s role once the \gls{ts} and the game engine are grey-boxed (unlike \fref{im:software:structure}). On \gls{ts}'s side, the traffic logic runs the traffic simulation based on the topology of the scenery; the data generated by this simulation is sent to the \gls{middleware}, that redirects it to the game engine's rendering stack. On the game engine's side, the user simulation simultaneously feeds both the rendering stack and the middleware, that redirects the player's vehicle data to the traffic software to give/obtain a feedback.}
+\end{image}
+
+Two similar types of network sockets are implemented, leveraging different libraries: "raw" \gls{os} \gls{udp} sockets, and \software{\FONTsmallcaps{0mq}} \gls{tcp} sockets~\cite{software:zmq}.
+
+\subsubsection{\textsc{os} Sockets}
+
+\gls{os} sockets use the built-in Windows \file{<Ws2tcpip>} libraries. These libraries provide low-level functions to open and close network sockets, compose, parse, send, and receive messages, and any other helper functions required.
+
+\subsubsection{0mq Sockets}
+
+\software{\FONTsmallcaps{0mq}} sockets use the libraries provided by the \software{\FONTsmallcaps{0mq}} framework. This framework abstracts both the creation and handling of sockets, providing a number of high-level functions. Different connection paradigms are available, all high-level and easily interchangeable.
+
+The main limitations are the lack of support for the \gls{udp} protocol, and more importantly the requirement to have both the sending and receiving source use \software{0mq} sockets: hybrid systems (with \gls{os} sockets on one end and \software{0mq} on the other) are not supported.
+
+\subsection{Coordinate System}
+
+\begin{image}
+	{software/midcoords}{1.0}
+	{Software Descriptions: \gls{middleware} coordinate system}
+	{im:software:midcoords}
+	{}
+	{To the left is the absolute coordinate system; to the right the relative coordinate systems for pitch and yaw. Relative roll is left similar and left to the reader.}
+\end{image}
+
+\subsubsection{Absolute}
+
+The absolute coordinate system is an Euclidean space on three axes, with the $(0,0,0)$ origin being an arbitrary "origin" point in the scenario. Measures are in meters (\si{\meter}).
+
+\begin{itemize}
+	\item \code{x}: North-South axis; positive North
+	\item \code{y}: West-East axis; positive West
+	\item \code{z}: up-down axis; positive up
+\end{itemize}
+
+\subsubsection{Relative}
+
+The reference point and $(0,0,0)$ origin of each vehicle is the horizontal mid point of the front wheels axle. Measures are also in meters (\si{\meter}).
+
+\begin{itemize}
+	\item \code{x}: vehicle length; positive forward
+	\item \code{y}: vehicle width; positive left
+	\item \code{z}: vehicle height; positive up
+\end{itemize}
+
+\FLOATnoindent Rotations in the relative system are exposed as Euclidean angles. Measures are in radians \si{\radian}.
+
+\begin{itemize}
+	\item \code{pitch}: insists on the \code{x}-\code{z} plane; unwraps from the positive \code{x} semi-axis; $0 \leqslant \alpha \leqslant 2\pi$
+	\item \code{yaw}: insists on the \code{x}-\code{y} plane; unwraps counter-clockwise from the positive \code{x} semi-axis; $0 \leqslant \alpha \leqslant 2\pi$
+	\item \code{roll}: insists on the \code{y}-\code{z} plane; unwraps counter-clockwise from the positive \code{y} semi-axis; $0 \leqslant \alpha \leqslant 2\pi$
+\end{itemize}
 
 \section{Madness Engine}\label{sc:software:madnessengine}
 
-The Madness Engine is a massive, monolithic, proprietary, closed-source game engine, focused on high-fidelity driving simulations, and written in \planguage{c++}. Most of the low level functions provided by standard libraries were also re-written to adapt to different platforms (Linux, Windows, Playstation, Xbox).
+The Madness Engine is a massive, monolithic, proprietary, closed-source game engine, focused on high-fidelity driving simulations, and written in \planguage{c++}. Most of the low level functions provided by standard libraries were also rewritten to adapt to different platforms (Linux, Windows, Playstation, Xbox) and enhance performance.
 
 \begin{itemize}
-	\item \FONTbold{massive}: the engine is an all-encompassing collection of submodules, that can be freely interchanged to build consumer-grade applications like \software{Project Cars}.
-	\item \FONTbold{monolithic}: the engine handles the entire simulation stack on every abstractions level, like \gls{gui}, physics, \gls{ai}, rendering, threading, memory management, and more.
-	\item \FONTbold{proprietary}: the engine was developed entirely by \gls{sms} in a fifteen year period, through subsequent modifications and additions.
-	\item \FONTbold{closed source}: the code is not freely available, and is protected with \glspl{nda}.
+	\item \FONTbold{massive} --- The engine is an all-encompassing collection of modules and submodules, that can be freely interchanged to build consumer-grade applications like \software{Project Cars}.
+	\item \FONTbold{monolithic} --- The engine handles the entire simulation stack of close to every abstraction level, like \gls{gui}, physics, \gls{ai}, rendering, threading, memory management, and more.
+	\item \FONTbold{proprietary} --- The engine was developed entirely by \gls{sms} in a fifteen year period, through continuous modifications and additions.
+	\item \FONTbold{closed source} --- The code is not freely available, and is protected by \glspl{nda}.
 \end{itemize}
 
-The details on how the engine operates at mid to low level are covered by \gls{nda} and too technical to be covered here. The overall simulation stack can nevertheless be described, enough to grasp the main concepts and the reasonings in \fref{ch:integration}. Roughly, Each simulation tick (that may or may not be tied to framerate) steps through logic, \gls{ai}, physics, and rendering; the required data is passed from one step to the next, converted to a lower level of abstraction as it flows down.
+The details on how the engine operates at mid to low level are protected by \gls{nda} and in any case too technical to be covered here. The overall simulation stack can nevertheless be described, enough to grasp the main concepts and the reasonings behind the work in \fref{ch:integration}. Roughly, Each simulation tick (that may or may not be tied to framerate) steps through logic, \gls{ai}, physics, and rendering; data is passed from one step to the next, converted to a lower level of abstraction as it flows down.
 
 \begin{image}
 	{software/mestack}{0.3}
-	{\gls{me} simulation stack}
+	{Software Descriptions: \gls{me} simulation stack}
 	{im:software:mestack}
 	{}
-	{}
+	{The generic flow of a game tick in \gls{me}. Each tier manipulates some data and sends it to the following one.} % CONTENT explain this flow better
 \end{image}
 
-A vague example could be that of an \gls{ai} car that wants to overtake a slower player, during a race. This would take an unknown amount of simulation tick, each flowing summarily as follows:
+A vague example could be that of an \gls{ai} car that must overtake a slower player, during a race. This might take a number of simulation ticks, each summarily flowing as follows:
 
 \begin{itemize}
-	\item The race \FONTbold{logic} handles the high-level data about standings, laps remaining, times, ideal racing lines, and more; this data is passed to each \gls{ai} and the player, to aid in their decision making.
-	\item The \FONTbold{\gls{ai}} receives this data and at some point decides to overtake the player: to do so, it leaves the ideal racing lines (by taking a risk) and manoeuvres to perform the overtake.
-	\item The commands received from the \gls{ai} are handled by the \FONTbold{physics} system to provide a proper response and behaviour of the car in the current driving situations. This may account (especially in the case of the player) for things like weight transfer, downforce, steering force, bumps, puddles, wind, and much more.
-	\item The \FONTbold{rendering} system takes the spatial coordinates supplied by the physics and uses them to properly render the scene.
+	\item the race \FONTbold{logic} handles the high-level data about standings, remaining laps, times, ideal racing lines, and more; this data is passed to each \gls{ai} and the player, to drive their decision making;
+	\item The \FONTbold{\gls{ai}} uses this data to at some point decide to overtake the player, leaving the ideal racing line (by taking a calculated risk) and manoeuvring to perform the overtake.
+	\item the commands received from the \gls{ai} are handled by the \FONTbold{physics} system to provide a proper physical response of the car in the current driving situation, taking into account (especially when simulating the player) details like weight transfer, downforce, steering force, bumps, puddles, wind, and much more;
+	\item The \FONTbold{rendering} system uses the spatial coordinates supplied by the physics system to properly render the scene in the game world.
 \end{itemize}
 
-Although the nature of the data passed in the logic-\gls{ai} and \gls{ai}-physics transitions can be fuzzily assumed, (a subset of) the data passed in the physics-rendering transition should be instead precisely defined. To locate an object in the environment the physics system outputs, among many other metrics, its spatial and rotational coordinates: these two metrics are enough for the rendering system to show a car moving in the scene.
+Although the true nature of the data passed in the logic-\gls{ai} and \gls{ai}-physics transitions can be only fuzzily assumed, (a subset of) the data passed in the physics-rendering transition may be instead precisely defined. To locate an object in the environment the physics system outputs, among many other metrics, its spatial and rotational coordinates: these two metrics are sufficient for the rendering system to visualize a vehicle moving in real-time in the game scene.
 
-\subsection{Coordinate System} % FIXME check correctness
+\subsection{Coordinate System} % CONTENT check correctness of ME's coordinate system
 
 \begin{image}
 	{software/mecoords}{1.0}
-	{\gls{me} coordinate system}
+	{Software Descriptions: \gls{me} coordinate system}
 	{im:software:mecoords}
 	{}
-	{}
+	{To the left is the absolute coordinate system; to the right the relative coordinate systems for pitch and yaw. Relative roll is left similar and left to the reader.}
 \end{image}
 
 \subsubsection{Absolute}
@@ -84,7 +154,7 @@ The absolute coordinate system is an Euclidean space on three axes, with the $(0
 
 \subsubsection{Relative}
 
-The reference point and $(0,0,0)$ origin for the geometry of each vehicle is the mid point of the front wheels axle. Measures are also in meters (\si{\meter}).
+The reference point and $(0,0,0)$ origin of each vehicle is the horizontal mid point of the front wheels axle. Measures are also in meters (\si{\meter}).
 
 \begin{itemize}
 	\item \code{x}: vehicle length; positive forward
@@ -92,7 +162,7 @@ The reference point and $(0,0,0)$ origin for the geometry of each vehicle is the
 	\item \code{z}: vehicle width; positive left
 \end{itemize}
 
-Rotations are internally handled by the engine as quaternions, although for simplicity Euclidean angles will be used instead. Measures are in radians (\si{\radian}).\footnote{The roll angle visualization is left to the reader.}
+\FLOATnoindent Rotations are handled by the engine as quaternions, although functions are available to convert to Euclidean angles. Measures are in radians (\si{\radian}).
 
 \begin{itemize}
 	\item \code{pitch}: insists on the \code{x}-\code{y} plane; unwraps from the positive \code{x} semi-axis; $-\pi \leqslant \alpha \leqslant 0$ in the negative (upper) semiplane, $0 \leqslant \alpha \leqslant \pi$ in the positive (lower) semiplane
@@ -102,27 +172,27 @@ Rotations are internally handled by the engine as quaternions, although for simp
 
 \section{Virtual Test Drive}\label{sc:software:vtd}
 
-Virtual Test Drive is a \enquote{complete tool-chain for driving simulation applications \FONTnormal{[that]} provides tools for road generation, scenario generation, traffic simulation, sound simulation, simulation control and image generation}{\cite{software:vtd}}. This project is interested in the traffic simulation part only, specifically the \software{v-traffic} module (with visual support from \software{v-scenario}). The entire software is closed source, although a number of customisation options are available.
+\acrfull{vtd} is a \enquote{complete tool-chain for driving simulation applications \FONTnormal{[that]} provides tools for road generation, scenario generation, traffic simulation, sound simulation, simulation control and image generation}{\cite{software:vtd}}. This project only uses the traffic simulation part, specifically the \software{v-traffic} module (with visual support from \software{v-scenario}). The entire software is closed source, although a number of customisation options and code bindings are available.
 
-\gls{vtd} supports two-way communication with external software using the \gls{rdb} proprietary format via either the network, or in-memory. This allows a \nth{3}-party software to interject in nearly every layer of \gls{vtd}'s simulation stack: the sales pitch accurately states that \enquote{an interactive simulation with multiple external data sources (e.g.\ simulators) is feasible and the user may influence the behavior of all entities substantially}{\cite{software:vtraffic}}.
+\gls{vtd} supports two-way communication with any external software, by exchanging data in the \gls{rdb} proprietary format via either a network, or in-memory. This allows a \nth{3}-party software to interject in nearly every layer of \gls{vtd}'s simulation stack: the sales pitch states that \enquote{an interactive simulation with multiple external data sources (e.g.\ simulators) is feasible and the user may influence the behavior of all entities substantially}{\cite{software:vtraffic}}.
 
-The \software{v-traffic} module specifically provides \enquote{Vehicles \FONTnormal{[that]} may navigate autonomously in the \CHARomissis\ network}{\cite{software:vtraffic}}, among pedestrians, signalling, traffic-lights, and more. Normally, the \code{ego} vehicle (the non \gls{ai}-controlled player) is moved through acceleration, brake, and steering inputs fed to \gls{vtd} (either from internal or outside sources). In this project, the \code{ego} car will instead be moved by directly supplying its spatial coordinates in the scene.
+The \software{v-traffic} module specifically provides \enquote{Vehicles \FONTnormal{[that]} may navigate autonomously in the \CHARomissis\ network}{\cite{software:vtraffic}}, among pedestrians, signalling, traffic-lights, and more. Normally, the \code{ego} vehicle (i.e.\ controlled by the player) is moved through acceleration, brake, and steering inputs fed to \gls{vtd} (either from internal or outside sources); alternatively, the \code{ego} car may instead be moved by directly supplying its spatial coordinates in the scene.
 
-\software{v-scenario} provides a simple top-view rendering system, that displays the scenario and the entities \software{v-traffic} is handling. The scenario within which the entities move is a road network defined in the \software{OpenDRIVE} format~\cite{software:opendrive}: for the purpose of this project, a simple racetrack with a 4-way intersection was provided; this racetrack was recreated in \gls{me} by the art team, to closely resemble the original.
+\software{v-scenario} provides a simple top-view rendering system, that displays the road topology and the entities \software{v-traffic} is handling. The scenario within which the entities move is a road network defined in the \software{OpenDRIVE} format~\cite{software:opendrive}: a simple 8-track with a 4-way intersection was provided for this project; this racetrack was recreated in \gls{me} by \gls{sms}'s art team, to closely resemble the original and allow for spatial synchronization.
 
-\subsection{Coordinate System} % FIXME check correctness
+\subsection{Coordinate System}
 
 \begin{image}
 	{software/vtdcoords}{1.0}
-	{\gls{vtd} coordinate system}
+	{Software Descritions: \gls{vtd} coordinate system}
 	{im:software:vtdcoords}
 	{}
-	{}
+	{To the left is the absolute coordinate system; to the right the relative coordinate systems for pitch and yaw. Relative roll is left similar and left to the reader.}
 \end{image}
 
 \subsubsection{Absolute}
 
-The absolute coordinate system is an Euclidean space on three axes, with the $(0,0,0)$ origin being the center point of the scenario. Measures are in meters (\si{\meter}).
+The absolute coordinate system is an Euclidean space on three axes, with the $(0,0,0)$ origin being an arbitrary "origin" point in the scenario. Measures are in meters (\si{\meter}).
 
 \begin{itemize}
 	\item \code{x}: West-East axis; positive East
@@ -132,7 +202,7 @@ The absolute coordinate system is an Euclidean space on three axes, with the $(0
 
 \subsubsection{Relative}
 
-The reference point and $(0,0,0)$ origin for the geometry of each vehicle is the mid point of the rear wheels axle. Measures are also in meters (\si{\meter}).
+The reference point and $(0,0,0)$ origin of each vehicle is the horizontal mid point of the rear wheels axle. Measures are also in meters (\si{\meter}).
 
 \begin{itemize}
 	\item \code{x}: vehicle length; positive forward
@@ -140,7 +210,7 @@ The reference point and $(0,0,0)$ origin for the geometry of each vehicle is the
 	\item \code{z}: vehicle height; positive up
 \end{itemize}
 
-Rotations are exposed as Euclidean angles. Measures are in degrees \si{\degree}.\footnote{The roll angle visualization is left to the reader.}
+\FLOATnoindent Rotations in the relative system are exposed as Euclidean angles. Measures are in degrees \si{\degree}.
 
 \begin{itemize}
 	\item \code{pitch}: insists on the \code{x}-\code{z} plane; unwraps from the positive \code{x} semi-axis; $\ang{-180} \leqslant \alpha \leqslant \ang{0}$ in the negative (lower) semiplane, $\ang{0} \leqslant \alpha \leqslant \ang{180}$ in the positive (upper) semiplane
@@ -150,15 +220,15 @@ Rotations are exposed as Euclidean angles. Measures are in degrees \si{\degree}.
 
 \subsection{Runtime Data Bus}
 
-\gls{rdb} is the proprietary data format that \gls{vtd} provides and accepts to/from any \nth{3}-party software connected to its stack. It is a plain-text \enquote{vector of lists which contain each an array of entries of identical type}{\cite{software:rdbfaqs}}: the format specifies a large number of extensible data types, ranging from entitles meta-data, to their physical quantities (e.g.\ size, position, orientation), road details, sensor data, scenario state, and more.
+\gls{rdb} is the proprietary format in which \gls{vtd} provides (and accepts) data to (from) any \nth{3}-party software connected to its bindings. It is a plain-text \enquote{vector of lists which contain each an array of entries of identical type}{\cite{software:rdbfaqs}}: the format specifies a large number of extensible datatypes, ranging from meta-data, to physical quantities (e.g.\ size, position, orientation), road details, sensor data, scenario state, and more.
 
-Details on how this data is formatted are of limited importance. \gls{vtd} does provide an extensive \planguage{c}/\planguage{c++} \glspl{api} to parse, read, and generate \gls{rdb} \glspl{packet}; this greatly eases the procedure of composing and understanding \gls{rdb} messages. The takeaway is that, given any set of raw measures, an \gls{rdb} \gls{packet} can be efficiently built with the certainty that it adheres to the standard and is accepted by \gls{vtd}.
+Details on how this data is formatted are o protected and in any case, of limited importance. \gls{vtd} provides an extensive \planguage{c}/\planguage{c++} \glspl{api} to parse, read, and generate \gls{rdb} \glspl{packet}, greatly easing the procedure of composing and handling \gls{rdb} messages. In short, given any set of compatible measures, an \gls{rdb} \gls{packet} can be efficiently built with the certainty that it adheres to the standard, and it is accepted by \gls{vtd}.
 
-Based on the configuration parameters, \gls{rdb} \glspl{packet} containing specific data may be sent from \gls{vtd} to an arbitrary software residing on an \code{ip:port} over the network (data is sent to port \num{28190}). Likewise data may be sent to \gls{vtd} from an arbitrary software by connecting to \gls{vtd} on \code{ip:28191}.\footnote{Note that the port numbers presented here are not the real ones.} The frequency of the sent data can be freely varied (with a soft limit of \SI{1000}{\hertz}); \gls{vtd} on the other hand can gracefully handle any receiving rate when the synchronization is set to \code{real-time}, allowing a variable \nth{3}-party \gls{sendrate}. % FIXME explain ports better
+\gls{rdb} \glspl{packet} may be sent from \gls{vtd} to any arbitrary software (as \gls{udp} packets) by supplying the \gls{ip} of the host \gls{os} to \gls{rdb}'s configuration system, and binding the software's process to port \num{28190}. Likewise, data may be sent to \gls{vtd} from any arbitrary software by sending \gls{udp} packets to \gls{vtd}'s host \gls{os}, on port \num{28191}.\footnote{The port numbers presented here are not the real ones.} \gls{vtd}'s \gls{sendrate} can be freely varied (with a soft limit of \SI{1000}{\hertz}), whilst any receive rate can be gracefully handled when the synchronization mode is set to \code{real-time} in \gls{rdb}'s configuration: this allows a variable \nth{3}-party \gls{sendrate}.
 
 \input{mainmatter/tables/software/rdb}
 
-In the case of this project, the following data is sent from \gls{vtd}'s \software{v-traffic} module, with a rate varying between \SI{60}{\hertz} and \SI{240}{\hertz}:
+In the case of this specific project, the following data is sent from \gls{vtd}'s \software{v-traffic} module:
 
 \begin{itemize}
 	\item (each) entity position
@@ -169,7 +239,7 @@ In the case of this project, the following data is sent from \gls{vtd}'s \softwa
 	\item (each) entity lights state
 \end{itemize}
 
-Similar data is sent back to \gls{vtd}'s \software{v-traffic} module:
+\FLOATnoindent Similar data is sent back to \gls{vtd}'s \software{v-traffic} module:
 
 \begin{itemize}
 	\item player entity position
@@ -178,74 +248,6 @@ Similar data is sent back to \gls{vtd}'s \software{v-traffic} module:
 	\item player entity acceleration vector
 \end{itemize}
 
-\section{Middleware}\label{sc:software:middleware}
-
-The middleware is an home-grown intermediary library, written in \planguage{c++},  added at compile time to \gls{me}. Its purpose is to bridge the game engine with any arbitrary traffic software, provided the latter adheres to some basic constraints:
-
-\begin{itemize}
-	\item It can communicate over the network, using the \gls{udp} protocol.
-	\item It sends real-time data about the traffic entities.
-	\item It is capable of accepting real-time data about the player entity.
-\end{itemize}
-
-A set of \glspl{api} is exposed, such that any \nth{3}-party may independently integrate the traffic software of their choice, without needing direct access to \gls{me}. Details on how this is achieved are in \fref{ch:middleware}, but the general idea is that the \nth{3}-party only needs to convert the data from the traffic system's format to the \gls{middleware}'s, and the other way round, without needing to handle the connection or work with \gls{me}'s coordinate system.
-
-\begin{image}
-	{software/middleware}{1.0}
-	{\gls{middleware} role}
-	{im:software:middleware}
-	{}
-\end{image}
-
-Two similar types of network sockets were implemented, leveraging different libraries: raw \gls{os} (\gls{udp}) sockets, and \software{0mq} sockets~\cite{software:zmq}.
-
-\subsubsection{\textsc{os} Sockets}
-
-\gls{os} sockets use the built-in Windows \file{<Ws2tcpip>} libraries. These libraries provide low-level functions to open and close network sockets, compose, parse, send, and receive messages, and any helper functions required.
-
-\subsubsection{0mq Sockets}
-
-\software{0mq} sockets use the libraries provided by the \software{0mq} framework. This framework abstracts the socket creation and handling, providing high-level functions. A number of different connection paradigms are available, all high-level and easily interchangeable.
-
-The main limitations are the lack of support for the \gls{udp} protocol, and more importantly the need to have both the sending and receiving source using \software{0mq} sockets: hybrid systems (with raw sockets on one side and \software{0mq} on the other) are not supported.
-
-\subsection{Coordinate System}
-
-\begin{image}
-	{software/midcoords}{1.0}
-	{\gls{middleware} coordinate system}
-	{im:software:midcoords}
-	{}
-\end{image}
-
-\subsubsection{Absolute}
-
-The absolute coordinate system is an Euclidean space on three axes, with the $(0,0,0)$ origin being the center point of the scenario. Measures are in meters (\si{\meter}).
-
-\begin{itemize}
-	\item \code{x}: North-South axis; positive North
-	\item \code{y}: West-East axis; positive West
-	\item \code{z}: up-down axis; positive up
-\end{itemize}
-
-\subsubsection{Relative}
-
-The reference point and $(0,0,0)$ origin for the geometry of each vehicle is the mid point of the front wheels axle. Measures are also in meters (\si{\meter}).
-
-\begin{itemize}
-	\item \code{x}: vehicle length; positive forward
-	\item \code{y}: vehicle width; positive left
-	\item \code{z}: vehicle height; positive up
-\end{itemize}
-
-Rotations are exposed as Euclidean angles. Measures are in degrees \si{\degree}.\footnote{The roll angle visualization is left to the reader.}
-
-\begin{itemize}
-	\item \code{pitch}: insists on the \code{x}-\code{z} plane; unwraps from the positive \code{x} semi-axis; $0 \leqslant \alpha \leqslant 2\pi$
-	\item \code{yaw}: insists on the \code{x}-\code{y} plane; unwraps counter-clockwise from the positive \code{x} semi-axis; $0 \leqslant \alpha \leqslant 2\pi$
-	\item \code{roll}: insists on the \code{y}-\code{z} plane; unwraps counter-clockwise from the positive \code{y} semi-axis; $0 \leqslant \alpha \leqslant 2\pi$
-\end{itemize}
-
 \section{Recap}\label{sc:software:recap}
 
-In \fref{sc:software:overall} an overall view of the project was given, with broad details on the roles of each software and the interconnections between them. In \fref{sc:software:madnessengine} and \fref{sc:software:vtd} the two main software entities were presented, in enough detail to understand the development process described in the following chapters. \fref{sc:software:middleware} introduces the \gls{middleware} and its purpose, showing how it bridges \gls{me} and \gls{vtd} on the network.
+\fref{sc:software:middleware} introduced the \gls{middleware} and its purpose, bridging any game engine and any traffic software over a network. In \fref{sc:software:overall} an overall view of the project was given, with broad descriptions of the roles of each software and the interconnections between them. In \fref{sc:software:madnessengine} and \fref{sc:software:vtd} the \gls{ts} and game engine use in the project were presented, in enough detail to understand the development process.

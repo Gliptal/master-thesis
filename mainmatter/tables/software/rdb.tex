@@ -1,12 +1,13 @@
 \begin{table}[!ht]
 	\centering
     \begin{tabular}{cccll}
-    	sender & receiver & \gls{vtd} port & \TABLEmulticolumn{1}{c}{sendrate} & \TABLEmulticolumn{1}{c}{data} \\
+    	sender & receiver & receiver port & \TABLEmulticolumn{1}{c}{sendrate} & \TABLEmulticolumn{1}{c}{data} \\
 		\TABLEmidruler
-        \gls{vtd} & \gls{me}  & \num{10001} & $\lessapprox \SI{1000}{\hertz}$ & entity state, entity lights \\
-        \gls{me}  & \gls{vtd} & \num{10000} & $\approx \SI{240}{\hertz}$      & player state  \\
+        \gls{vtd} & \gls{me}  & \num{28190} & $\approx \SI{120}{\hertz}$ & entity state, entity lights \\
+        \gls{me}  & \gls{vtd} & \num{28191} & $\approx \SI{140}{\hertz}$ & player state  \\
         \TABLEbottomruler
     \end{tabular}
 
-    \caption{\gls{rdb} communication}\label{tb:software:rdbcommunication}
+	\caption{Software Descriptions: \gls{rdb} communication}\label{tb:software:rdbcommunication}
+	\CAPTIONadd{This table lists some \gls{sendrate} and network details specifically used for this project. Following \fref{im:software:middleware}, \gls{vtd} sends to \gls{me} data about the various entities with a sendrate of approximately \SI{120}{\hertz}; \gls{me} send to \gls{vtd} data about the player entity with a \gls{sendrate} equal to the \gls{framerate}.}
 \end{table}
