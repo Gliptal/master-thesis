@@ -1,14 +1,15 @@
 \begin{table}[!ht]
 	\centering
     \begin{tabular}{llll}
-    	\TABLEmulticolumn{1}{c}{method} & \TABLEmulticolumn{1}{c}{returns} &\TABLEmulticolumn{1}{c}{parameters} & \TABLEmulticolumn{1}{c}{effect} \\
+    	\TABLEmulticolumn{1}{c}{method} & \TABLEmulticolumn{1}{c}{returns} &\TABLEmulticolumn{1}{c}{parameters} & \TABLEmulticolumn{1}{c}{side effect} \\
 		\TABLEmidruler
-        \code{open_RX_connection()} & success/failure & \code{ip:port} & opens a receive socket on the \code{ip:port} \\
-        \code{open_TX_connection()} & success/failure & \code{ip:port} & opens a send socket on the \code{ip:port} \\
-        \code{receive_packet()} & success/failure  & & receives a \gls{packet} and saves it in \code{m_payloadRX} \\
-        \code{send_packet()} & success/failure  & & sends the \gls{packet} saved in \code{m_payloadTX}  \\
+        \code{open_RX_connection()} & success/failure & \code{ip}, \code{port} & opens a receive socket on \code{ip:port} \\
+        \code{open_TX_connection()} & success/failure & \code{ip}, \code{port} & opens a send socket on \code{ip:port} \\
+        \code{receive_packet()}     & success/failure &                        & receives a \gls{packet} and saves it in \code{m_payloadRX} \\
+        \code{send_packet()}        & success/failure &                        & sends the \gls{packet} saved in \code{m_payloadTX}  \\
         \TABLEbottomruler
     \end{tabular}
 
-    \caption{\gls{netcode} methods}\label{tb:middleware:netcode}
+	\caption{Middleware Development: \gls{netcode} methods}\label{tb:middleware:netcode}
+	\CAPTIONadd{The four methods that handle the \gls{middleware}'s \gls{netcode}: two to open connections, and two to send and receive \glspl{packet}. All the methods return the result of the operation (success or failure), with their functionalitites being side effects.}
 \end{table}

@@ -14,7 +14,7 @@ The project's overall structure is presented by treating each of the software in
 
 \input{mainmatter/tables/software/inputoutputs}
 
-The black box structure is visualized in \fref{im:software:structure}. The difference in implementation between \gls{os} sockets and \software{0mq} sockets is only visible after grey boxing the \gls{middleware}, so it is omitted here.
+The black box structure is visualized in \fref{im:software:structure}. The difference in implementation between \gls{os} sockets and \software{\FONTsmallcaps{0mq}} sockets is only visible after grey boxing the \gls{middleware}, so it is omitted here.
 
 \begin{image}
 	{software/structure}{1.0}
@@ -40,7 +40,7 @@ The middleware is an home-grown library, written in \planguage{c++}, added at co
 	\item it is capable of accepting data about a player entity in real-time.
 \end{itemize}
 
-A set of \glspl{api} is exposed by \planguage{c++} headers, such that any \nth{3}-party may independently integrate the traffic software of their choice, without needing direct access to the game engine. Details on how this is achieved are in \fref{ch:middleware}, but the general idea is that the \nth{3}-party only needs to code the conversion process between the data in the traffic system's format and the \gls{middleware}'s. There is no requirement (nor possibility) for the \nth{3}-part to handle the connection or work with the game engine's coordinate system. The role of this \gls{middleware} once the \gls{ts} and game engine are grey boxed is described in detail in \fref{im:software:middleware}.
+A set of \glspl{api} is exposed by \planguage{c++} headers, such that any \nth{3}--party may independently integrate the traffic software of their choice, without needing direct access to the game engine. Details on how this is achieved are in \fref{ch:middleware}, but the general idea is that the \nth{3}--party only needs to code the conversion process between the data in the traffic system's format and the \gls{middleware}'s. There is no requirement (nor possibility) for the \nth{3}--part to handle the connection or work with the game engine's coordinate system. The role of this \gls{middleware} once the \gls{ts} and game engine are grey boxed is described in detail in \fref{im:software:middleware}.
 
 \begin{image}
 	{software/middleware}{1.0}
@@ -60,7 +60,7 @@ Two similar types of network sockets are implemented, leveraging different libra
 
 \software{\FONTsmallcaps{0mq}} sockets use the libraries provided by the \software{\FONTsmallcaps{0mq}} framework. This framework abstracts both the creation and handling of sockets, providing a number of high-level functions. Different connection paradigms are available, all high-level and easily interchangeable.
 
-The main limitations are the lack of support for the \gls{udp} protocol, and more importantly the requirement to have both the sending and receiving source use \software{0mq} sockets: hybrid systems (with \gls{os} sockets on one end and \software{0mq} on the other) are not supported.
+The main limitations are the lack of support for the \gls{udp} protocol, and more importantly the requirement to have both the sending and receiving source use \software{0mq} sockets: hybrid systems (with \gls{os} sockets on one end and \software{\FONTsmallcaps{0mq}} on the other) are not supported.
 
 \subsection{Coordinate System}
 
@@ -174,7 +174,7 @@ The reference point and $(0,0,0)$ origin of each vehicle is the horizontal mid p
 
 \acrfull{vtd} is a \enquote{complete tool-chain for driving simulation applications \FONTnormal{[that]} provides tools for road generation, scenario generation, traffic simulation, sound simulation, simulation control and image generation}{\cite{software:vtd}}. This project only uses the traffic simulation part, specifically the \software{v-traffic} module (with visual support from \software{v-scenario}). The entire software is closed source, although a number of customisation options and code bindings are available.
 
-\gls{vtd} supports two-way communication with any external software, by exchanging data in the \gls{rdb} proprietary format via either a network, or in-memory. This allows a \nth{3}-party software to interject in nearly every layer of \gls{vtd}'s simulation stack: the sales pitch states that \enquote{an interactive simulation with multiple external data sources (e.g.\ simulators) is feasible and the user may influence the behavior of all entities substantially}{\cite{software:vtraffic}}.
+\gls{vtd} supports two-way communication with any external software, by exchanging data in the \gls{rdb} proprietary format via either a network, or in-memory. This allows a \nth{3}--party software to interject in nearly every layer of \gls{vtd}'s simulation stack: the sales pitch states that \enquote{an interactive simulation with multiple external data sources (e.g.\ simulators) is feasible and the user may influence the behavior of all entities substantially}{\cite{software:vtraffic}}.
 
 The \software{v-traffic} module specifically provides \enquote{Vehicles \FONTnormal{[that]} may navigate autonomously in the \CHARomissis\ network}{\cite{software:vtraffic}}, among pedestrians, signalling, traffic-lights, and more. Normally, the \code{ego} vehicle (i.e.\ controlled by the player) is moved through acceleration, brake, and steering inputs fed to \gls{vtd} (either from internal or outside sources); alternatively, the \code{ego} car may instead be moved by directly supplying its spatial coordinates in the scene.
 
@@ -220,11 +220,11 @@ The reference point and $(0,0,0)$ origin of each vehicle is the horizontal mid p
 
 \subsection{Runtime Data Bus}
 
-\gls{rdb} is the proprietary format in which \gls{vtd} provides (and accepts) data to (from) any \nth{3}-party software connected to its bindings. It is a plain-text \enquote{vector of lists which contain each an array of entries of identical type}{\cite{software:rdbfaqs}}: the format specifies a large number of extensible datatypes, ranging from meta-data, to physical quantities (e.g.\ size, position, orientation), road details, sensor data, scenario state, and more.
+\gls{rdb} is the proprietary format in which \gls{vtd} provides (and accepts) data to (from) any \nth{3}--party software connected to its bindings. It is a plain-text \enquote{vector of lists which contain each an array of entries of identical type}{\cite{software:rdbfaqs}}: the format specifies a large number of extensible datatypes, ranging from meta-data, to physical quantities (e.g.\ size, position, orientation), road details, sensor data, scenario state, and more.
 
 Details on how this data is formatted are o protected and in any case, of limited importance. \gls{vtd} provides an extensive \planguage{c}/\planguage{c++} \glspl{api} to parse, read, and generate \gls{rdb} \glspl{packet}, greatly easing the procedure of composing and handling \gls{rdb} messages. In short, given any set of compatible measures, an \gls{rdb} \gls{packet} can be efficiently built with the certainty that it adheres to the standard, and it is accepted by \gls{vtd}.
 
-\gls{rdb} \glspl{packet} may be sent from \gls{vtd} to any arbitrary software (as \gls{udp} packets) by supplying the \gls{ip} of the host \gls{os} to \gls{rdb}'s configuration system, and binding the software's process to port \num{28190}. Likewise, data may be sent to \gls{vtd} from any arbitrary software by sending \gls{udp} packets to \gls{vtd}'s host \gls{os}, on port \num{28191}.\footnote{The port numbers presented here are not the real ones.} \gls{vtd}'s \gls{sendrate} can be freely varied (with a soft limit of \SI{1000}{\hertz}), whilst any receive rate can be gracefully handled when the synchronization mode is set to \code{real-time} in \gls{rdb}'s configuration: this allows a variable \nth{3}-party \gls{sendrate}.
+\gls{rdb} \glspl{packet} may be sent from \gls{vtd} to any arbitrary software (as \gls{udp} packets) by supplying the \gls{ip} of the host \gls{os} to \gls{rdb}'s configuration system, and binding the software's process to port \num{28190}. Likewise, data may be sent to \gls{vtd} from any arbitrary software by sending \gls{udp} packets to \gls{vtd}'s host \gls{os}, on port \num{28191}.\footnote{The port numbers presented here are not the real ones.} \gls{vtd}'s \gls{sendrate} can be freely varied (with a soft limit of \SI{1000}{\hertz}), whilst any receive rate can be gracefully handled when the synchronization mode is set to \code{real-time} in \gls{rdb}'s configuration: this allows a variable \nth{3}--party \gls{sendrate}.
 
 \input{mainmatter/tables/software/rdb}
 

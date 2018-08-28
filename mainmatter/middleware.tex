@@ -4,30 +4,30 @@
 	middleware, netcode, packet, payload, proxy
 \end{keywords}
 
-The \gls{middleware} is a \planguage{c++} static library (\file{.lib}), developed with \software{VSCode} and \software{Microsoft Visual Studio}.
+The \gls{middleware} is a \planguage{c++} static library (\file{.lib}), developed with \software{VSCode} and \software{Microsoft Visual Studio}. This library is added statically at \gls{me}'s compile time.
 
 \section{Features}\label{sc:middleware:features}
 
-The list of requirements was proposed and expanded upon by \company{ioTech}, based on the commercial viability of the final product (of which this \gls{middleware} is only a portion). The overall goal is to provide a public set of \glspl{api}, such that integration of any \gls{ts} could be done without having access to \gls{me}'s source code. Any \nth{3}--party company interested in using a \gls{ts} of their choice, could this seamlessly integrate it with minimal coding efforts and limited support from \company{ioTech}.
+The list of requirements was initially requested by\company{ioTech}, and further expanded during the development process. The main goal is achieving commercial viability of the final product (of which this \gls{middleware} is only a portion), by provide a public set of \glspl{api} and code bindings, such that integrating any \gls{ts} could be done without having access to \gls{me}'s (or whichever engine's) source code. Any \nth{3}--party company interested in using the \gls{ts} of their choice, could thus seamlessly integrate it with reduced coding effort and limited support from \company{ioTech}.
 
-The current iteration of the \gls{middleware} achieves all of the following \glspl{feature}.
+The current iteration of the \gls{middleware} achieves the following \glspl{feature}:
 
 \begin{itemize}
-	\item \FONTbold{black box} --- The \gls{middleware} should, by all intents and purposes, be a black box to any \nth{3}--party; only those parts required to successfully integrate a \gls{ts} should be grey boxed.
-	\item \FONTbold{trivial} --- Implementing any \gls{ts} should be a simple, trivial, and documented process. Allowing a \nth{3}--party to independently develop the integration greatly reduces the support \software{ioTech} is expected to provide.
-	\item \FONTbold{agnosticism} --- The \gls{netcode} part of the \gls{middleware} should be entirely hidden behind high-level functions: everything from sockets to memory handling should be handled inside the black box.
-	\item \FONTbold{standardization} --- Vehicular standards, unit of measures, coordinate systems, and more should not refer to \gls{me}'s specific implementation, but rather to an industry accepted standard.\footnote{See \fref{sc:software:middleware}.}
+	\item \FONTbold{black box} --- The \gls{middleware} presents itself as a black box to any \nth{3}--party; only those code bindings required to successfully integrate a \gls{ts} are grey boxed.
+	\item \FONTbold{trivial} --- Implementing any \gls{ts} is a (relatively) simple, trivial, and documented process. Allowing a \nth{3}--party to independently develop the integration greatly reduces the support \software{ioTech} is expected to provide.
+	\item \FONTbold{agnosticism} --- The \gls{netcode} part of the \gls{middleware} is be entirely hidden behind high-level functions: everything from sockets to memory handling is handled inside the black box, hidden to the \nth{3}-party.
+	\item \FONTbold{standardization} --- Vehicular standards, unit of measures, coordinate systems, and more are not \gls{me}'s specifications, but rather an industry accepted standard.\footnote{See \fref{sc:software:middleware}.}
 \end{itemize}
 
-The following \glspl{feature} are not fully supported yet, although the code is in place to allow an efficient transition to full support.
+\FLOATnoindent The following \glspl{feature} are not fully supported yet, although the code is in place to allow an efficient transition to full support.
 
 \begin{itemize}
-	\item \FONTbold{plug-and-play} --- Switching between different \gls{ts} should be allowed by means of \gls{me} configuration files or in-game settings.
+	\item \FONTbold{plug-and-play} --- Switching between different \gls{ts} should be allowed by means of configuration files or in-game settings.
 \end{itemize}
 
 \section{Structure}\label{sc:middleware:structure}
 
-The project is made of one core class, two helper namespaces, three data classes, and one required integration class.
+The \gls{middleware} is made of one core class, two helper namespaces, three data classes (one generic and two extensions), and one integration class.
 
 \subsubsection{Helper}
 
@@ -35,13 +35,13 @@ The project is made of one core class, two helper namespaces, three data classes
 	\item logger.cpp
 \end{filelist}
 
-Provides utility functions to log the \gls{middleware}'s state and debug data. Logging is done on the \code{stderr} stream.
+Contains a \code{namespace} that provides utility functions to log the \gls{middleware}'s state and debug the network payloads. Logging is entirely done on the \code{stderr} stream, and may be redirected to other sources by redirecting \code{stderr} itself.
 
 \begin{filelist}
 	\item maths.cpp
 \end{filelist}
 
-Provides some basic maths functionality, mainly focused on matrix transformations between and within 3D systems. Among basic conversion functions, it defines a \code{Vector_t} struct, and an \code{apply_matrix()} function: this is used to convert position (velocity, acceleration) vectors between coordinate systems. See \fref{ax:math:matrix} for the relevant maths basics.
+Contains a \code{namespace} that provides some basic maths functionality, mainly focused on matrix transformations between and within \FONTsmallcaps{3d} systems. Together with basic conversion functions, it defines a \code{Vector_t} struct, and an \code{apply_matrix()} function: the latter is used to convert state vectors (position, velocity, acceleration) between different coordinate systems. See \fref{ax:math:matrix} for some maths basics on the subject.
 
 \begin{codelist}{maths.cpp --- apply\_matrix()}{46}
 Vector_t apply_matrix(const Vector_t* vector, const transformMatrix matrix) {
@@ -55,11 +55,11 @@ Vector_t apply_matrix(const Vector_t* vector, const transformMatrix matrix) {
 }
 \end{codelist}
 
-The functions in this namespace are exposed as \glspl{api} to \nth{3}--parties through the \file{maths.hpp} header.
+All the functions in \file{maths.cpp} are exposed as part of the \gls{api} to \nth{3}--parties through the \file{maths.hpp} header.
 
 \subsubsection{Data}
 
-The three data classes represent generic traffic objects, and must be used in the integration process.
+Three data classes represent generic traffic objects, and are to be used when converting between the \gls{ts}'s and the \gls{middleware}'s standard.
 
 \begin{filelist}
 	\item LightEntity.cpp
@@ -67,42 +67,42 @@ The three data classes represent generic traffic objects, and must be used in th
 	\item VehicleEntity.cpp
 \end{filelist}
 
-The data obtained from the \gls{ts} must be serialized in the appropriate class (e.g.\ data on an \gls{ai} vehicle is serialized in a \code{VehicleEntity} instance); the serialized instances obtained from \gls{me} must be deserialized into the appropriate \gls{ts} format (e.g.\ a \code{LightEntity} is deserialized into traffic lights raw data). This serialization/deserialization is in fact the only code that a \nth{3}--party must produce for the integration.
+The \glspl{payload} obtained from the \gls{ts} must be serialized in the appropriate class (e.g.\ data on an \gls{ai} vehicle is serialized in a \code{VehicleEntity} instance); similarly the game engine returns serialized instances that must be deserialized into the appropriate \gls{ts} format (e.g.\ a \code{LightEntity} is deserialized into raw traffic lights data). This serialization/deserialization process is the only code effort that a \nth{3}--party must produce to integrate any \gls{ts} in the game engine.
 
-\code{TrafficEntity} is the parent class, that contains values common to all other entities (like position and id); \code{LightEntity} and \code{VehicleEntity} both extend the base class, each adding the data relevant to their function (e.g.\ \code{VehicleEntity} adds velocity and acceleration vectors, among other values).
+\code{TrafficEntity} is the generic parent class, that contains any values that are common to all other entities (like an identification number and position coordinates); \code{LightEntity} and \code{VehicleEntity} both extend this base class, each adding some data relevant to their specific function (e.g.\ \code{VehicleEntity} adds velocity and acceleration vectors).
 
-The headers are fully documented to ease the coding by \nth{3}--parties.
+The headers are fully documented to the  benefit of \nth{3}--parties.
 
 \subsubsection{Core}
 
-The core class is a pure virtual class, which means it must be extended by a child class that implements its pure virtual methods. \code{UDPConnector} silently handles the netcode, and only leaves the conversion to/from the \gls{ts} and \gls{me} to be implemented. As such the two pure virtual methods are \code{handle_RX_payload()} and \code{prepare_TX_payload()}, that respectively must handle the \gls{payload} received from the \gls{ts}, and prepare the data to be sent to the \gls{ts}.
+The core class is a \planguage{c++} pure virtual class, i.e.\ it cannot be instantiated, and must instead be extended by a child class that implements its pure virtual methods. \code{UDPConnector} silently handles the netcode portion of the \gls{middleware}, and only leaves the conversion between standards to be implemented. The two pure virtual methods that accomplish this conversion (or, (de)serialize the data) are \code{handle_RX_payload()} and \code{prepare_TX_payload()}: the former must handle the \gls{payload} received from the \gls{ts}, serializing it into proper data instances; the latter prepares the \gls{payload} to be sent to the \gls{ts}, with an opposite process.
 
-Summarily, the execution flow is as follows:
+Summarily, the \gls{middleware}'s execution flow is as follows:
 
 \begin{itemize}
-	\item an instance of \code{UDPConnector} is created by the implementing child class, via the \code{UDPConnector()} constructor;
-	\item receiving and transmitting connections are opened between the \gls{ts} and \gls{me}, via \code{open_RX_connection()} and \code{open_TX_connection()};
+	\item an instance of \code{UDPConnector} is created through an implemented child class, using the \code{UDPConnector()} constructor;
+	\item receival and transmission connections are opened between the \gls{ts} and the \gls{middleware}, via \code{open_RX_connection()} and \code{open_TX_connection()};
 	\item a \gls{packet} is received from the \gls{ts}, via \code{receive_packet()}, and placed in \code{m_payloadRX}
-	\item the \gls{payload} is converted/serialized by \code{handle_RX_payload()}, and the returned \code{std::vector} consumed by \gls{me} for rendering;
-	\item player data provided by \gls{me} is converted/deserialized by \code{handle_TX_payload()}, and the resulting \gls{payload} is placed in \code{m_payloadTX};
-	\item a \gls{packet} is sent to the \gls{ts} with the \gls{payload} in \code{m_payloadTX}, via \code{send_packet()}.
+	\item the \gls{payload} is converted/serialized by \code{handle_RX_payload()}, and the returned \code{std::vector} consumed by the game engine for rendering;
+	\item player data provided by the game engine is converted/deserialized by \code{handle_TX_payload()}, and the resulting \gls{payload} is placed in \code{m_payloadTX};
+	\item a \gls{packet} containing the \gls{payload} in \code{m_payloadTX} is sent to the \gls{ts}, via \code{send_packet()}.
 \end{itemize}
 
 \begin{image}
 	{middleware/flow}{0.8}
-	{\gls{middleware} execution flow}
+	{Middleware Development: \gls{middleware} execution flow}
 	{im:middleware:flow}
 	{}
-	{}
+	{The internal execution flow of the \gls{middleware}, seen from the point of view of methods calls and fields access; the destructor is not shown. The incoming and outgoing flows are separate and independent with each other.}
 \end{image}
 
-A destructor is also used to properly close the connections and free all the used memory. Note that there is no requirement for a 1:1 relation between \glspl{packet} sent and \glspl{packet} received: both may happen independently and at different rates.
+A destructor also properly closes the connections and frees all the used memory. There is no requirement for a 1:1 relation between \glspl{packet} sent and \glspl{packet} received: the \gls{middleware} can gracefully handle independent and different rates.
 
-These methods are called within \gls{me}, as part of the integration with the game engine (\fref{ch:integration}).
+These methods are part of the \gls{api} exposed to the game engine, as part of the integration process. See \fref{ch:integration} for the specific \gls{me} integration.
 
 \subsubsection{Integration}
 
-Integrating any \gls{ts} into the \gls{middleware} (and thus \gls{me}) simply requires implementing \code{handle_RX_payload()} and \code{prepare_TX_payload()}. The former should take the \gls{payload} from the \gls{ts}, generate a list of matching \code{TrafficEntity}, and return them; how this is achieved is irrelevant from the \gls{middleware}'s perspective. The latter should take a list of \code{TrafficEntity} (more specifically, a \code{VehicleEntity} representing the player), covert it into the appropriate byte format required by the \gls{ts}, and place it into \code{m_payloadTX}.
+Integrating any \gls{ts} into the \gls{middleware} (and thus the game engine) only requires the implementation of the \code{handle_RX_payload()} and \code{prepare_TX_payload()} methods. The former should use the \glspl{payload} received from the \gls{ts}, generate a list of matching \code{TrafficEntity}, and return them. The latter should take a list of \code{TrafficEntity} (more specifically, a \code{VehicleEntity} representing the player), convert it into the appropriate format required by the \gls{ts}, and place it into \code{m_payloadTX}. How these conversions are achieved is irrelevant from the \gls{middleware}'s perspective. \fref{sc:middleware:implementation} is an example of such an integration.
 
 \section{Netcode}\label{sc:middleware:netcode}
 
@@ -115,19 +115,19 @@ Integrating any \gls{ts} into the \gls{middleware} (and thus \gls{me}) simply re
 \begin{definition}{payload}
 \end{definition}
 
-The netcode is fully handled by the core \code{UDPConnector} class: more specifically, by the methods detailed in \fref{tb:middleware:netcode}.
+The netcode is handled entirely by the core \code{UDPConnector} class: more specifically, by the methods detailed in \fref{tb:middleware:netcode}.
 
 \input{mainmatter/tables/middleware/netcode}
 
-Note that all the following code snippets have comments, debugging, and cross-compiler options removed for functional clarity. See \fref{ax:code:netcode} for an example of unmodified code.
+Note that all of the following code snippets have comments, debugging function, and cross-compiler options removed for  clarity. See \fref{ax:code:netcode} for an example of undoctored code.
 
 \subsection{OS Sockets}
 
-Windows \gls{os} sockets are provided by the \file{<Ws2tcpip.h>} standard \planguage{c} header. Socket references are saved in \code{int} variables, that represent a file descriptor for that specific socket.
+Windows \gls{os} sockets are provided by the \file{<Ws2tcpip.h>} standard \planguage{c} header. Socket references are saved in \code{int} variables, that represent that specific socket's file descriptor.
 
 \subsubsection{Receival Connection}
 
-An in (receiving) socket is represented by a \code{struct sockaddr_in}. The file descriptor is obtained with a \code{socket()} call, with the \code{IPPROTO_UDP} option specifying the \gls{udp} protocol; options are specified with \code{setsockopt()}. Properties of the socket (like \gls{ip} and port) are directly set to the \code{struct}'s appropriate fields. The socket is set as non-blocking (i.e.\ the execution continues if nothing is found on a \code{recv()} call) via \code{ioctlsocket()} and the \code{FIONBIO} option. Finally, the socket is opened (bound) with \code{bind()}, by passing the file descriptor and the socket \code{struct}.
+An in (receiving) socket is represented by a \code{struct sockaddr_in}. The \code{socket()} call returns a file descriptor, and the \code{IPPROTO_UDP} option specifies \gls{udp} as the socket's protocol; additional options are specified with \code{setsockopt()}. Meta properties of the socket (like \acrshort{ip} and port) are directly set into the \code{struct}'s appropriate fields. The socket is set as non-blocking (i.e.\ the execution continues if nothing is found on a \code{recv()} call) by supplying the \code{FIONBIO} option to \code{ioctlsocket()}. Finally, the socket is opened (bound) with \code{bind()}, by passing the file descriptor and the socket's \code{struct}.
 
 \begin{codelist}{UDPConnector.cpp --- open\_RX\_connection()}{73}
 bool UDPConnector::open_RX_connection(const char* ip, const uint16_t port) {
@@ -172,7 +172,7 @@ bool UDPConnector::open_RX_connection(const char* ip, const uint16_t port) {
 
 \subsubsection{Delivery Connection}
 
-Opening an out (delivery) socket is similar, with only minor changes in the options for the socket. The major difference is the usage of \code{connect()} instead of \code{bind()}. The former is used to connect to a remote \code{ip:port}, whilst the latter provides an endpoint for external connections.
+Opening an out (delivery) socket is similar, with only minor changes in the options supplied to the socket. The main difference is the usage of \code{connect()} instead of \code{bind()}: the former is used to connect to a remote socket; the latter provides an endpoint for external connections.
 
 \begin{codelist}{UDPConnector.cpp --- open\_TX\_connection()}{143}
 bool UDPConnector::open_TX_connection(const char* ip, const uint16_t port) {
@@ -220,7 +220,7 @@ bool UDPConnector::open_TX_connection(const char* ip, const uint16_t port) {
 
 \subsubsection{Receiving Packet}
 
-The \code{recv()} function polls the socket to see if any \glspl{packet} were sent to it. If one is found the \gls{packet}'s \gls{payload} is saved in \code{m_payloadRX}.
+The \code{recv()} function polls the receival socket to see if any \glspl{packet} were sent to it. If one is found its \gls{payload} is saved in \code{m_payloadRX}.
 
 \begin{codelist}{UDPConnector.cpp --- receive\_packet()}{215}
 bool UDPConnector::receive_packet() {
@@ -235,7 +235,7 @@ bool UDPConnector::receive_packet() {
 
 \subsubsection{Sending Packet}
 
-The \code{send()} function takes a \gls{payload} (and its size) and sends a \gls{packet} containing it towards the specified remote \code{ip:port}.
+The \code{send()} function takes a \gls{payload} (and its size) and sends a \gls{packet} containing it.
 
 \begin{codelist}{UDPConnector.cpp --- send\_packet()}{234}
 bool UDPConnector::send_packet() {
@@ -248,11 +248,11 @@ bool UDPConnector::send_packet() {
 }
 \end{codelist}
 
-\subsection{0mq Sockets}
+\subsection{\FONTsmallcaps{0mq} Sockets}
 
-\software{0mq} sockets are provided by the \file{<zmq.h>} library \planguage{c} header. Socket references are saved as \code{void} pointers, that represent the memory allocation of that specific socket. A context must be instantiated as well before creating the sockets, that contains some general configuration settings about the \software{0mq} middleware process.
+\software{\FONTsmallcaps{0mq}} sockets are provided by the \file{<zmq.h>} library \planguage{c} header. Socket references are saved as \code{void} pointers, that represent the memory location of a specific socket. Before creating the sockets a context must be instantiated as well, containing some general configuration settings about \software{\FONTsmallcaps{0mq}}'s process.
 
-The \code{UDPConnector()} constructor instantiates a new context, and specifies the receive and send socket references. The current implementation uses the \FONTsmallcaps{pub/sub} model: a receiving socket subscribes to a remote publishing socket; multiple receiving sockets may subscribe to a single publish socket at the same time. The project's structure would only require a single subscriber, but the 1:1 \software{0mq} \FONTsmallcaps{req/rep} forces the server and client sendrates to be the same (each request must be followed by a reply).
+The \code{UDPConnector()} constructor instantiates a new context, and specifies the receive and send socket references. The current implementation uses the \FONTsmallcaps{pub/sub} model: a receiving socket subscribes to a remote publishing socket; multiple receiving sockets may be subscribed to a single publish socket at the same time. The project's structure only requires a single subscriber, but the other \software{\FONTsmallcaps{0mq}} model \FONTsmallcaps{req/rep}would force the server and client sendrates to be the same (where each request must be followed by a reply).
 
 \begin{codelist}{UDPConnector.cpp --- UDPConnector()}{63}
 UDPConnector::UDPConnector() {
@@ -267,10 +267,10 @@ UDPConnector::UDPConnector() {
 
 \subsubsection{Receival Connection}
 
-Opening a receival connection in \software{0mq} requires only a \code{connect()} call, specifying the socket reference and the remote \code{ip:port} to connect to. \code{zmq_setsockopt()} allows setting some options:
+Opening a receival connection in \software{\FONTsmallcaps{0mq}} only requires a \code{connect()} call, by specifying the socket reference and the remote address to connect to. \code{zmq_setsockopt()} allows setting further options:
 
 \begin{itemize}
-	\item \code{ZMQ_CONFLATE} forces \software{0mq} to only retain the latest \gls{packet} received, and not keep a queue of received but not handled old \glspl{packet};
+	\item \code{ZMQ_CONFLATE} forces \software{\FONTsmallcaps{0mq}} to only retain the latest \gls{packet} received, and not keep a queue unhandled old \glspl{packet};
 	\item \code{ZMQ_SUBSCRIBE} specifies the list the socket subscribes to (in this case, only one unnamed list exists).
 \end{itemize}
 
@@ -290,7 +290,7 @@ bool UDPConnector::open_RX_connection(const char* ip, const uint16_t port) {
 
 \subsubsection{Delivery Connection}
 
-A delivery connection is set up with the \code{bind()} call, that creates a socket to which remote \software{0mq} processes can connect to. The \code{ZMQ_CONFLATE} option is also passed to avoid a \gls{packet} queueing.
+A delivery connection is set up with the \code{bind()} call, that creates a socket to which remote \software{\FONTsmallcaps{0mq}} processes can connect to. The \code{ZMQ_CONFLATE} option is also passed to avoid a \gls{packet} queueing.
 
 \begin{codelist}{UDPConnector.cpp --- open\_TX\_connection()}{95}
 bool UDPConnector::open_TX_connection(const char* ip, const uint16_t port) {
@@ -306,7 +306,7 @@ bool UDPConnector::open_TX_connection(const char* ip, const uint16_t port) {
 
 \subsubsection{Receiving Packet}
 
-Receiving a \gls{packet} on a socket requires a single \code{zmq_recv()} call, specifying the \code{ZMQ_NOBLOCK} option for a non-blocking receive (the execution does not halt until a \gls{packet} is received). The \gls{payload} is placed in \code{m_payloadRX}.
+Receiving a \gls{packet} on a socket requires a single \code{zmq_recv()} call, passing the \code{ZMQ_NOBLOCK} option for a non-blocking receive (the execution does not halt if a \gls{packet} is not received). The \gls{payload} is placed in \code{m_payloadRX}.
 
 \begin{codelist}{UDPConnector.cpp --- receive\_packet()}{109}
 bool UDPConnector::receive_packet() {
@@ -321,7 +321,7 @@ bool UDPConnector::receive_packet() {
 
 \subsubsection{Sending Packet}
 
-Sending a \gls{packet} requires firstly sending the list name for that \gls{packet} (in this case, an empty name), and then adding the \gls{payload}. Both are done with the \code{zmq_send()} function, with the first part specifying \code{ZMQ_SENDMORE} to notify the receiver that more bytes from the same \gls{packet} are to be expected. The \gls{payload} sent is the one found in \code{m_payloadTX}.
+Sending a \gls{packet} requires firstly sending the list name for that \gls{packet} (in this case, an empty string), and then sending the \gls{payload} itself. Both are done with the \code{zmq_send()} function, with the first part specifying \code{ZMQ_SENDMORE} to notify the receiver that more bytes from the same \gls{packet} are to be expected. The \gls{payload} sent is the one found in \code{m_payloadTX}.
 
 \begin{codelist}{UDPConnector.cpp --- send\_packet()}{130}
 bool UDPConnector::send_packet() {
@@ -337,31 +337,31 @@ bool UDPConnector::send_packet() {
 
 \section{VTD Implementation}\label{sc:middleware:implementation}
 
-For testing purposes and as a proof-of-concept, the implementation of \gls{vtd} was coded during the development of the \gls{middleware}.
+For testing purposes and as a proof-of-concept, \gls{vtd} was implemented during the development of the \gls{middleware}.
 
-As per specs two functions were overridden:
-
-\begin{itemize}
-	\item \code{handle_RX_payload()} converts the data from the \gls{rdb} format into matching \code{TrafficEntity};
-	\item \code{prepare_TX_payload()} converts the data from \code{TrafficEntity} to the the \gls{rdb} format.
-\end{itemize}
-
-\gls{vtd} developer \company{Vires Simulationstechnologie GmbH} provides a full set of \glspl{api} to create, parse, print, and generally handle data in the \gls{rdb} format. This greatly eases the implementation, since it hides all the details on packaging, byte sizes, and more. Among the many datatypes, the ones relevant to this implementation are \code{RDB_OBJECT_STATE_t} and \code{RDB_VEHICLE_SYSTEMS_t}, that respectively hold data about an object's overall state (dimensions, position, vectors, type, name, etc.), and vehicle systems (sensors, lights, etc.).
-
-The higher level functions that convert data are, for \gls{rdb} to \gls{me}:
+Following the specs, two functions were overridden:
 
 \begin{itemize}
-	\item \code{convert_entry_to_entity()} --- converts a datatype (passed as a pointer) into an appropriate \code{TrafficEntity}, adding it to a \code{std::vector<TrafficEntity>};
+	\item \code{handle_RX_payload()} converts the data from the \gls{rdb} format into matching \code{TrafficEntity}(ies);
+	\item \code{prepare_TX_payload()} converts the data from \code{TrafficEntity}(ies) to the \gls{rdb} format.
 \end{itemize}
 
-\FLOATnoindent whereas, for \gls{me} to \gls{rdb}:
+\gls{vtd} provides a full set of \glspl{api} to create, parse, print, and generally handle data in the \gls{rdb} format. This greatly eases the implementation, since it hides all the details on packaging, memory management, and more. Among the many \gls{rdb} datatypes, the ones relevant to this implementation are \code{RDB_OBJECT_STATE_t} and \code{RDB_VEHICLE_SYSTEMS_t}, that respectively hold data about an object's overall state (dimensions, position, vectors, type, name, etc.), and a vehicle's systems (sensors, lights, etc.).
+
+The higher level methods that convert data are, \gls{rdb} to \gls{middleware}:
 
 \begin{itemize}
-	\item \code{convert_entity_to_objectstate()} --- converts a \code{TrafficEntity} into an appropriate \gls{rdb} \code{RDB_OBJECT_STATE_t}, returning a memory point to that object;
-	\item \code{convert_entity_to_vehiclesystems()} --- converts a \code{TrafficEntity} into an appropriate \gls{rdb} \code{RDB_VEHICLE_SYSTEMS_t}, returning a memory point to that object.
+	\item \code{convert_entry_to_entity()} --- converts an \gls{rdb} datatype (passed as a memory pointer) into an appropriate \code{TrafficEntity}, adding it to a \code{std::vector<TrafficEntity>};
 \end{itemize}
 
-Since a single \code{rdb} \gls{packet} contains data for all the entities in the simulation, the receiving handling function must discriminate between the different datatypes, keeping count on how many bytes remain before the end of the whole \gls{packet}. \code{simTime} and \code{frameNo} are used to synchronize the simulation between \gls{vtd} and \gls{me}.
+\FLOATnoindent whereas, for \gls{middleware} to \gls{rdb}:
+
+\begin{itemize}
+	\item \code{convert_entity_to_objectstate()} --- converts a \code{TrafficEntity} into an appropriate \gls{rdb} \\ \code{RDB_OBJECT_STATE_t}, returning a memory point to that object;
+	\item \code{convert_entity_to_vehiclesystems()} --- converts a \code{TrafficEntity} into an appropriate \gls{rdb} \\ \code{RDB_VEHICLE_SYSTEMS_t}, returning a memory point to that object.
+\end{itemize}
+
+Since a single \code{rdb} \gls{packet} contains the data for all the entities in the simulation, the method that handles received data must discriminate between the different \gls{rdb} datatypes, additionally keeping count on how many bytes remain before the \gls{packet}'s end. The received \glspl{packet} also contain \code{simTime} and \code{frameNo}, used to temporally synchronize the simulation between \gls{vtd} and \gls{me}.
 
 \begin{codelist}{VTDConnector.cpp --- handle\_RX\_payload()}{65}
 std::vector<TrafficEntity*> VTDConnector::handle_RX_payload() {
@@ -411,7 +411,7 @@ std::vector<TrafficEntity*> VTDConnector::handle_RX_payload() {
 }
 \end{codelist}
 
-Internally, \code{convert_entry_to_entity()} calls another method that checks whether a \code{TrafficEntity} with the found \code{id} was already added to the \code{std::vector}: f so, it gets its reference, and adds the data to it; otherwise, it instantiates a new (appropriate) \code{TrafficEntity} and adds it to the \code{std::vector}.
+Internally, \code{convert_entry_to_entity()} calls another method that checks whether a \code{TrafficEntity} with the found \code{id} is already present in the \code{std::vector}: if so, it gets its reference, and appends the data to it; otherwise, it instantiates a new (appropriate) \code{TrafficEntity} and inserts it into the \code{std::vector}.
 
 \begin{codelist}{VTDConnector.cpp --- prepare\_TX\_payload()}{118}
 TrafficEntity* VTDConnector::get_add_entity(std::vector<TrafficEntity*>* entities, const uint8_t id, const TrafficEntity::AVAILABLE_ENTITIES_e type) {
@@ -439,7 +439,7 @@ TrafficEntity* VTDConnector::get_add_entity(std::vector<TrafficEntity*>* entitie
 }
 \end{codelist}
 
-The actual conversion is handled vector by vector. A temporary \code{maths::vector vector} is used to apply the transformation matrices, that transform vectors from \gls{vtd}'s coordinate system to the \gls{middleware}'s. The center point is moved first with the \code{move_pivot_front()} call, depending on the vehicle's heading (\code{entry->base.pos.h}). The \gls{rdb} vector is then copied member-by-member to the temporary \code{vector}, and two transform matrices are applied: one to align the scenario, and one to transform the coordinate systems. Finally, the data is copied member-by-member from the temporary \code{vector} to the \code{TrafficEntity}'s \code{inertialPosition} property. A similar process is used for angles, velocity, and acceleration vectors.
+The actual conversion of the raw data is handled vector by vector. A temporary \code{maths::vector vector} is used to apply the transformation matrices, set to transform coordinates from \gls{vtd}'s to the \gls{middleware}'s coordinate system. Firstly, the geometry's center point is moved by calling \code{move_pivot_front()}, that does so depending on the vehicle's yaw (\code{entry->base.pos.h}); the resulting vector is then copied member-by-member to the temporary \code{vector}, and two transform matrices are applied: one to align the scenario, and one to transform the coordinate systems. Finally, the data is copied member-by-member from the temporary \code{vector} to the \code{TrafficEntity}'s \code{inertialPosition} property. A similar process is used for angles, velocity, and acceleration vectors.
 
 \begin{codelist}{VTDConnector.cpp --- convert\_entry\_to\_entity()}{162}
 void VTDConnector::convert_entry_to_entity(std::vector<TrafficEntity*>* entities, const RDB_OBJECT_STATE_t* entry, bool isExtended) {
@@ -511,38 +511,38 @@ void VTDConnector::convert_entry_to_entity(std::vector<TrafficEntity*>* entities
 }
 \end{codelist}
 
-The opposite conversion (\gls{me} to \gls{vtd}) is similar.
+The opposite conversion (\gls{middleware} to \gls{vtd}) is similar.
 
 \section{Testing}\label{sc:middleware:testing}
 
-Testing was done continuously during the development process, by comparing the visual rendering in \gls{me} with the traffic behaviour in \gls{vtd}. \gls{me} runs on a Windows 10 machine, whilst \gls{vtd} runs on a guest \gls{vm}: the \gls{vm} is set to obtain its own \gls{ip} from the network's \gls{dhcp} server, to separate the host and guest on the network and fully generalize the testing.
+Testing was performed during and after the development of the \gls{middleware}, by comparing \gls{me}'s visual rendering with \gls{vtd}'s traffic behaviour. The testing environment has \gls{me} running on a Windows 10 machine, whilst \gls{vtd} runs on a guest Linux \gls{vm}: the \gls{vm} is set such that it obtains its own \gls{ip} from the network's \gls{dhcp} server, separating the host and guest and generalizing the environment from an \gls{ip} perspective.
 
 \begin{image}
 	{middleware/environment}{1.0}
-	{testing environment}
+	{Middleware Development: testing environment}
 	{im:middleware:environment}
 	{}
-	{}
-\end{image} % FIXME check the ports on the MSI
+	{An overall view of the testing environment, assuming the \gls{middleware} is implemented with \gls{os} sockets. The two host \glspl{os} (one being a \gls{vm}) obtain separate \glspl{ip} from the \gls{dhcp} server, and communicate by specifying the other's \gls{ip} and the correct port for the process.}
+\end{image}
 
-\software{0mq} requires all the entities part of the network to implement their sockets. This becomes a problem when testing \gls{vtd} with \software{0mq}, since \gls{vtd} is closed source and does not use \software{0mq} sockets. To avoid this issue, a \gls{proxy} was coded, such that it receives/sends from \gls{vtd} on normal sockets, and forwards the \gls{payload} sending/receiving to the \gls{middleware} on \software{0mq} sockets.
+Unfortunately, \software{\FONTsmallcaps{0mq}} requires that all the entities part of the system implement their sockets. This becomes a problem when testing the \gls{middleware} with \software{\FONTsmallcaps{0mq}}, since \gls{vtd} is closed source and does not use \software{\FONTsmallcaps{0mq}} socket, nor does it offer the possibility to implement them. To avoid this issue a \gls{proxy} was coded, such that it receives/sends from/to \gls{vtd} on non-\software{\FONTsmallcaps{0mq}} sockets, and forwards the \gls{payload} sending/receiving from/to the \gls{middleware} on \software{\FONTsmallcaps{0mq}} sockets.
 
 \subsection{The Proxy}
 
 \begin{definition}{proxy}
 \end{definition}
 
-This \gls{proxy} resides on the \gls{vm} hosting \gls{vtd}; additionally, the expected ports are modified on the \gls{middleware}'s side. This completely hides the bridge's presence to the \gls{middleware}, that has no knowledge that a \gls{proxy} is between it and \gls{vtd}.\footnote{The additional latency introduced by the \gls{proxy} is unsubstantial, see \fref{sc:performance:proxy}}.
+This \gls{proxy} resides on the \gls{vm} hosting \gls{vtd}; for it to work, the ports are modified on the \gls{middleware} as well, replacing \gls{vtd}'s with the \gls{proxy}'s. This completely hides the \gls{proxy}'s presence to the \gls{middleware}, that has no knowledge that a third software is mediating its communication with \gls{vtd}.\footnote{The additional latency introduced by the \gls{proxy} is unsubstantial, see \fref{sc:performance:proxy} for details.}
 
 \begin{image}
 	{middleware/zmqenvironment}{1.0}
-	{\software{0mq} testing environment}
+	{Middleware Development: \software{\FONTsmallcaps{0mq}} testing environment}
 	{im:middleware:zmqenvironment}
 	{}
-	{}
+	{This image is similar to \fref{im:middleware:environment}, but with an additional layer (the \gls{proxy}) between the \gls{middleware} and \gls{vtd}. The port numbers also change to reflect this addition.}
 \end{image}
 
-The \gls{proxy} opens two connection "lanes", one upstream (data flowing out the \gls{vm}) and one downstream (data flowing in the \gls{vm}). It does so by creating four sockets, each of the appropriate type: \gls{os} towards \gls{vtd}, \software{0mq} towards the \gls{middleware}. It then waits for \glspl{packet} to be received from either side, and reroutes them with no modifications. The full lower level code that handles the rerouting can be found in \fref{ax:code:proxy}.
+The \gls{proxy} opens two connection "lanes", one upstream (data flowing out the \gls{vm}) and one downstream (data flowing in the \gls{vm}). It does so by creating four sockets, two per type: \gls{os} towards \gls{vtd}, \software{\FONTsmallcaps{0mq}} towards the \gls{middleware}. It then waits for \glspl{packet} to be received from either side, and reroutes them without any modifications. The full low level code that handles the rerouting can be found in \fref{ax:code:proxy}.
 
 \begin{codelist}{start.cpp --- main()}{12}
 int main() {
@@ -569,4 +569,4 @@ Sockets are created and handled nearly identically as seen in \fref{sc:middlewar
 
 \section{Recap}\label{sc:middleware:recap}
 
-The \gls{middleware}'s requirements and matching features were presented and explained in \fref{sc:middleware:features}; its overall structure was then described in \fref{sc:middleware:structure}, by discriminating between helper namespaces, data objects, the core class, and the necessary integration class. \fref{sc:middleware:netcode} summarily details the \gls{netcode} implementation, both with \gls{os} and \software{0mq} sockets. \fref{sc:middleware:implementation} broadly explains how \gls{vtd} was integrated as a proof-of-concept. Finally, \fref{sc:middleware:testing} presented the development and testing environment, explaining why a \gls{proxy} is needed to test \software{0mq}, where it resides, and how it works.
+The \gls{middleware}'s requirements and matching features were presented and explained in \fref{sc:middleware:features}; its overall structure was then described in \fref{sc:middleware:structure}, by discriminating between helper namespaces, data objects, the core class, and the necessary integration class. \fref{sc:middleware:netcode} summarily details the \gls{netcode} implementation, both with \gls{os} and \software{\FONTsmallcaps{0mq}} sockets. \fref{sc:middleware:implementation} broadly explains how \gls{vtd} was integrated as the project's proof-of-concept. Finally, \fref{sc:middleware:testing} presented the development and testing environment, explaining why a \gls{proxy} is needed to test \software{\FONTsmallcaps{0mq}}, where it resides, and how it works.
