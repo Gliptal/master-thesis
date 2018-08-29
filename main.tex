@@ -30,10 +30,14 @@
 		\input{frontmatter/dedication}
 		\input{frontmatter/thanks}
 		\FLOATpushrightpage
+
+		{
+		\let\clearpage\relax
 		\TOCwrite
-		\FLOATpushrightpage
+		\FLOATpushpage
 		\TOCwritefigures
 		\TOCwritetables
+		}
 
 	\endgroup
 

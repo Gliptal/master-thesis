@@ -1,6 +1,6 @@
 Silent
 {
-    \FLOATcenter \FLOATnoindent \FLOATpushrightpage \FLOATskipbig
+    \FLOATcenter \FLOATnoindent \FLOATpushpage \FLOATpushrightpage \FLOATskipbig
 
     \FONTmonospaceseries \FONTnormalseries \FONTsmallcapsseries
 

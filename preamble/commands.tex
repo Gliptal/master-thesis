@@ -155,6 +155,10 @@
 	stepnumber=5
 }
 
+%% PDF %%
+
+\pdfpageattr{/Group << /S /Transparency /I true /CS /DeviceRGB>>}
+
 %% SIUNITX %%
 
 \SIUNITXnewunit\fps{\FONTsmallcaps{fps}}
@@ -167,6 +171,9 @@
 \TABULARXnewcolumntype{Y}{>{\FLOATcenter\COREresetbackslash}X}
 
 %% TITLESEC %%
+
+\TITLESECclass{\chapter}{straight}
+\TITLESECformat{\chapter}{\FLOATpushrightpage\FONTnormalseries\FONTsizenine\FONTboldseries}{\thechapter}{1em}{}[\GLOSSARIESreset]
 
 \TITLESECformat{\part}{\FLOATcenter\FONTnormalseries\FONTsizenine\FONTboldseries}{\FONTuppercaseseries{\TITLESECpartname~\TITLESECpartnum}}{0pt}{\\\FLOATverticalspace{2pc}}
 
