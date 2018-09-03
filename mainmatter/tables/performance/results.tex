@@ -1,14 +1,15 @@
 \begin{table}[!ht]
 	\centering
 	\begin{tabularx}{\FLOATtextwidth}{l*{10}{Y}}
-        & \TABULARXmulticolumn{3}{c}{framerate} & \TABULARXmulticolumn{3}{c}{network} & \TABULARXmulticolumn{4}{c}{hardware} \\
+        & \TABULARXmulticolumn{3}{c}{framerate} & \TABULARXmulticolumn{3}{c}{netcode} & \TABULARXmulticolumn{4}{c}{hardware} \\
         \TABULARXpartialruler(lr){2-4} \TABULARXpartialruler(lr){5-7} \TABULARXpartialruler(lr){8-11}
         & min. & max. & avg. & rate & load & total & \gls{cpu} min. & \gls{cpu} max. & \gls{cpu} avg. & \gls{ram} delta \\
         \TABLEmidruler
-        \gls{os} sockets       & = & = & -- & +++      & = & = & ++    & +++      & +++      & = \\
-        \software{0mq} sockets & = & = & +  & -- -- -- & = & = & -- -- & -- -- -- & -- -- -- & = \\
+        \gls{os} sockets                       & = & = & -- & +++      & = & = & ++    & +++      & +++      & = \\
+        \software{\FONTsmallcaps{0mq}} sockets & = & = & +  & -- -- -- & = & = & -- -- & -- -- -- & -- -- -- & = \\
         \TABLEbottomruler
     \end{tabularx}
 
-    \caption{framerate testing environment}\label{tb:performance:results}
+	\caption{Performance Analysis: qualitative performance summary}\label{tb:performance:results}
+	\CAPTIONadd{The table shows a qualitative summary of the perforamnce analysis. \software{\FONTsmallcaps{0mq}} sockets are at a disadvantage in hardware usage and \gls{packet} rate, and have a slight advantage in average \gls{framerate}.}
 \end{table}

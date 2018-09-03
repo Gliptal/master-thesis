@@ -1,14 +1,22 @@
 \chapter{Performance Analysis}\label{ch:performance}
 
 \begin{keywords}
-	me, vtd
+	framerate, me, netcode, proxy, vtd
 \end{keywords}
 
-The two following chapters are devoted to analysing the differences in performance and coding between the \gls{os} sockets and \software{0mq} sockets approach. The goal is to provide a consistent and valid set of data, that can be used to empower proper decision making, by weighting the pros and cons of each of the two approaches. As such measures are repeated multiple times in identical conditions, to obtain datasets with proper confidence levels.
+This and the following chapter analyse the differences in performance and coding ease between the \gls{os} sockets and \software{\FONTsmallcaps{0mq}} sockets approaches and implementations. The goal is to provide consistent and meaningful data that may be used to for decision making processes, by weighting the pros and cons of each of the two approaches. To achieve this, each measure is repeated multiple times in identical hardware and software conditions, to then obtain means that fall with useful confidence intervals.
 
-Hardware, graphics settings, and scene are identical for all of the performance tests: the simulation is ran on the test 8-track, with \num{1} player, \num{2} \gls{ai} vehicles controlled by \gls{vtd}, a variable \gls{me} \gls{sendrate} (dependent on the \gls{framerate}), and a \SI{120}{\hertz} \gls{vtd} \gls{sendrate}. See \fref{tb:performance:hardware} for the hardware specifications.
+Hardware, graphics settings, and simulated scene are identical for all of the performance tests: the simulation is ran on \gls{me}'s rendition of the 8-track, with \num{1} player-controlled vehicle, \num{2} \gls{vtd}-controlled vehicles, a variable \gls{me} \gls{sendrate} (directly dependent on the \gls{framerate}), and a \SI{120}{\hertz} \gls{vtd} \gls{sendrate}. The specifications of the \company{\FONTsmallcaps{msi}} laptop (provided by \company{ioTech} for the duration of the internship) on which all the tests are ran are:
 
-\input{mainmatter/tables/performance/specifications}
+\begin{itemize}
+	\item Windows 10 Home
+	\item Intel i7-6820HK
+	\item \SI{32}{\giga\byte} \SI{2.4}{\giga\hertz}
+	\item \SI{1}{\tera\byte} \acrshort{hdd}
+	\item GeForce GTX 1080 (\SI{8}{\giga\byte})
+\end{itemize}
+
+Tests were performed to obtain the more independent possible results: each time \gls{me} and \gls{vtd} were restarted, connections were closed and reopened, and testing software were reset.
 
 \section{Framerate}\label{sc:performance:framerate}
 
@@ -17,19 +25,19 @@ Hardware, graphics settings, and scene are identical for all of the performance 
 
 \input{mainmatter/tables/performance/framerate}
 
-\gls{me}'s \gls{framerate} is analysed, since the user's visual experience depends on it. Higher \glspl{framerate} are obviously better: the minimum acceptable \gls{framerate} is around \SI{30}{\fps}, with \SI{60}{\fps} or more being optimal on the more common \SI{60}{\hertz} monitors.
+Since the user's visual experience is tied directly to\gls{me}, its in-game \gls{framerate} is analysed. Higher \glspl{framerate} are obviously better: normally, the minimum acceptable \gls{framerate} is around \SI{30}{\fps}, with \SI{60}{\fps} or more being optimal\footnote{Screen-tearing considerations are assumed to be irrelevant.} on the more common \SI{60}{\hertz} monitors.
 
-A game engine's \gls{framerate} depends on a large number of conditions, mainly graphics settings, how busy the scene is, underlying \gls{os} usage, hardware availability, and network issues. Generally speaking, better frames are achieved by:
+\Gls{framerate} usually depends on a large number of conditions, mainly graphics settings, the rendered scene, underlying \gls{os} usage, hardware availability, and network issues. Generally speaking, better frames are achieved by:
 
 \begin{itemize}
-	\item \FONTbold{low graphics settings} --- Lower rendering resolution ($1080p$ or less), low quality/amount of \gls{fx}, basic shaders, no reflections, reduced \gls{pp} effects like \gls{dof}, blur, bloom, no \gls{aa} techniques.
+	\item \FONTbold{low graphics settings} --- Lower rendering resolution ($1080p$ or less), low quality/amount of \gls{fx}, basic shaders, no reflections, reduced \gls{pp} effects (e.g.\ \gls{dof}, blur, bloom), no \gls{aa} techniques.
 	\item \FONTbold{sparse scenes} --- Scenes with less and/or more simple objects, like buildings, vehicles, or drivers.
-	\item \FONTbold{idle \gls{os}} --- None or limited \gls{os} processes running in the background and utilizing the available hardware.
+	\item \FONTbold{idle \gls{os}} --- Limited number of \gls{os} processes running in the background and utilizing the available hardware.
 	\item \FONTbold{high-end hardware} --- High-clock \glspl{cpu}\footnote{Note that for game engines higher single core clock is usually more important than high thread counts.}, high-end gaming \glspl{gpu}, large (\SI{32}{\giga\byte} or more) amounts of fast \gls{ram}, \glspl{ssd} as opposed to \glspl{hdd}.
 	\item \FONTbold{stable network} --- Low latency, no or minimal packet loss.
 \end{itemize}
 
-Measures were obtained with the benchmark feature of \software{Fraps} $3.5.99$. For each configuration (\gls{os} sockets, \software{0mq} sockets, unmodified \gls{me}) the measures were repeated \num{20} times (\SI{30}{\second} per run), obtaining three quantities:
+Measures were obtained with the benchmark feature of \software{Fraps} $3.5.99$: \enquote{Fraps is a universal Windows application that can be used with games using DirectX or OpenGL graphic technology. [it can] Perform custom benchmarks and measure the frame rate between any two points.  Save the statistics out to disk and use them for your own reviews and applications.}{\cite{performance:fraps}}. For each configuration (\gls{os} sockets, \software{\FONTsmallcaps{0mq}} sockets, unmodified \gls{me}) the test was repeated \num{20} times (\SI{30}{\second} per run), to obtain three quantities:
 
 \begin{itemize}
 	\item \FONTbold{minimum} --- The minimum \gls{fps} reached during the \SI{30}{\second} run.
@@ -44,67 +52,67 @@ Measures were obtained with the benchmark feature of \software{Fraps} $3.5.99$. 
 	{framerate results}
 	{im:performance:framerate}
 	{}
-	{}
-\end{image} % TODO finish collecting FPS data
+	{Red bars represent the unmodified \gls{me}; green bars \gls{os} sockets; blue bars \software{\FONTsmallcaps{0mq}} sockets. The only different measure between the two implementations, taking into account confidence intervals, is the average \gls{framerate}.}
+\end{image} % CONTENT finish collecting FPS data
 
-The tests show no appreciable difference in performance between \gls{os} sockets and \software{0mq} sockets. Maximum is \SI{143}{\fps} for both, with only a higher variability in the \software{0mq} case ($\pm$\SI{1,8}{\fps} as opposed to \SI{0,38}{\fps}). Minimum shows again a much greater variability for \software{0mq} ($\pm$\SI{6,7}{\fps}): with \SI{99,9}{\percent} confidence it can be assumed the minimums \gls{fps} are the same. Average \gls{framerate} displays more interesting results: \software{0mq} sockets are better performing by a very small margin, between \SI{0,10}{\fps} and \SI{7,90}{\fps} taking into account the confidence intervals.
+The tests show no appreciable difference in performance between \gls{os} sockets and \software{\FONTsmallcaps{0mq}} sockets. Maximum is \SI{143}{\fps} for both, with only a higher variability in the \software{\FONTsmallcaps{0mq}} case ($\pm$\SI{1,8}{\fps} as opposed to $\pm$\SI{0,38}{\fps}). Minimum shows again a much greater variability for \software{\FONTsmallcaps{0mq}} ($\pm$\SI{6,7}{\fps}): owing to this, with \SI{99,9}{\percent} confidence it can be assumed the minimum \gls{fps} are the same in both implementations. Average \gls{framerate} displays the more interesting results: \software{\FONTsmallcaps{0mq}} sockets perform better by a small margin, between \SI{0,10}{\fps} and \SI{7,90}{\fps} when taking into account the confidence intervals. The full results can be found in table form in \fref{ax:data:framerate}. % CONTENT add ME perf analysis
 
-In conclusion, \software{0mq} sockets do provide slightly better average performance than \gls{os} sockets; minimum and maximum \gls{fps} are not affected.
+In conclusion, \software{\FONTsmallcaps{0mq}} sockets do provide slightly better average performance than \gls{os} sockets; minimum and maximum \gls{fps} are not affected. This may be due to smarter resource allocation when \glspl{packet} are sent and received by \software{\FONTsmallcaps{0mq}}.
 
-\section{Network}\label{sc:performance:network}
+\section{Netcode}\label{sc:performance:netcode}
 
 \begin{definition}{netcode}
 \end{definition}
 
-\input{mainmatter/tables/performance/network}
+\input{mainmatter/tables/performance/netcode}
 
-Data about network performance (the \gls{netcode}) is also collected. In a realistic working environment, \gls{me} and the \gls{ts} would most probably reside on a high-speed, dedicated wired connection. As such, performance measures like ping and packet loss are not collected: both depend heavily on the network infrastructure, so any results would not be easily transferable to real life situations.
+Data about \gls{netcode} performance is also collected. In a realistic enterprise environment, the game engine and the \gls{ts} would most probably reside on a high-speed, dedicated wired connection. As such, performance measures like ping and packet loss are not measured: both are heavily dependent on the network's infrastructure, and any results would not be transferable to real life situations.
 
-Collection and basic analysis were done with the statistics feature of \software{Wireshark} $2.6.1$. As with \fref{sc:performance:framerate} for each configuration (\gls{os} sockets, \software{0mq} sockets, unmodified \gls{me}) the measures were repeated \num{20} times (\SI{30}{\second} per run),to obtain three quantities:
+Measures collection and basic analysis were done with the statistics feature of \software{Wireshark} $2.6.1$: \enquote{Wireshark is the world’s foremost and widely-used network protocol analyzer. It lets you see what’s happening on your network at a microscopic level and is the de facto (and often de jure) standard across many commercial and non-profit enterprises, government agencies, and educational institutions.}{\cite{performance:wireshark}}. As with \fref{sc:performance:framerate} for each configuration (\gls{os} sockets, \software{0mq} sockets) the test was repeated \num{20} times (\SI{30}{\second} per run), to obtain three quantities:
 
 \begin{itemize}
-	\item \FONTbold{packets per second} --- The average number of packets that each second insists on the channel (i.e.\ sent and received by both \gls{me} and \gls{vtd}).
-	\item \FONTbold{load per second} --- The average amount of data that each second insists on the channel (i.e.\ sent and received by both \gls{me} and \gls{vtd}).
+	\item \FONTbold{packets per second} --- The average number of packets that, each second, insists on the channel (i.e.\ sent and received by both \gls{me} and \gls{vtd}).
+	\item \FONTbold{load per second} --- The average amount of data that, each second, insists on the channel (i.e.\ sent and received by both \gls{me} and \gls{vtd}).
 	\item \FONTbold{total load} --- The total amount of data exchanged between \gls{me} and \gls{vtd} in the whole duration of the run (\SI{30}{\second}).
 \end{itemize}
 
 \FLOATnoindent Each of these $3\times2=6$ values was then averaged, and a \num{0,999} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
 
 \begin{image}
-	{performance/networkfrequency}{0.7}
-	{network results (packet frequency)}
-	{im:performance:networkfrequency}
-	{}
-	{}
+	{performance/networkload}{0.7}
+	{Performance Analysis: \gls{netcode} results (total data)}
+	{im:performance:networkload}
+	{draft=false}
+	{Green bars \gls{os} sockets; blue bars \software{\FONTsmallcaps{0mq}} sockets. Once the confidence intervals are taken into account, the implementations show no appreciable difference in total amount of sent data.}
 \end{image}
 
 \begin{image}
 	{performance/networkdata}{0.7}
-	{network results (data frequency)}
+	{Performance Analysis: \gls{netcode} results (data frequency)}
 	{im:performance:networkdata}
-	{}
-	{}
+	{draft=false}
+	{Green bars \gls{os} sockets; blue bars \software{\FONTsmallcaps{0mq}} sockets. Like in \fref{im:performance:networkdata}, the implementations show no appreciable difference in the frequency of sent data.}
 \end{image}
 
 \begin{image}
-	{performance/networkload}{0.7}
-	{network results (total data)}
-	{im:performance:networkload}
-	{}
-	{}
+	{performance/networkfrequency}{0.7}
+	{Performance Analysis: \gls{netcode} results (\gls{packet} frequency)}
+	{im:performance:networkfrequency}
+	{draft=false}
+	{Green bars \gls{os} sockets; blue bars \software{\FONTsmallcaps{0mq}} sockets. The only \gls{netcode} difference is in \gls{packet} frequency, with \software{\FONTsmallcaps{0mq}} sending twice the amount due to protocol differences.}
 \end{image}
 
-As expected, total load and data frequency are identical, when taking into account the confidence intervals. This is because the bulk of the packets is formed by the payload: the data is relatively heavy due to the lack of encoding, hence the protocol's overhead bytes are mostly irrelevant. Packet frequency is instead completely different, due to the different protocols used. \gls{os} sockets with \gls{udp} only send about \SI{341}{\packets\per\second}, whilst \software{0mq} sockets with \gls{tcp} send twice that amount: \gls{tcp} (and in part \software{0mq}'s overhead) require small acknowledgement packets to be exchanged during the communication.\footnote{Note that all the results heavily depend on the sendrates: trivially, the higher, the more packets and data are exchanged.}
+As expected, taking into account the confidence intervals, total load and data frequency are identical. This is because most of the data exchange is formed by the \glspl{packet} \gls{payload}: this is relatively heavy due to \gls{rdb}'s format lack of encoding, making the protocol's overhead mostly irrelevant in the size count. \Gls{packet} frequency is instead completely different, due to the different protocols used. \gls{os} sockets (\gls{udp}) only send about \SI{341}{\packets\per\second}, whilst \software{\FONTsmallcaps{0mq}} (\gls{tcp}) send twice that amount: \gls{tcp} (and in part \software{\FONTsmallcaps{0mq}}'s own overhead) does require small acknowledgement \glspl{packet} to be exchanged all throughout the communication.\footnote{All the results heavily depend on the configured \glspl{sendrate}: trivially, the higher, the more \glspl{packet} and data are exchanged.} The full results can be found in table form in \fref{ax:data:netcode}.
 
-To conclude the network analysis, \gls{os} sockets only have an advantage in the packets frequency. Given the dedicated nature of the network infrastructure that is usually utilized in these projects, this advantage is hardly relevant: \software{0mq} thus shows it has no negative impact on network performance.
+To conclude the \gls{netcode} analysis, \gls{os} sockets have a major numerical advantage in the \glspl{packet} frequency. Given the dedicated nature of the network infrastructure that is usually utilized in these projects, this advantage is hardly relevant: it may be assumed that \software{\FONTsmallcaps{0mq}} has no negative impact on \gls{netcode} performance.
 
 \section{Hardware}\label{sc:performance:hardware}
 
 \input{mainmatter/tables/performance/hardware}
 
-Hardware performance is also collected, to analyse which between \gls{os} or \software{0mq} sockets has the higher impact on \gls{cpu} and \gls{ram} usage. The same values were also taken with the unmodified \gls{me}, to obtain a baseline and see if the \gls{middleware} has any impact on resource usage.
+Hardware performance is analysed as well, to see which between \gls{os} and \software{0mq} sockets has the higher impact on \gls{cpu} and \gls{ram} usage. The same values were also measured on the unmodified \gls{me}, to obtain a baseline and see if the \gls{middleware} has any general impact on resource usage.
 
-Data was obtained with Windows' built-in performance monitor features. To ensure as best as possible independent subsequent runs, both \gls{me} and \gls{vtd} were restarted each time; additionally, instead of absolute \gls{ram} values relative deltas are used. Four quantities per \gls{middleware} configuration are measured:
+Data was obtained with Windows' built-in performance monitor (\software{perfmon}). To ensure independent results, relative deltas instead of absolute values are used for \gls{ram}. Four quantities per configuration are measured:
 
 \begin{itemize}
 	\item \FONTbold{minimum \gls{cpu}} --- The minimum overall \gls{cpu} usage reached during the \SI{20}{\second} run.
@@ -117,29 +125,29 @@ Data was obtained with Windows' built-in performance monitor features. To ensure
 
 \begin{image}
 	{performance/hardwarecpu}{0.7}
-	{hardware results (\gls{cpu} usage)}
+	{Performance Analysis: hardware results (\gls{cpu} usage)}
 	{im:performance:hardwarecpu}
 	{}
-	{}
+	{Red bars represent the unmodified \gls{me}; green bars \gls{os} sockets; blue bars \software{\FONTsmallcaps{0mq}} sockets. Where \gls{os} sockets have no impact w.r.t.\ the baseline performance, \software{\FONTsmallcaps{0mq}} sockets do have a noticeably impact on \gls{cpu} usage.}
 \end{image}
 
 \begin{image}
 	{performance/hardwareram}{0.7}
-	{hardware results (\gls{ram} usage)}
+	{Performance Analysis: hardware results (\gls{ram} usage)}
 	{im:performance:hardwareram}
 	{}
-	{}
+	{Red bars represent the unmodified \gls{me}; green bars \gls{os} sockets; blue bars \software{\FONTsmallcaps{0mq}} sockets. The large variability in the measures means it can be safely assumed that none of the implementations have a larger impact on \gls{ram} usage.}
 \end{image}
 
-Again, taking into account the confidence intervals, the \gls{middleware} with the \gls{os} sockets implementation has no impact on four out of five quantities: only the average \gls{cpu} usage shows a minimal impact. Interestingly, the \software{0mq} sockets implementation has a relevant effect on \gls{cpu} usage: between a \SI{6,5}{\percent} and \SI{12}{\percent} increase in minimum load; between a \SI{4,8}{\percent} and \SI{19}{\percent} increase in maximum load; between a \SI{5,4}{\percent} and \SI{13}{\percent} increase in average load. This is probably due to the additional overhead introduced by \software{0mq}'s high level functions, and the additional packets required by the \gls{tcp} protocol and \software{0mq}'s \FONTsmallcaps{pub/sub} model. \gls{ram} delta variability is too high to appreciate any changes between the implementations.
+Again, when taking into account the confidence intervals, the \gls{middleware} with the \gls{os} sockets implementation has no impact over the baseline on four out of five measures: only the average \gls{cpu} usage shows a minimal impact. Interestingly, the \software{\FONTsmallcaps{0mq}} sockets implementation instead has a relevant effect on \gls{cpu} usage: between a \SI{6,5}{\percent} and \SI{12}{\percent} increase in minimum load; between a \SI{4,8}{\percent} and \SI{19}{\percent} increase in maximum load; between a \SI{5,4}{\percent} and \SI{13}{\percent} increase in average load. This is probably due to the additional overhead introduced by \software{\FONTsmallcaps{0mq}}'s high level functions, and the additional \glspl{packet} required by the \gls{tcp} protocol and \software{\FONTsmallcaps{0mq}}'s \FONTsmallcaps{pub/sub} model. \gls{ram} delta variability is too high to appreciate any changes between the implementations and the baseline.  The full results can be found in table form in \fref{ax:data:hardware}.
 
-When hardware usage is concerned, \gls{os} sockets have a significant advantage over \software{0mq}, with lower all-around hardware usage. It must be noted though that the higher hardware usage does not translate in lower \gls{me} performance (see \fref{sc:performance:framerate}): hypothetically, this should hold true until \gls{me}'e performance is not \gls{cpu} bound.
+When hardware usage is concerned, \gls{os} sockets have a significant advantage over \software{\FONTsmallcaps{0mq}}, with lower \gls{cpu} usage. It must be noted though that the higher hardware usage does not translate in lower performance (see \fref{sc:performance:framerate}): hypothetically, this should hold true provided \gls{me} is not \gls{cpu}-bound.
 
 \section{Proxy}\label{sc:performance:proxy}
 
 \input{mainmatter/tables/performance/proxy}
 
-To ensure the \gls{proxy} has no noticeable ill effects in testing \software{0mq} sockets, the amount of time a packet spends in the \gls{proxy} has been measured. These are more precisely three measures: the minimum, maximum, and average time passed between the moment a packet is received by the \gls{proxy}, and the moment that same packet is sent. \planguage{c}'s \code{clock()} function is used to calculate this time delta: a basic \code{Evaluator} namespace was coded for this purpose. See \fref{ax:code:proxy} to see where its functions are used in the proxy code (lines \num{167} and \num{203}).
+To ensure the \gls{proxy} has no noticeable ill effects when testing \software{\FONTsmallcaps{0mq}} sockets, the amount of time a \gls{packet} spends in the \gls{proxy} has been measured. More precisely: the minimum, maximum, and average time passed between the moment a \gls{packet} is received by the \gls{proxy}, and the moment that same \gls{packet} is sent. \planguage{c}'s \code{clock()} function (\code{<clanguage>} header) is used to calculate this time delta: a basic \code{Evaluator} namespace was added to the proxy for this purpose. See \fref{ax:code:proxy} to see where exactly its functions are called in the \gls{proxy}'s code (lines \num{167} and \num{203}).
 
 \begin{codelist}{Evaluator.cpp}{10}
 namespace ZMQBridge {
@@ -185,54 +193,56 @@ void Evaluator::log_data() {
 
 \begin{image}
 	{performance/proxy}{0.7}
-	{proxy results}
+	{Performance Analysis: proxy results}
 	{im:performance:proxy}
 	{}
-	{}
+	{The horizontal logarithmic axis represents the time spent in the \gls{proxy}. Minimum and average dwell time are remarkably smaller than the maximum, about a hundreth and a tenth respectively; average dwell time also shows very high variability.}
 \end{image}
 
-Even at its maximum value, the time a packet spends in the proxy is only between \SI{0,834}{\milli\second} and \SI{1,614}{\milli\second} (keeping into account the confidence range around the \SI{1,224}{\milli\second} value). Average is much smaller still (\SI{0,136}{\milli\second} $\pm$ \SI{0,103}{\milli\second}). To understand what this delay means to the user on \gls{me}'s side, the impact the proxy has on correct frame pacing is analysed. Frame pacing is the time that passes between two consecutive frames, and is generally tied to \gls{framerate}: that is, assuming frames are spaced evenly (which is often not the case in real-life engines), frame spacing may be calculated by dividing a second by the \gls{fps}.
+Even in the worst scenario (maximum dwell time), the time a \gls{packet} spends in the \gls{proxy} is only between \SI{0,834}{\milli\second} and \SI{1,614}{\milli\second} (keeping into account the confidence range around the \SI{1,224}{\milli\second} average). Average dwell time is much smaller (\SI{0,136}{\milli\second}$\pm$\SI{0,103}{\milli\second}).  The full results can be found in table form in \fref{ax:data:proxy}.
+
+To understand what this delay means for the user interacting with \gls{me}, the impact the \gls{proxy} has on frame pacing is analysed. Frame pacing is the time that passes between two consecutive frames, has a significant effect on human perception of "smoothness", and is closely tied to \gls{framerate}: that is, assuming frames are spaced evenly (which is often not the case in real-life scenarios), frame spacing may be calculated by dividing the time unit (a second) by the \gls{framerate}.
 
 \begin{image}
 	{performance/proxyspacing}{0.7}
-	{\gls{framerate} pacing}
+	{Performance Analysis: frame pacing}
 	{im:performance:proxyspacing}
 	{}
-	{}
+	{Frame pacing quickly falls from \SI{50}{\milli\second} at \SI{20}{\fps}, to under \SI{5}{\milli\second} at \SI{200}{\fps} and above. Frame pacing decreases less as the \gls{framerate} rises, leading to diminishing returns at high \gls{fps}.}
 \end{image}
 
-In \fref{im:performance:proxylandscape} the \gls{framerate} and dwell time are plotted (respectively the \code{x} and \code{y} axis), and the resulting coloured landscape represents the frame delay (in percentage of a single frame) introduced by the proxy. The lines represent increments of \SI{5}{\percent}, and the more the colour is saturated the higher the percentage. Clearly, higher percentages (more delay) happen with high proxy dwell times, and high \gls{framerate} (i.e.\ low frame times); also, higher proxy dwell times have a broader variation in frame delay along the possible \gls{framerate}, \SI{0}{\percent} to \SI{40}{\percent} as opposed to \SI{0}{\percent} to \SI{20}{\percent} in the lower dwell time. The dwell times analysed are those within the maximum dwell time confidence interval.
+In \fref{im:performance:proxylandscape} the \gls{framerate} and dwell time are plotted (respectively the \code{x} and \code{y} axis), and the resulting coloured landscape represents the frame delay in \gls{me} (as the percentage of one frame) introduced by the \gls{proxy}. The lines represent increments of \SI{5}{\percent} of a frame, and the more the colour is saturated the higher the percentage. Clearly, higher percentages (more delay) come from high \gls{proxy} dwell times and high \glspl{framerate} (i.e.\ low frame times); higher \gls{proxy} dwell times also display a broader variation in frame delay along the \gls{framerate}, \SI{0}{\percent} to \SI{40}{\percent} as opposed to \SI{0}{\percent} to \SI{20}{\percent}. The dwell times analysed are those within the maximum dwell time confidence interval: average dwell times would lead to even lower frame delays.
 
 \begin{image}
 	{performance/proxylandscape}{1.0}
-	{frame delay landscape}
+	{Performance Analysis: frame delay landscape}
 	{im:performance:proxylandscape}
 	{}
-	{}
+	{This landscape topography shows the delay introduced by the \gls{proxy}, as the percentage of a single frame, based on two free parameters (the \gls{framerate} and the dwell time). The more saturated the color, the higher the delay: ligher colors are better.}
 \end{image}
 
-"Slicing" this landscape through a specific \gls{framerate} can more clearly show the frame delay behaviour across the proxy dwell time interval: \fref{im:performance:proxyslice} shows such a slice on the average \gls{framerate} (see \fref{sc:performance:framerate}). The relationship is linear, but with the real average framerate found during testing even at maximum dwell times the frame delay is of only \SI{20}{\percent}.
+"Slicing" this landscape through a specific \gls{framerate} can more clearly show the behaviour across different dwell times with a fixed \gls{framerate}: \fref{im:performance:proxyslice} shows such a slice on the average \gls{framerate} calculated in \fref{sc:performance:framerate}. Under the average \gls{framerate} found during actual testing, even at maximum dwell times (which are \num{10} times longer than average) the frame delay is of only \SI{20}{\percent}.
 
 \begin{image}
 	{performance/proxyslice}{0.7}
-	{average \gls{framerate} slice}
+	{Performance Analysis: landscape slice}
 	{im:performance:proxyslice}
 	{}
-	{}
+	{A slice of the landscap on the average \gls{framerate} (\SI{117}{\fps}): in this case, the delay varies between \SI{10}{\percent} and \SI{19}{\percent}, hardly impacting the visual performance of the \gls{me}.}
 \end{image}
 
-In conclusion, the proxy has little to no impact on the system, up to \SI{20}{\percent} of a frame, so the tests and analyses made on \software{0mq} sockets are not invalidated by the inability to properly modify \gls{vtd} to integrate \software{0mq}.
+In conclusion, the \gls{proxy} has little to no impact on the system: up to \SI{20}{\percent} of an \gls{me} frame at maximum dwell times. The tests and analyses made on \software{\FONTsmallcaps{0mq}} sockets are not invalidated by the inability to properly modify \gls{vtd} to integrate \software{\FONTsmallcaps{0mq}}.
 
 \section{Results}\label{sc:performance:results}
 
-What follows is a recap of the test results. The main focus is \gls{os} sockets versus \software{0mq} sockets, and the advantages and drawbacks of each solution: the results are summarized in \fref{tb:performance:results}.
+The main focus of the analysis was the performance of \gls{os} sockets against \software{\FONTsmallcaps{0mq}} sockets, and the advantages and drawbacks of each solution: the results are summarized in a qualitative form in \fref{tb:performance:results}.
 
 \input{mainmatter/tables/performance/results}
 
-The advantage in rate (i.e. \si{\packets\per\second}) is intrinsic in the \gls{tcp} protocol available in \software{0mq}, but has a limited impact in a real-life enterprise environment, where network connections are mostly fault-proof and high-speed. The framerate average is very lightly skewed in \software{0mq}'s favour, in any case not pushing the framerate above any relevant value (like \SI{120}{\fps} or \SI{144}{\fps} for higher refresh rate monitors). The real difference is in hardware usage, although with no actual impact on performance. Provided the system running \gls{me} is not \gls{cpu} bounded, the advantages of \gls{os} sockets are numerical only: framerate is not affected.
+The advantage in rate (\si{\packets\per\second}) is intrinsic in the \gls{tcp} protocol used by \software{\FONTsmallcaps{0mq}}, and has a limited impact in a real-life enterprise environment, where network connections are mostly fault-proof and high-speed. The \gls{framerate} average is very lightly skewed in \software{\FONTsmallcaps{0mq}}'s favour, not pushing the \gls{framerate} above any meaningful threshold (e.g.\ \SI{120}{\fps} or \SI{144}{\fps} for higher refresh rate monitors). The real difference lies in hardware usage, although this discrepancy results in no actual impact on performance: provided the system running \gls{me} is not \gls{cpu} bounded, the advantages of \gls{os} sockets are numerical only.
 
-All in all, it is fair to deem the performance to be largely equal between \gls{os} sockets and \software{0mq} sockets: the advantages one has on the other are either small, or not impactful in a real life scenario. Performance not being the choosing point, code ease and complications will be analysed next.
+In light of this entire analysis, \gls{os} sockets and \software{\FONTsmallcaps{0mq}} sockets may be deemed equals in terms of performance: the advantages one has on the other are either minor, inconsequential, or would not impact a real life scenario. As such, performance alone does not offer enough insight to undeniably prefer one implementation over the other. Code ease will be analysed next (\fref{ch:code}).
 
 \section{Recap}\label{sc:performance:recap}
 
-This chapter has been devoted to the analysis of the performance of a number of elements in the system. It was found that neither \gls{os} sockets or \software{0mq} sockets have a noticeable impact in \gls{me} in \fref{sc:performance:framerate}, although they show some key differences mainly in networking and \gls{cpu} usage (\fref{sc:performance:network} and \fref{sc:performance:hardware}). The proxy allowing the \software{0mq} solution to work was also shown to be unimpactful on the rest of the performance (\fref{sc:performance:proxy}).
+This chapter has been devoted to the analysis of the performance of a number of elements that form the system. It was found that neither \gls{os} sockets nor \software{\FONTsmallcaps{0mq}} sockets have a noticeable impact on \gls{me} with regards to \fref{sc:performance:framerate}, although they some numerical differences can be found mainly in networking and \gls{cpu} usage (\fref{sc:performance:netcode} and \fref{sc:performance:hardware}). The proxy that allows the \software{\FONTsmallcaps{0mq}} implementation to be tested with \gls{vtd} was also shown to be unimpactful on the other tests (\fref{sc:performance:proxy}).

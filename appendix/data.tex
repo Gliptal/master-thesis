@@ -1,1 +1,63 @@
 \chapter{Data}\label{ax:data}
+
+\section{Framerate}\label{ax:data:framerate}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabularx}{\FLOATtextwidth}{l*{10}{Y}}
+        & \TABULARXmulticolumn{3}{c}{\acrshort{os} sockets} & \TABULARXmulticolumn{3}{c}{\software{\FONTsmallcaps{0mq}} sockets} & \TABULARXmulticolumn{3}{c}{unmodified \acrshort{me}} \\
+        \TABULARXpartialruler(lr){2-4} \TABULARXpartialruler(lr){5-7} \TABULARXpartialruler(lr){8-10}
+        & avg & min & max & avg & min & max & avg & min & max \\
+        \TABLEmidruler
+		average  & \num{113}  & \num{59}   & \num{143}  & \num{117}   & \num{62}     & \num{143}  & \num{0} & \num{0} & \num{0} \\
+		interval & \num{1,76} & \num{1,58} & \num{0,38} & \num{2,14}  & \num{6,66}   & \num{1,75} & \num{0} & \num{0} & \num{0} \\
+        \TABLEbottomruler
+    \end{tabularx}
+\end{table}
+
+\section{Netcode}\label{ax:data:netcode}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabularx}{\FLOATtextwidth}{l*{7}{Y}}
+        & \TABULARXmulticolumn{3}{c}{\acrshort{os} sockets} & \TABULARXmulticolumn{3}{c}{\software{\FONTsmallcaps{0mq}} sockets} \\
+        \TABULARXpartialruler(lr){2-4} \TABULARXpartialruler(lr){5-7}
+        & packets freq & data freq & total data & packets freq & data freq & total data \\
+        \TABLEmidruler
+		average  & \num{341} & \num{380} & \num{11,430} & \num{771}  & \num{373}  & \num{11,181} \\
+		interval & \num{3,8} & \num{1,5} & \num{0,0464} & \num{79,6} & \num{10,3} & \num{0,2728} \\
+        \TABLEbottomruler
+    \end{tabularx}
+\end{table}
+
+\section{Hardware}\label{ax:data:hardware}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabularx}{\FLOATtextwidth}{l*{13}{Y}}
+        & \TABULARXmulticolumn{4}{c}{\acrshort{os} sockets} & \TABULARXmulticolumn{4}{c}{\software{\FONTsmallcaps{0mq}} sockets} & \TABULARXmulticolumn{4}{c}{unmodified \acrshort{me}} \\
+        \TABULARXpartialruler(lr){2-5} \TABULARXpartialruler(lr){6-9} \TABULARXpartialruler(lr){10-13}
+        & & cpu & & ram & & cpu & & ram & & cpu & & ram \\
+        \TABULARXpartialruler(lr){2-4} \TABULARXpartialruler(lr){5-5} \TABULARXpartialruler(lr){6-8} \TABULARXpartialruler(lr){9-9} \TABULARXpartialruler(lr){10-12} \TABULARXpartialruler(lr){13-13}
+        & avg & min & max & delta & avg & min & max & delta & avg & min & max & delta \\
+        \TABLEmidruler
+		average  & \num{44}  & \num{31}  & \num{54}  & \num{779}  & \num{53}  & \num{40}  & \num{66}  & \num{888} & \num{39}  & \num{30}  & \num{47}  & \num{841} \\
+		interval & \num{1,7} & \num{1,9} & \num{3,9} & \num{67,8} & \num{1,9} & \num{0,6} & \num{3,3} & \num{34,8} & \num{3,4} & \num{4,1} & \num{4,0} & \num{39,4} \\
+        \TABLEbottomruler
+    \end{tabularx}
+\end{table}
+
+\section{Proxy}\label{ax:data:proxy}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabularx}{\FLOATtextwidth}{l*{3}{Y}}
+        \TABULARXmulticolumn{3}{c}{\software{\FONTsmallcaps{0mq}} sockets} \\
+        \TABULARXpartialruler(lr){1-3}
+        & avg & min & max \\
+        \TABLEmidruler
+		average  & \num{0,1361} & \num{0,0176} & \num{1,2236} \\
+		interval & \num{0,1028} & \num{0,0023} & \num{0,3899} \\
+        \TABLEbottomruler
+    \end{tabularx}
+\end{table}
