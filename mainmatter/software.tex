@@ -118,7 +118,7 @@ The details on how the engine operates at mid to low level are protected by \gls
 	{Software Descriptions: \gls{me} simulation stack}
 	{im:software:mestack}
 	{}
-	{The generic flow of a game tick in \gls{me}. Each tier manipulates some data and sends it to the following one.} % CONTENT explain this flow better
+	{The generic flow of a game tick in \gls{me}. Each tier manipulates the data received from the previous tier, and delivers the result to the following one.}
 \end{image}
 
 A vague example could be that of an \gls{ai} car that must overtake a slower player, during a race. This might take a number of simulation ticks, each summarily flowing as follows:
@@ -132,7 +132,7 @@ A vague example could be that of an \gls{ai} car that must overtake a slower pla
 
 Although the true nature of the data passed in the logic-\gls{ai} and \gls{ai}-physics transitions can be only fuzzily assumed, (a subset of) the data passed in the physics-rendering transition may be instead precisely defined. To locate an object in the environment the physics system outputs, among many other metrics, its spatial and rotational coordinates: these two metrics are sufficient for the rendering system to visualize a vehicle moving in real-time in the game scene.
 
-\subsection{Coordinate System} % CONTENT check correctness of ME's coordinate system
+\subsection{Coordinate System}
 
 \begin{image}
 	{software/mecoords}{1.0}

@@ -1,9 +1,123 @@
 \chapter{Code Analysis}\label{ch:code}
 
-\section{Functionality}\label{sc:code:functionality}
+The code itself is an index of the differences between the \gls{os} and \software{\FONTsmallcaps{0mq}} implementations. The latter provides more abstract \glspl{api}, more consistent and organic functionality, an easily expandable core, and built-in scalability; the former is compatible with common non-\software{\FONTsmallcaps{0mq}} sockets, and has some minor advantages in low level socket options.
+
+Due to the broad and subjective nature of some of these differences, the following analysis is mostly qualitative.
+
+\section{Abstraction}\label{sc:code:abstraction}
+
+\software{\FONTsmallcaps{0mq}}'s more abstract \glspl{api} allow for shorter, more concise, and overall clearer code. The total amount of lines dedicated to the \gls{netcode} go from \num{253} with \gls{os} sockets, to \num{151} with \software{\FONTsmallcaps{0mq}} sockets: a \SI{40,64}{\percent} decrease. Specifically, the larger decreases are in the methods that open the connections: \code{open_RX_connection()} has \SI{80,88}{\percent} less lines; \code{open_TX_connection()} has \SI{82,86}{\percent} less lines. Other than the obvious advantages in readability, less code lines result in less maintenance, less side effects when altering the code, and less failure points.
+
+\input{mainmatter/tables/code/lines}
+
+As an example, the two following snippets both set up a socket before a \code{bind()}:
+
+\begin{codelist}{UDPConnector.cpp --- open\_TX\_connection() --- \FONTsmallcaps{os} sockets}{144}
+    if (m_socketTXfd > -1)
+        return false;
+
+    struct sockaddr_in sock;
+    uint32_t address;
+
+    int opt;
+    int result;
+
+    InetPton(AF_INET, ip, &address);
+
+    m_socketTXfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    if (m_socketTXfd == -1) {
+        return false;
+    }
+
+    opt = 1;
+#ifdef _WIN32
+    result = setsockopt(m_socketTXfd, SOL_SOCKET, SO_REUSEADDR, (char*) &opt, sizeof(opt));
+#else
+    int result = setsockopt(m_socketTXfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+#endif  // _WIN32
+
+    if (result == -1) {
+        return false;
+    }
+
+    opt = 1;
+#ifdef _WIN32
+    result = setsockopt(m_socketTXfd, SOL_SOCKET, SO_BROADCAST, (char*) &opt, sizeof(opt));
+#else
+    result = setsockopt(m_socketTXfd, SOL_SOCKET, SO_BROADCAST, &opt, sizeof(opt));
+#endif  // _WIN32
+
+    if (result == -1) {
+        return false;
+    }
+
+    memset(&sock, 0, sizeof(sock));
+    sock.sin_family      = AF_INET;
+    sock.sin_addr.s_addr = address;
+    sock.sin_port        = htons(port);
+\end{codelist}
+
+\begin{codelist}{UDPConnector.cpp --- open\_TX\_connection() --- \software{\FONTsmallcaps{0mq}} sockets}{100}
+	std::string addr = std::string(ZMQBRIDGE_REMOTE_PROTOCOL) + "://" + std::string(ip) + ":" + std::to_string(port);
+\end{codelist}
+
+\FLOATnoindent \gls{os} sockets require defining a \code{struct sockaddr_in}, to enclose some basic protocol options (\code{SOCK_DGRAM}, \code{SO_REUSEADDR}), the socket's \gls{ip} address and port, and additional meta settings; \software{\FONTsmallcaps{0mq}} sockets achieve the same result through a single string, with meta settings internally set by \software{\FONTsmallcaps{0mq}} itself: e.g.\ \code{"tcp://192.168.1.100:5555"} is formed by:
+
+\begin{itemize}
+	\item \FONTbold{\code{"tcp"}} --- the protocol (line \num{155} in the \gls{os} sockets implementation);
+	\item \FONTbold{\code{"192.168.1.1"}} --- the \gls{ip} (lines \num{153} and \num{185} in the \gls{os} sockets implementation);
+	\item \FONTbold{\code{"5555"}} --- the port (line \num{186} in the \gls{os} sockets implementation).
+\end{itemize}
+
+\FLOATnoindent Also of note is memory handling, necessary for the  \code{struct sockaddr_in} (a \code{memset()} call), and entirely missing in the \software{\FONTsmallcaps{0mq}} solution.
+
+Since \software{\FONTsmallcaps{0mq}} sockets are proper objects (of type \code{void*}) and not simple \code{int}(s) representing file descriptors, the constructor's code is instead marginally more involved:
+
+\begin{codelist}{UDPConnector.cpp --- UDPConnector() --- \FONTsmallcaps{os} sockets}{60}
+UDPConnector::UDPConnector() {
+	m_context  = zmq_ctx_new();
+	m_socketRX = zmq_socket(m_context, ZMQ_SUB);
+	m_socketTX = zmq_socket(m_context, ZMQ_PUB);
+
+	m_payloadRX = (char*) malloc(UDPCONNECTOR_ME_PAYLOAD_BUFFER);
+	m_payloadTX = (char*) malloc(UDPCONNECTOR_ME_PAYLOAD_BUFFER);
+}
+\end{codelist}
+
+\begin{codelist}{UDPConnector.cpp --- UDPConnector() --- \software{\FONTsmallcaps{0mq}} sockets}{63}
+UDPConnector::UDPConnector() {
+	m_payloadRX = (char*) malloc(UDPCONNECTOR_ME_PAYLOAD_BUFFER);
+	m_payloadTX = (char*) malloc(UDPCONNECTOR_ME_PAYLOAD_BUFFER);
+}
+\end{codelist} % FORMATTING fit this in the page
+
+\FLOATnoindent \code{m_context} is required by \software{\FONTsmallcaps{0mq}} sockets, since it encapsulates state information and some general settings (here left to their defaults): at creation, sockets are assigned to a specific context.
 
 \section{Ease}\label{sc:code:ease}
 
+\software{\FONTsmallcaps{0mq}} provides bindings that allow on-the-fly changes on some aspects of the netcode. The used protocol can be changed by simply altering the protocol part of the \code{addr} variable (\code{ZMQBRIDGE_REMOTE_PROTOCOL}); the sockets paradigm can similarly be changed in the constructor (\FONTsmallcaps{pub}/\FONTsmallcaps{sub}) to any other allowed combination.
+
+For example, switching from an \gls{tcp} \FONTsmallcaps{pub}/\FONTsmallcaps{sub} paradigm to an \code{inproc} (in-memory) \FONTsmallcaps{pair} paradigm only requires changes to three lines of code:
+
+\begin{codelist}{\gls{tcp}}{1}
+#define ZMQBRIDGE_REMOTE_PROTOCOL "tcp"
+m_socketRX = zmq_socket(m_context, ZMQ_SUB);
+m_socketTX = zmq_socket(m_context, ZMQ_PUB);
+\end{codelist}
+
+\begin{codelist}{inproc}{1}
+#define ZMQBRIDGE_REMOTE_PROTOCOL "inproc"
+m_socketRX = zmq_socket(m_context, ZMQ_PAIR);
+m_socketTX = zmq_socket(m_context, ZMQ_PAIR);
+\end{codelist}
+
+\FLOATnoindent Achieving a similar results with an \gls{os}-based implementation would require an extensive rewrite of the low level code.
+
 \section{Expandability}\label{sc:code:expandability}
 
+\software{\FONTsmallcaps{0mq}} is by construction fully scalable. Depending on the socket paradigm used, this may allow other software to be freely added to the system, with no changes required to the \gls{netcode} layer: different \glspl{ts} could be simultaneously used by adding additional socket, simply by instantiating new \code{zmq_socket()}; a \gls{ts} could subdivide data using the \FONTsmallcaps{pub}/\FONTsmallcaps{sub} paradigm's subscription lists; and more.
+
 \section{Recap}\label{sc:code:recap}
+
+This chapter has been devoted to the analysis of the code style difference between the implementations. \software{\FONTsmallcaps{0mq}} sockets have a large advantage thanks to higher abstraction (\fref{sc:code:abstraction}), coding ease (\fref{sc:code:ease}), and easier expandability (\fref{sc:code:expandability}).

@@ -52,10 +52,10 @@ Measures were obtained with the benchmark feature of \software{Fraps} $3.5.99$: 
 	{framerate results}
 	{im:performance:framerate}
 	{}
-	{Red bars represent the unmodified \gls{me}; green bars \gls{os} sockets; blue bars \software{\FONTsmallcaps{0mq}} sockets. The only different measure between the two implementations, taking into account confidence intervals, is the average \gls{framerate}.}
-\end{image} % CONTENT finish collecting FPS data
+	{Red bars represent the unmodified \gls{me}; green bars \gls{os} sockets; blue bars \software{\FONTsmallcaps{0mq}} sockets. The only different measure, when the confidence intervals are taken into account, is in the average \gls{framerate} of the \gls{os} sockets and \software{\FONTsmallcaps{0mq}} implementations.}
+\end{image}
 
-The tests show no appreciable difference in performance between \gls{os} sockets and \software{\FONTsmallcaps{0mq}} sockets. Maximum is \SI{143}{\fps} for both, with only a higher variability in the \software{\FONTsmallcaps{0mq}} case ($\pm$\SI{1,8}{\fps} as opposed to $\pm$\SI{0,38}{\fps}). Minimum shows again a much greater variability for \software{\FONTsmallcaps{0mq}} ($\pm$\SI{6,7}{\fps}): owing to this, with \SI{99,9}{\percent} confidence it can be assumed the minimum \gls{fps} are the same in both implementations. Average \gls{framerate} displays the more interesting results: \software{\FONTsmallcaps{0mq}} sockets perform better by a small margin, between \SI{0,10}{\fps} and \SI{7,90}{\fps} when taking into account the confidence intervals. The full results can be found in table form in \fref{ax:data:framerate}. % CONTENT add ME perf analysis
+Both the implementations have lower average \gls{framerate} with respect to the baseline, probably due to the additional computations required by the \glspl{packet} exchange. The tests also show no appreciable difference in performance between \gls{os} sockets and \software{\FONTsmallcaps{0mq}} sockets. Maximum is \SI{143}{\fps} for both, with only a higher variability in the \software{\FONTsmallcaps{0mq}} case ($\pm$\SI{1,8}{\fps} as opposed to $\pm$\SI{0,38}{\fps}). Minimum shows again a much greater variability for \software{\FONTsmallcaps{0mq}} ($\pm$\SI{6,7}{\fps}): owing to this, with \SI{99,9}{\percent} confidence it can be assumed the minimum \gls{fps} are the same in both implementations. Average \gls{framerate} displays the more interesting results: \software{\FONTsmallcaps{0mq}} sockets perform better by a small margin, between \SI{0,10}{\fps} and \SI{7,90}{\fps} when taking into account the confidence intervals. The full results can be found in table form in \fref{ax:data:framerate}.
 
 In conclusion, \software{\FONTsmallcaps{0mq}} sockets do provide slightly better average performance than \gls{os} sockets; minimum and maximum \gls{fps} are not affected. This may be due to smarter resource allocation when \glspl{packet} are sent and received by \software{\FONTsmallcaps{0mq}}.
 
@@ -82,7 +82,7 @@ Measures collection and basic analysis were done with the statistics feature of 
 	{performance/networkload}{0.7}
 	{Performance Analysis: \gls{netcode} results (total data)}
 	{im:performance:networkload}
-	{draft=false}
+	{}
 	{Green bars \gls{os} sockets; blue bars \software{\FONTsmallcaps{0mq}} sockets. Once the confidence intervals are taken into account, the implementations show no appreciable difference in total amount of sent data.}
 \end{image}
 
@@ -90,7 +90,7 @@ Measures collection and basic analysis were done with the statistics feature of 
 	{performance/networkdata}{0.7}
 	{Performance Analysis: \gls{netcode} results (data frequency)}
 	{im:performance:networkdata}
-	{draft=false}
+	{}
 	{Green bars \gls{os} sockets; blue bars \software{\FONTsmallcaps{0mq}} sockets. Like in \fref{im:performance:networkdata}, the implementations show no appreciable difference in the frequency of sent data.}
 \end{image}
 
@@ -98,7 +98,7 @@ Measures collection and basic analysis were done with the statistics feature of 
 	{performance/networkfrequency}{0.7}
 	{Performance Analysis: \gls{netcode} results (\gls{packet} frequency)}
 	{im:performance:networkfrequency}
-	{draft=false}
+	{}
 	{Green bars \gls{os} sockets; blue bars \software{\FONTsmallcaps{0mq}} sockets. The only \gls{netcode} difference is in \gls{packet} frequency, with \software{\FONTsmallcaps{0mq}} sending twice the amount due to protocol differences.}
 \end{image}
 
