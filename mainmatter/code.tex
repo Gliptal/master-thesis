@@ -96,9 +96,13 @@ UDPConnector::UDPConnector() {
 
 \section{Ease}\label{sc:code:ease}
 
-\software{\FONTsmallcaps{0mq}} provides bindings that allow on-the-fly changes on some aspects of the netcode. The used protocol can be changed by simply altering the protocol part of the \code{addr} variable (\code{ZMQBRIDGE_REMOTE_PROTOCOL}); the sockets paradigm can similarly be changed in the constructor (\FONTsmallcaps{pub}/\FONTsmallcaps{sub}) to any other allowed combination.
+Coding with \software{\FONTsmallcaps{0mq}} proved to be a much simpler and faster process than using \gls{os} headers. \fref{sc:code:abstraction} already presented an example: generating and setting up a socket is a lot less involved, thanks to high-level methods and abstraction. It should also be noted that the two implementations differ in protocol, and that a proper \gls{tcp} implementation with \gls{os} sockets would require non-trivially more complicated memory management when sending and receiving, something that \software{\FONTsmallcaps{0mq}} entirely hides behind the \code{zmq_send()} and \code{zmq_recv()} functions.
 
-For example, switching from an \gls{tcp} \FONTsmallcaps{pub}/\FONTsmallcaps{sub} paradigm to an \code{inproc} (in-memory) \FONTsmallcaps{pair} paradigm only requires changes to three lines of code:
+\section{Expandability}\label{sc:code:expandability}
+
+\software{\FONTsmallcaps{0mq}} provides bindings that allow major \gls{netcode} variations with minimal code changes. e.g.\ the protocol can be easily switched by prepending a different string to the \code{addr} variable (set in the \code{ZMQBRIDGE_REMOTE_PROTOCOL} define); the sockets paradigm (\FONTsmallcaps{pub}/\FONTsmallcaps{sub} in this project) can similarly be changed by altering the constructor. In both cases the rest of the code remains unchanged and keeps its functionality, since the actual implementation of the protocol and sockets is hidden by the high-level object methods.
+
+For example, switching from a \gls{tcp} \FONTsmallcaps{pub}/\FONTsmallcaps{sub} paradigm to an \code{inproc} (in-memory) \FONTsmallcaps{pair} paradigm only requires changing three lines of code:
 
 \begin{codelist}{\gls{tcp}}{1}
 #define ZMQBRIDGE_REMOTE_PROTOCOL "tcp"
@@ -112,12 +116,10 @@ m_socketRX = zmq_socket(m_context, ZMQ_PAIR);
 m_socketTX = zmq_socket(m_context, ZMQ_PAIR);
 \end{codelist}
 
-\FLOATnoindent Achieving a similar results with an \gls{os}-based implementation would require an extensive rewrite of the low level code.
+\FLOATnoindent Achieving a similar results with an \gls{os}-based implementation would require an extensive rewrite of the lower level code, to cater for the different protocol and properly pair the sockets with each other.
 
-\section{Expandability}\label{sc:code:expandability}
-
-\software{\FONTsmallcaps{0mq}} is by construction fully scalable. Depending on the socket paradigm used, this may allow other software to be freely added to the system, with no changes required to the \gls{netcode} layer: different \glspl{ts} could be simultaneously used by adding additional socket, simply by instantiating new \code{zmq_socket()}; a \gls{ts} could subdivide data using the \FONTsmallcaps{pub}/\FONTsmallcaps{sub} paradigm's subscription lists; and more.
+Additionally, \software{\FONTsmallcaps{0mq}} is by construction fully scalable. Additional software may be freely added to the system, with no changes required to the underlying \gls{netcode} layer: different \glspl{ts} could be used simultaneously by adding additional sockets (\code{zmq_socket()} constructor call). The  \FONTsmallcaps{pub}/\FONTsmallcaps{sub} paradigm also natively supports subscription lists, where subbed sockets only receive specifically marked packets, ignoring the others: a \gls{ts} could mark specific data, for example differentiating a vehicle's state vectors and data on the scenario's state, to reduce the workload on the game engine.
 
 \section{Recap}\label{sc:code:recap}
 
-This chapter has been devoted to the analysis of the code style difference between the implementations. \software{\FONTsmallcaps{0mq}} sockets have a large advantage thanks to higher abstraction (\fref{sc:code:abstraction}), coding ease (\fref{sc:code:ease}), and easier expandability (\fref{sc:code:expandability}).
+This chapter broadly described the code style and functional differences between \software{\FONTsmallcaps{0mq}} and \gls{os} sockets. \software{\FONTsmallcaps{0mq}} sockets have a large advantage thanks to higher abstraction (\fref{sc:code:abstraction}), coding ease (\fref{sc:code:ease}), and easier expandability (\fref{sc:code:expandability}).
