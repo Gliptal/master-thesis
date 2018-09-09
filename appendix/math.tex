@@ -2,34 +2,86 @@
 
 \section{Weighted Feasibility}\label{ax:math:feasibility}
 
+\subsubsection{domain}
+
 \begin{align*}
     &f: \MATHSnaturals \mapsto \MATHSrationals \\
     \\
     &\forall w_p,w_e \in \MATHSrationals^+: w_p + w_e = 1 \\
     &\forall s_p,s_e \in \MATHSnaturals: 1 \leqslant s_p,s_e \leqslant 5 \\
-    \\
+\end{align*}
+
+\subsubsection{formula}
+
+\begin{align*}
     &s_f = (s_p \cdot w_p) + (s_e \cdot w_e) \\
 \end{align*}
 
 \section{Overall Score}\label{ax:math:mean}
+
+\subsubsection{domain}
 
 \begin{align*}
     &f: \MATHSrationals \mapsto \MATHSrationals \\
     \\
     &\forall w_i \in \MATHSrationals:0 \leqslant w_i \leqslant 1 \\
     &\forall {s_f}_i \in \MATHSrationals:0 \leqslant {s_f}_i \leqslant 5 \\
-    \\
+\end{align*}
+
+\subsubsection{formula}
+
+\begin{align*}
     &s = \frac{\sum\limits_{i=1}^{n}({s_f}_i \cdot w_i)}{\sum\limits_{i=1}^{n}w_i} \\
 \end{align*}
 
 \section{Matrix Transformations}\label{ax:math:matrix}
 
-% CONTENT write about matrix transforms
+\subsubsection{state vector}
 
-\section{Vehicle State Extrapolation}\label{ax:math:extrapolation}
+\begin{align*}
+	V = \begin{bmatrix}
+		x \\
+		y \\
+		z
+	\end{bmatrix}
+\end{align*}
 
-% CONTENT write about extrapolation
+\subsubsection{transformation matrix}
+
+\begin{align*}
+	S = \begin{bmatrix}
+		x_x & x_y & x_z & x_t \\
+		y_x & y_y & y_z & y_t \\
+		z_x & z_y & z_z & z_t \\
+	\end{bmatrix}
+\end{align*}
+
+\subsubsection{transformed state vector}
+
+\begin{align*}
+	T = V \times S = \begin{bmatrix}
+		x \cdot x_x + y \cdot x_y + z \cdot x_z + x_t\\
+		y \cdot y_x + y \cdot y_y + z \cdot y_z + y_t\\
+		z \cdot z_x + y \cdot z_y + z \cdot z_z + z_t
+	\end{bmatrix}
+\end{align*}
 
 \section{Statistics}\label{ax:math:statistics}
 
-% CONTENT write about statistics
+\subsubsection{mean}
+
+\begin{align*}
+	\overline{x} = \frac{1}{n}{\left(\sum_{i=1}^{N}x_i\right)}
+\end{align*}
+
+\subsubsection{standard deviation estimate}
+
+\begin{align*}
+	s = \sqrt{\frac{1}{N-1}\sum_{i=1}^{N}{\left(x_i-\overline{x}\right)}^2}
+\end{align*}
+
+\subsubsection{confidence interval}
+
+\begin{align*}
+	\bigg[\overline{x}-t\frac{s}{\sqrt{n}}, \overline{x}+t\frac{s}{\sqrt{n}}\bigg]
+\end{align*}
