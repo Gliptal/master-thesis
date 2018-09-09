@@ -1,6 +1,6 @@
 \begin{table}[!ht]
 	\centering
-    \begin{tabular}{lccc}
+    \begin{tabularx}{\FLOATtextwidth}{l*{1}{Y}c*{3}{Y}}
     	& \FONTsmallcaps{os} sockets & \software{\FONTsmallcaps{0mq}} sockets & difference \\
 		\TABLEmidruler
 		\file{UDPConnector.cpp}     & \num{253} & \num{151} & -- \SI{40,64}{\percent} \\
@@ -10,7 +10,7 @@
 		\code{receive_packet()}     & \num{19}  & \num{17}  & -- \SI{10,53}{\percent} \\
 		\code{send_packet()}        & \num{19}  & \num{17}  & -- \SI{10,53}{\percent} \\
         \TABLEbottomruler
-    \end{tabular}
+    \end{tabularx}
 
 	\caption{Code Analysis: \gls{netcode} lines}\label{tb:code:lines}
 	\CAPTIONadd{Some quantitave measures on the amount of lines in some of the \gls{netcode} code. Negative difference is in favour of \software{\FONTsmallcaps{0mq}} sockets, positive difference is in favour of \FONTsmallcaps{os} sockets.}
