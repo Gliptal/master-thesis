@@ -1,16 +1,16 @@
 \chapter{Code Analysis}\label{ch:code}
 
-The code itself is an index of the differences between the \gls{os} and \software{\FONTsmallcaps{0mq}} implementations. The latter provides more abstract \glspl{api}, more consistent and organic functionality, an easily expandable core, and built-in scalability; the former is compatible with common non-\software{\FONTsmallcaps{0mq}} sockets, and has some minor advantages in low level socket options.
+The code itself is also an index of the differences between the \gls{os} and \software{\FONTsmallcaps{0mq}} implementations. The latter provides abstract \glspl{api}, more consistent and organic functionality, an easily expandable core, and built-in scalability; the former is compatible with the commonly used \FONTsmallcaps{posix} sockets, and has some minor advantages in low level options.
 
-Due to the broad and subjective nature of some of these differences, the following analysis is mostly qualitative.
+Due to the broad and subjective nature of some of these differences, the following analysis is mostly qualitative in nature.
 
 \section{Abstraction}\label{sc:code:abstraction}
 
-\software{\FONTsmallcaps{0mq}}'s more abstract \glspl{api} allow for shorter, more concise, and overall clearer code. The total amount of lines dedicated to the \gls{netcode} go from \num{253} with \gls{os} sockets, to \num{151} with \software{\FONTsmallcaps{0mq}} sockets: a \SI{40,64}{\percent} decrease. Specifically, the larger decreases are in the methods that open the connections: \code{open_RX_connection()} has \SI{80,88}{\percent} less lines; \code{open_TX_connection()} has \SI{82,86}{\percent} less lines. Other than the obvious advantages in readability, less code lines result in less maintenance, less side effects when altering the code, and less failure points.
+\software{\FONTsmallcaps{0mq}}'s more abstract \glspl{api} allow for shorter, more concise, and overall clearer code. The total amount of lines dedicated to the \gls{netcode} go from \num{253} with \gls{os} sockets, to \num{151} with \software{\FONTsmallcaps{0mq}} sockets: a \SI{40,64}{\percent} decrease. Specifically, the larger decreases are in the methods that open the connections: \code{open_RX_connection()} has \SI{80,88}{\percent} less lines; \code{open_TX_connection()} has \SI{82,86}{\percent} less lines. Other than the obvious advantages in readability, less code lines result in lower maintenance, less side effects when altering the code, and reduced failure points.
 
 \input{mainmatter/tables/code/lines}
 
-As an example, the two following snippets both set up a socket before a \code{bind()}:
+As an example, the two following snippets both set up a socket:
 
 \begin{codelist}{UDPConnector.cpp --- open\_TX\_connection() --- \FONTsmallcaps{os} sockets}{144}
     if (m_socketTXfd > -1)
@@ -62,7 +62,7 @@ As an example, the two following snippets both set up a socket before a \code{bi
 	std::string addr = std::string(ZMQBRIDGE_REMOTE_PROTOCOL) + "://" + std::string(ip) + ":" + std::to_string(port);
 \end{codelist}
 
-\FLOATnoindent \gls{os} sockets require defining a \code{struct sockaddr_in}, to enclose some basic protocol options (\code{SOCK_DGRAM}, \code{SO_REUSEADDR}), the socket's \gls{ip} address and port, and additional meta settings; \software{\FONTsmallcaps{0mq}} sockets achieve the same result through a single string, with meta settings internally set by \software{\FONTsmallcaps{0mq}} itself: e.g.\ \code{"tcp://192.168.1.100:5555"} is formed by:
+\FLOATnoindent \gls{os} sockets require defining a \code{struct sockaddr_in}, to enclose some basic protocol options (\code{SOCK_DGRAM}, \code{SO_REUSEADDR}), the socket's \gls{ip} address and port, and additional meta settings; \software{\FONTsmallcaps{0mq}} sockets achieve the same result through a single string, with meta settings internally set by \software{\FONTsmallcaps{0mq}} itself. For example \code{"tcp://192.168.1.100:5555"} is formed by:
 
 \begin{itemize}
 	\item \FONTbold{\code{"tcp"}} --- the protocol (line \num{155} in the \gls{os} sockets implementation);
@@ -70,9 +70,9 @@ As an example, the two following snippets both set up a socket before a \code{bi
 	\item \FONTbold{\code{"5555"}} --- the port (line \num{186} in the \gls{os} sockets implementation).
 \end{itemize}
 
-\FLOATnoindent Also of note is memory handling, necessary for the  \code{struct sockaddr_in} (a \code{memset()} call), and entirely missing in the \software{\FONTsmallcaps{0mq}} solution.
+\FLOATnoindent Also of note is memory handling, necessary for the  \code{struct sockaddr_in} (a \code{memset()} call), and not necessary in the \software{\FONTsmallcaps{0mq}} solution.
 
-Since \software{\FONTsmallcaps{0mq}} sockets are proper objects (of type \code{void*}) and not simple \code{int}(s) representing file descriptors, the constructor's code is instead marginally more involved:
+Since \software{\FONTsmallcaps{0mq}} sockets are proper \planguage{c++} objects (of type \code{void*}) and not simple \code{int}(s) representing file descriptors, the constructor's code is instead marginally more involved:
 
 \begin{codelist}{UDPConnector.cpp --- UDPConnector() --- \FONTsmallcaps{os} sockets}{60}
 UDPConnector::UDPConnector() {
@@ -96,11 +96,11 @@ UDPConnector::UDPConnector() {
 
 \section{Ease}\label{sc:code:ease}
 
-Coding with \software{\FONTsmallcaps{0mq}} proved to be a much simpler and faster process than using \gls{os} headers. \fref{sc:code:abstraction} already presented an example: generating and setting up a socket is a lot less involved, thanks to high-level methods and abstraction. It should also be noted that the two implementations differ in protocol, and that a proper \gls{tcp} implementation with \gls{os} sockets would require non-trivially more complicated memory management when sending and receiving, something that \software{\FONTsmallcaps{0mq}} entirely hides behind the \code{zmq_send()} and \code{zmq_recv()} functions.
+Coding with \software{\FONTsmallcaps{0mq}} proved to be a much simpler and faster process than using \gls{os} headers. \fref{sc:code:abstraction} already presented an example: generating and setting up a socket is a lot less involved, thanks to high-level methods and functionality abstraction. It should also be noted that the two implementations differ in protocol, and that a proper \gls{tcp} implementation with \gls{os} sockets would require non-trivial memory management when sending and receiving, something that \software{\FONTsmallcaps{0mq}} entirely hides behind its \code{zmq_send()} and \code{zmq_recv()} functions.
 
 \section{Expandability}\label{sc:code:expandability}
 
-\software{\FONTsmallcaps{0mq}} provides bindings that allow major \gls{netcode} variations with minimal code changes. e.g.\ the protocol can be easily switched by prepending a different string to the \code{addr} variable (set in the \code{ZMQBRIDGE_REMOTE_PROTOCOL} define); the sockets paradigm (\FONTsmallcaps{pub}/\FONTsmallcaps{sub} in this project) can similarly be changed by altering the constructor. In both cases the rest of the code remains unchanged and keeps its functionality, since the actual implementation of the protocol and sockets is hidden by the high-level object methods.
+\software{\FONTsmallcaps{0mq}} provides bindings that allow major \gls{netcode} variations with minimal code changes. e.g.\ the protocol can be easily switched by prepending a different string to the \code{addr} variable (here, set in the \code{ZMQBRIDGE_REMOTE_PROTOCOL} define); the sockets paradigm (\FONTsmallcaps{pub}/\FONTsmallcaps{sub}) can similarly be changed by only altering the constructor. In both cases the rest of the code remains unchanged and keeps its functionality, since the actual implementation of the protocol and sockets is hidden by high-level methods.
 
 For example, switching from a \gls{tcp} \FONTsmallcaps{pub}/\FONTsmallcaps{sub} paradigm to an \code{inproc} (in-memory) \FONTsmallcaps{pair} paradigm only requires changing three lines of code:
 
@@ -116,9 +116,9 @@ m_socketRX = zmq_socket(m_context, ZMQ_PAIR);
 m_socketTX = zmq_socket(m_context, ZMQ_PAIR);
 \end{codelist}
 
-\FLOATnoindent Achieving a similar results with an \gls{os}-based implementation would require an extensive rewrite of the lower level code, to cater for the different protocol and properly pair the sockets with each other.
+\FLOATnoindent Achieving a similar results with an \gls{os}-based implementation would require an extensive rewrite of the lower level code, to cater for the different protocol, and the sockets memory management.
 
-Additionally, \software{\FONTsmallcaps{0mq}} is by construction fully scalable. Additional software may be freely added to the system, with no changes required to the underlying \gls{netcode} layer: different \glspl{ts} could be used simultaneously by adding additional sockets (\code{zmq_socket()} constructor call). The  \FONTsmallcaps{pub}/\FONTsmallcaps{sub} paradigm also natively supports subscription lists, where subbed sockets only receive specifically marked packets, ignoring the others: a \gls{ts} could mark specific data, for example differentiating a vehicle's state vectors and data on the scenario's state, to reduce the workload on the game engine.
+Additionally, \software{\FONTsmallcaps{0mq}} is by construction fully scalable. Additional entities may be freely added to the system, with no changes required to the underlying \gls{netcode} layer: different \glspl{ts} could be used simultaneously by adding additional sockets (through the \code{zmq_socket()} constructor). The  \FONTsmallcaps{pub}/\FONTsmallcaps{sub} paradigm also natively supports subscription lists, where subbed sockets only receive specifically marked packets, ignoring the others: a \gls{ts} could mark specific datatypes, for example differentiating a vehicle's state vectors with the scenario's state, reducing the marshalling workload on the game engine.
 
 \section{Recap}\label{sc:code:recap}
 
