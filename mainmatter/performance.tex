@@ -48,7 +48,7 @@ Measures were obtained with the benchmark feature of \software{Fraps} $3.5.99$: 
 \FLOATnoindent Each of these $3\times3=9$ values was then averaged, and a \num{0,999} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
 
 \begin{image}
-	{performance/framerate}{0.7}
+	{performance/framerate}{1.0}
 	{Performance Analysis: framerate results}
 	{im:performance:framerate}
 	{}
@@ -79,7 +79,7 @@ Measures collection and basic analysis were done with the statistics feature of 
 \FLOATnoindent Each of these $3\times2=6$ values was then averaged, and a \num{0,999} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
 
 \begin{image}
-	{performance/networkload}{0.7}
+	{performance/networkload}{1.0}
 	{Performance Analysis: \gls{netcode} results (total data)}
 	{im:performance:networkload}
 	{}
@@ -87,7 +87,7 @@ Measures collection and basic analysis were done with the statistics feature of 
 \end{image}
 
 \begin{image}
-	{performance/networkdata}{0.7}
+	{performance/networkdata}{1.0}
 	{Performance Analysis: \gls{netcode} results (data frequency)}
 	{im:performance:networkdata}
 	{}
@@ -95,7 +95,7 @@ Measures collection and basic analysis were done with the statistics feature of 
 \end{image}
 
 \begin{image}
-	{performance/networkfrequency}{0.7}
+	{performance/networkfrequency}{1.0}
 	{Performance Analysis: \gls{netcode} results (\gls{packet} frequency)}
 	{im:performance:networkfrequency}
 	{}
@@ -124,7 +124,7 @@ Data was obtained with Windows' built-in performance monitor (\software{perfmon}
 \FLOATnoindent Each of these $4\times3=12$ values was then averaged, and a \num{0,950} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
 
 \begin{image}
-	{performance/hardwarecpu}{0.7}
+	{performance/hardwarecpu}{1.0}
 	{Performance Analysis: hardware results (\gls{cpu} usage)}
 	{im:performance:hardwarecpu}
 	{}
@@ -132,7 +132,7 @@ Data was obtained with Windows' built-in performance monitor (\software{perfmon}
 \end{image}
 
 \begin{image}
-	{performance/hardwareram}{0.7}
+	{performance/hardwareram}{1.0}
 	{Performance Analysis: hardware results (\gls{ram} usage)}
 	{im:performance:hardwareram}
 	{}
@@ -192,7 +192,7 @@ void Evaluator::log_data() {
 \FLOATnoindent Each of these \num{3} values was then averaged, and a \num{0,950} confidence interval calculated with a Student t's distribution. See \fref{ax:math:statistics} for some hints about statistical analysis.
 
 \begin{image}
-	{performance/proxy}{0.7}
+	{performance/proxy}{1.0}
 	{Performance Analysis: proxy results}
 	{im:performance:proxy}
 	{}
@@ -204,7 +204,7 @@ Even in the worst scenario (maximum dwell time), the time a \gls{packet} spends 
 To understand what this delay means for the user interacting with \gls{me}, the impact the \gls{proxy} has on frame pacing is analysed. Frame pacing is the time that passes between two consecutive frames, has a significant effect on human perception of "smoothness", and is closely tied to \gls{framerate}: that is, assuming frames are spaced evenly (which is often not the case in real-life scenarios), frame spacing may be calculated by dividing the time unit (a second) by the \gls{framerate}.
 
 \begin{image}
-	{performance/proxyspacing}{0.7}
+	{performance/proxyspacing}{1.0}
 	{Performance Analysis: frame pacing}
 	{im:performance:proxyspacing}
 	{}
@@ -224,12 +224,12 @@ In \fref{im:performance:proxylandscape} the \gls{framerate} and dwell time are p
 "Slicing" this landscape through a specific \gls{framerate} can more clearly show the behaviour across different dwell times with a fixed \gls{framerate}: \fref{im:performance:proxyslice} shows such a slice on the average \gls{framerate} calculated in \fref{sc:performance:framerate}. Under the average \gls{framerate} found during actual testing, even at maximum dwell times (which are \num{10} times longer than average) the frame delay is of only \SI{20}{\percent}.
 
 \begin{image}
-	{performance/proxyslice}{0.7}
+	{performance/proxyslice}{1.0}
 	{Performance Analysis: landscape slice}
 	{im:performance:proxyslice}
 	{}
 	{A slice of the landscap on the average \gls{framerate} (\SI{117}{\fps}): in this case, the delay varies between \SI{10}{\percent} and \SI{19}{\percent}, hardly impacting the visual performance of the \gls{me}.}
-\end{image}
+\end{image} % FORMATTING move out of own page
 
 In conclusion, the \gls{proxy} has little to no impact on the system: up to \SI{20}{\percent} of an \gls{me} frame at maximum dwell times. The tests and analyses made on \software{\FONTsmallcaps{0mq}} sockets are not invalidated by the inability to properly modify \gls{vtd} to integrate \software{\FONTsmallcaps{0mq}}.
 
