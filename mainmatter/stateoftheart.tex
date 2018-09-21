@@ -1,4 +1,4 @@
-\chapter{State of the Art}\label{ch:stateoftheart} % CONTENT how can I connect this directly to the thesis? maybe it's better to just keep it incidental
+\chapter{State of the Art}\label{ch:stateoftheart}
 
 \begin{keywords}
 	attribute, easiness, feasibility, feature, framework, practicability
@@ -15,7 +15,7 @@ The following analysis has been written without taking into account the informat
 \begin{definition}{feature}
 \end{definition}
 
-In the scope of state of the art analysis, detailing specific \glspl{feature} eases the comparison between the different \glspl{framework}. Note that there is no requirement that any of these \glspl{feature} be developed from the ground-up, and/or in-house: a valid alternative might be to integrate pre-existing solutions.
+In the scope of state of the art analysis, detailing specific \glspl{feature} eases the comparison between the different \glspl{framework}. Note that there is no requirement for any of these \glspl{feature} to be developed from the ground-up, and/or in-house: a valid alternative might be to integrate pre-existing solutions.
 
 \Glspl{feature} are separated based on their domain, either software or hardware; in each section, the \glspl{feature} are listed in order of perceived importance. An associated weight $w$ is also given to every \gls{feature}\footnote{$w \in \MATHSrationals: 0 < w \leqslant 1$} (see \cref{tb:stateoftheart:weights}), as to numerically quantify the relative importance of each: this weight is then used when comparing the various \glspl{framework} in \fref{sc:stateoftheart:comparison}. The values are arbitrarily chosen in accordance with \gls{unitn} requirements, based on their current and planned research projects.
 
@@ -25,32 +25,32 @@ In the scope of state of the art analysis, detailing specific \glspl{feature} ea
 
 \subsubsection{Model}
 
-The simulator must be capable of accepting a mathematical model as an input, that must then be used by the game engine to properly simulate the behaviour of the car. Any changes made on this model should reflect in the simulation without requiring any modifications of the source-code (plug-and-play paradigm).
+The simulator must be capable of accepting a mathematical model as an input, that must then be used by the game engine to properly simulate the behaviour of the driven vehicle. Any changes made on this model should reflect in the simulation without requiring any modifications of the source-code (plug-and-play paradigm).
 
-The purpose of this \gls{feature} is to allow developing, altering, or fine tuning the behaviour of a car via physical considerations alone. Separating the mathematical description from the coding implementation allows direct alterations to the behaviour of the simulator, without requiring any level of knowledge of the underlying code. Different models of cars, tire conditions, track conditions, and more may then be tested with the simulator without explicit additions or alterations.
+The purpose of this \gls{feature} is to allow developing, altering, or fine tuning the behaviour of a car via physical considerations alone. Separating the mathematical description from the coding implementation allows direct alterations to the behaviour of the simulator, without requiring any level of knowledge of the underlying code. Different models of cars, tire conditions, track conditions, and more may then be tested without explicit additions or alterations to the simulator's core.
 
 \subsubsection{Map}
 
 The simulator must be capable of recreating arbitrary street maps, or racetracks. The data used to create the map may come from different sources.
 
 \begin{itemize}
-	\item \FONTsmallcaps{3d} laser scanning is a process that uses laser-based technologies to convert real-life surfaces to clouds of virtual points. The resulting \FONTsmallcaps{3d} point cloud can then be modified and rendered with millimetric precision.~\cite{feasibility:laserscanning} This technique is usually used to faithfully recreate small unchanging scenarios like racetracks, thanks to the high-precision, highly automated, time-saving approach.
-    \item Manually building the scenario with an editor grants total control on its characteristics since the presence, properties, and placement of every element can be freely fine tuned. This is the easiest data source to implement, although faithfully recreating real-life locations is time-consuming, and devising practical non-existing locations requires significant design skills.
-    \item Data about a geographic location (such as roads, buildings, trails, train tracks) can be collected in independent bundles of structured, parsable data. By mapping each entity of the bundle to an asset of the engine the bundle can be programmatically analysed, and the entire location recreated by the engine. Any arbitrary road grid can thus be generated automatically, although the precision and soundness of the final result directly depends on the quality of the mapping algorithm and of the original bundle.
+	\item \FONTsmallcaps{3d} laser scanning is a process that uses laser-based technologies to convert real-life surfaces into clouds of virtual points. The resulting \FONTsmallcaps{3d} points cloud can then be used to render a scene with millimetric precision.~\cite{feasibility:laserscanning} This technique is usually used to faithfully recreate relatively small and unchanging scenarios like racetracks, thanks to the high-precision, highly automated, and time-saving approach.
+    \item Manually building the scenario with an editor grants total control on its characteristics since the presence, properties, and placement of every element can be fine tuned up to any required level of detail. This is the easiest data source to implement, although faithfully recreating real-life locations is time-consuming, and devising appropriate non-existing locations requires significant design skills.
+    \item Data about a geographic location (such as roads, buildings, trails, train tracks) can be collected in independent bundles of structured, parsable data. By mapping each entity of the bundle to an asset of the engine the entire location can be programmatically recreated by the engine. Any arbitrary road grid can thus be generated automatically, although the precision and soundness of the final result directly depends on the quality of the mapping algorithm, and of the original bundle.
 \end{itemize}
 
 \subsubsection{World}
 
-The simulator must be capable of rendering and handling world objects, both static and mobile; these objects should interact with the simulated car as realistically as possible, by altering the behaviour of the car (e.g.\ puddles, curbs), or by interacting with simulated smart sensors (e.g.\ pedestrians, road lines). A distinction should be made between generic world objects, and specific traffic related entities, to ease the implementation of the traffic \gls{feature}.
+The simulator must be capable of rendering and handling world objects, both static and mobile; these objects should interact with the simulated car as realistically as possible, by altering the behaviour of the car (e.g.\ puddles, curbs), or by interacting with simulated smart sensors (e.g.\ pedestrians, road lines). A distinction should be made between generic world objects, and specific traffic related entities, in view of the implementation of the traffic \gls{feature}.
 
-Mobile entities may be controlled by either simple or non-trivial \gls{ai} systems, depending on their role within the simulation.
+Mobile entities may be controlled by either simple, or non-trivial \gls{ai} systems, depending on their role within the simulation.
 
 \subsubsection{Traffic}
 
 \gls{ai} traffic must be simulated with an acceptable degree of precision. Although traffic entities are technically world objects, the added complexity governing their behaviour warrants a specific \gls{feature}. The \gls{ai} should be formed by a core capable of providing basic behaviour, and an extendible architecture to allow future expansions such as:
 
 \begin{itemize}
-	\item entities following different rules based on their type (e.g.\ emergency vehicles);
+	\item entities following different rules based on their type;
     \item entities behaving with a degree of unpredictability;
     \item entities altering their behaviour based on the output of simulated sensors;
     \item entities dynamically changing their path based on an overall set goal.
@@ -60,20 +60,20 @@ Any smart sensors should be able to properly interact with the moving traffic, a
 
 \subsubsection{Sensors}
 
-Smart sensors may alter the behaviour of the simulated car (by providing data to its self-drive systems), provide the driver with information about the surrounding environment, or give feedback on the car's state. Generally, two paradigms can be used to simulate smart sensors.
+Smart sensors may alter the behaviour of the simulated car (by providing data to e.g.\ its self-drive systems), provide the driver with information about the surrounding environment, or give some feedback on the car's state. Generally, two paradigms can be used to simulate smart sensors.
 
 \begin{itemize}
-	\item Use engine \glspl{api} (e.g.\ raycasting) to directly collect the data handled by the sensor: this allows an easier development process, but creates an unrealistic simulation due to the reliance on functions not available to the real sensor.
+	\item Use engine \glspl{api} (e.g.\ raycasting) to directly obtain the data collected by the sensor: this allows an easier development process, but creates an unrealistic simulation due to the reliance on functions not available to the real sensor ("perfect sensor").
     \item Fully recreate the physical phenomena (e.g.\ reflections) that the real sensor uses to collect its data: this requires in-depth development of both the sensor and the associated physics, but ultimately provides an highly realistic simulation of its inner workings.
 \end{itemize}
 
-Properly simulating smart sensors is a massive undertaking, and existing solutions use remarkably complicated technologies to achieve results. As such, integrating rather than developing may be the only realistic way of providing this \gls{feature}.
+Properly simulating smart sensors is a massive undertaking, and existing solutions use remarkably complicated technologies to achieve results. As such, integrating an existing solution rather than developing a new one may be the only realistic course of action to provide this \gls{feature}.
 
 \subsection{Input Hardware}
 
 \subsubsection{\FONTsmallcaps{ff}}
 
-\gls{ff} effects must be felt on the steering wheel and the pedals. This feedback reflects the forces acting on the car at any given time, and not the force transmitted by the car's smart systems.\footnote{In a real-life car there exist no \gls{ff} motor in the steering wheel; the forces felt are rather of purely mechanical origin.}
+\gls{ff} effects must be felt on the steering wheel and the pedals. This feedback reflects the forces acting on the car at any given time, and not the force transmitted by the car's smart systems.\footnote{In a real-life cart no \gls{ff} motor exists in the steering wheel; the forces felt are rather of purely mechanical origin.}
 
 \gls{ff} requires both a software component (that calculates the feedback forces based on the current forces acting on the simulated car), and an hardware component (a motor delivering the force to the steering wheel and the pedals). More advanced software and hardware components allow enhanced mappings, by e.g.\ providing individual feedback based on the status of each wheel.
 
@@ -91,19 +91,19 @@ The simulation must be compatible with \gls{vr} headsets. Full integration requi
 
 The steering wheel must be able to provide steering or counter-steering force based on any input given by the car's smart system. These forces are separate from the typical simulation \gls{ff}, since they do not represent the physical state of the car (what in real-life is controlled by mechanics alone), but rather represent the output of some smart system (a deliberate software-controlled motor output on the steering wheel).
 
-For simulating reasons the steering wheel already has a motor used for \gls{ff} purposes: that same motor may also be used by the sensors. Having two separate dedicated motors would enhance the simulation, by allowing directly counteracting forces to be felt by the driver.
+For simulation reasons the steering wheel already has a motor used for \gls{ff} purposes: that same motor may also be used by the sensors. Having two separate dedicated motors would enhance the simulation, by allowing directly counteracting forces to be felt by the driver.
 
 \subsubsection{Seat}
 
-\gls{ff} effects must be felt on the simulator's setup seating. This feedback should reflect the forces acting on the car at any given time, in a similar manner to \gls{ff}.
+\gls{ff} effects must be felt on the simulator's seating. This feedback should reflect the forces acting on the car at any given time, in a manner similar to \gls{ff}.
 
-A number of technologies make this possible, normally cantered around a motor that acts on one or more moving elements, matching as close as possible the forces applied to the car with forces felt by the real-life driver.
+A number of technologies make this possible, normally based on a motor that acts on one or more moving elements, in order to match as close as possible the forces applied to the car with the forces felt by the seated user:
 
 \begin{itemize}
-	\item A moving platform with an immobile seat allows limited 2-axis or 3-axis movement: simulated g-forces are reproduced using gravity.
-    \item A moving seat allows less limited 3-axis movement that a moving platform: similarly, gravity is leveraged to reproduce g-forces.
-	\item Inflatable sacks can be worn or placed on the seat: g-forces are then reproduced by filling the sacks with air, providing pressure on the body of the driver.~\cite{feasibility:gametrix}
-	\item Specific signals may be translated into matching low frequency sounds, that then drive a weighted motor: this may give remarkably precise and distinct rumbling effects.~\cite{feasibility:buttkicker}
+	\item a moving platform with an immobile seat allows limited 2-axis or 3-axis movement, simulated g-forces are reproduced leveraging gravity;
+    \item a moving seat allows less limited 3-axis movement that a moving platform, gravity is again leveraged to reproduce g-forces;
+	\item inflatable sacks can be worn or be part of the seat itself, with g-forces then being reproduced by filling the sacks with air, providing pressure on the body of the driver;~\cite{feasibility:gametrix}
+	\item specific signals may be translated into matching low frequency sounds, that then drive a weighted motor, returning remarkably precise and distinct rumbling effects.~\cite{feasibility:buttkicker}
 \end{itemize}
 
 \section{Frameworks}\label{sc:stateoftheart:frameworks}
@@ -111,7 +111,7 @@ A number of technologies make this possible, normally cantered around a motor th
 \begin{definition}{framework}
 \end{definition}
 
-The simulation software listed here can all be considered \glspl{framework} due to their general capability of being modified (at different depth levels) by the user, and are analysed as such. These are a mix of consumer-grade, enterprise, and open source projects that share a common focus (real or potential) on driving simulation.
+The simulation software listed here can all be considered \glspl{framework} due to their general capability of being modified (at different depth levels), and are analysed as such. These are a mix of consumer-grade, enterprise, and open source projects that share a common focus (current or potential) on driving simulation.
 
 \subsubsection{OpenDS}
 
@@ -193,7 +193,7 @@ No pricing listings are publicly available; additionally the proposed free softw
 
 Although the current available engine is closed-source and not modifiable, the software company \gls{sms} is in the process of developing a professional and enterprise version of their simulation and rendering engine. All details regarding functionalities, \glspl{api}, and cost are unknown at the time: all further analysis is thus done based on the capabilities of the current consumer product.
 
-\software{Project Cars 2} has full support for most external peripherals, including \gls{vr}, \gls{ff} steering wheels, and moving seats. A strong focus is given to tire-simulation, driven by a technology named \software{Over the Limit}: the developers were helped by both \company{Pirelli} and a number of real-life drivers.~\cite{feasibility:projectcarstires} \gls{ai} and available tracks are limited to racing only, with no pre-existing support to city driving.
+\software{Project Cars 2} has full support for most external peripherals, including \gls{vr}, \gls{ff} steering wheels, and moving seats. A strong focus is given to tire-simulation, driven by a technology named \software{Over the Limit}, born from a collaboration with both \company{Pirelli} and a number of real-life drivers.~\cite{feasibility:projectcarstires} \gls{ai} and available tracks are limited to the racing scene only, with no pre-existing support for city driving.
 
 \subsubsection{SCANeR}
 
@@ -250,13 +250,13 @@ For example, a framework with a large number of \glspl{api} but limited access t
 
 \subsection{Scoring}
 
-Scoring is based on both objective and subjective observations on the capabilities and tools of the analysed \gls{framework}. A score between \num{1} and \num{5} is given to the \gls{practicability} ($s_p$) and \gls{easiness} ($s_e$) \gls{attribute} of each \gls{feature}: \cref{tb:stateoftheart:scoring} lists these scores.
+Scoring is based on both objective and subjective observations on the capabilities and tools of the analysed \gls{framework}. An arbitrary score between \num{1} and \num{5} is given to the \gls{practicability} ($s_p$) and \gls{easiness} ($s_e$) \gls{attribute} of each \gls{feature}: \cref{tb:stateoftheart:scoring} lists these scores.
 
 \input{mainmatter/tables/stateoftheart/scoring}
 
 \subsection{Analysis}
 
-To aid in the ordering of \glspl{framework}, a third \gls{attribute} ($s_f$) is used:
+To aid in the ordering of \glspl{framework}, a third \gls{attribute} ($s_f$) is presented:
 
 \begin{definition}{feasibility}
 \end{definition}
@@ -279,9 +279,9 @@ At \num{4,0} and \num{3,8} respectively \software{Panthera} and \software{Projec
 
 \software{Panthera}, \software{Project Cars}, and \software{Unity} are the highest scorers \num{3,7} when no bias is given in the \gls{feasibility} calculation, further proving their edge over the other options.
 
-\software{STISIM Drive} scores low (\num{2,5} or below) on all classifications, due to its lack of focus on aspects relevant to the simulator; \software{SCANeR} scores identically, although it does so due to code access concerns. \software{VDrift} on the other hand suffers its open-source nature (\num{2,2} or below), with slow development times and the lack of a supporting company further undermining its possibilities.
+\software{STISIM Drive} scores low (\num{2,5} or below) on all classifications, due to its lack of focus on aspects relevant to the simulator; \software{SCANeR} scores identically, although it does so due to code access concerns. \software{VDrift} on the other hand suffers its open-source nature (\num{2,2} or below), further undermined byh slow development times and the lack of a supporting company.
 
-Both \software{Project Cars} and \software{Panthera} appear to be the ideal solutions: the choice of the former though depends on the access level to the engine, as determined by the developers \gls{sms}; the latter is a more mature and supported professional option, although with less potential capabilities. \software{Unity} becomes the third choice only if enough time and work-hours are available to develop the simulator from the outright basis: everything from the physics engine to the peripherals support will have to be coded in their entirety. \software{OpenDS} is thus the realistic third choice, in case \software{Unity} is deemed a too time-intensive solution: it scores right behind \software{Project Cars} and \software{Unity} in the non-biased calculations, and is on par with \software{Unity} w.r.t.\ \gls{easiness}. It provides high-level \glspl{api}, existing scenario building options, and basic peripherals integration; the immersion potentiality is lower though, due to the basic graphics and audio rendering.
+Both \software{Project Cars} and \software{Panthera} appear to be the ideal solutions: the choice of the former though depends on the access level to the engine, as determined by its developer \gls{sms}; the latter is a more mature and supported professional option, although with less potential capabilities. \software{Unity} becomes the third choice only if enough time and work-hours are available to develop the simulator from the ground-up: everything from the physics engine to the peripherals support will have to be coded in their entirety. \software{OpenDS} becomes thus the realistic third choice, in case \software{Unity} is deemed a too time-intensive solution: it scores right behind \software{Project Cars} and \software{Unity} in the non-biased calculations, and is on par with \software{Unity} w.r.t.\ \gls{easiness}. It provides high-level \glspl{api}, existing scenario building options, and basic peripherals integration; the immersion potentiality is lower though, due to the basic graphics and audio rendering.
 
 \section{Recap}\label{sc:stateoftheart:recap}
 

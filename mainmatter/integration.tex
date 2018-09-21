@@ -4,33 +4,33 @@
 	me, middleware, packet, payload, tickrate
 \end{keywords}
 
-As explained in \fref{sc:software:madnessengine}, the \gls{me} simulation stack can be roughly separated into four tiers (or layers). A single simulation tick (or update) can be summarized as a single loop around this stack, with each layer exchanging data with the next and previous layer from top to bottom, until the rendering input is ready for the \gls{os} to digest. This overview is a coarse simplification, since each layer may actually run at different rates (fixed and variable), and unsynchronized inputs and outputs can be gracefully handled.
+As explained in \fref{sc:software:madnessengine}, the \gls{me} simulation stack can be roughly separated into four tiers (or layers). A single simulation tick (or update) can be summarized as a single loop around this stack, with each layer exchanging data from top to bottom, until the rendering input is ready for the \gls{os} to digest. This overview is a coarse simplification, since each layer may actually run at different rates (fixed and variable), and unsynchronized inputs and outputs can be gracefully handled.
 
 \section{Approach}\label{sc:integration:approach}
 
-In order to visually render in \gls{me}'s world the vehicle traffic simulated by the \gls{ts}, custom data must be provided to at least one of the layers, either by replacing or supplementing the already existing data. Three possible approaches are presented here.
+In order to visually render in \gls{me}'s world the vehicle traffic simulated by the \gls{ts}, custom data must be provided to at least one of the layers, either by replacing or supplementing the already existing data. Three possible approaches are presented here:
 
 \begin{itemize}
-	\item \FONTbold{\acrshort{ai} splice} --- Supplying the \gls{ai} layer with custom commands, basically telling the vehicles to exactly replicate their behaviour in the \gls{ts} by supplying a set of goals and actions. Given the nature of the data received from the \gls{ts} (raw state vectors), this approach is clearly the more complicated when proper synchronization is a factor: it would require abstracting the raw data to an high-level intent in real time, with little to no pre-knowledge of what the \gls{ts} entitles's goals are.
+	\item \FONTbold{\acrshort{ai} splice} --- Supplying the \gls{ai} layer with custom commands, basically telling the vehicles to exactly replicate their behaviour in the \gls{ts} by providing a set of goals and actions. Given the nature of the data received from the \gls{ts} (raw state vectors), this approach is clearly the more complicated when proper synchronization is a factor: it would require abstracting the raw data to high-level \gls{ai} intents in real time, with little to no pre-knowledge of what the \gls{ts} entitles's goals are.
 	\item \FONTbold{physics splice} --- Replacing the \gls{ai}-supplied data before it is handled by the physics layer. This requires a thorough knowledge of the physics system, since the raw data obtained from the \gls{ts} must be converted in more abstract physical measures on which the correct responses may be then calculated from.
-	\item \FONTbold{rendering splice} --- Replacing the data used by the rendering system is the more limited, but also most approachable solution: the raw data obtained from the \gls{ts} can be used directly (after trivial transformations), since the rendering system internally uses similar state vectors. The main drawback is that all the systems that utilize data from the physics layer (e.g.\ sounds, pilot animations, car lights, advanced wheel physics) still receive their data from the original untouched physics layer, resulting in some unsynchronized states.
+	\item \FONTbold{rendering splice} --- Replacing the data used by the rendering system is the more limited, but also most approachable solution: the raw data obtained from the \gls{ts} can be used directly (after trivial transformations), since the rendering system internally uses similar state vectors. The main drawback is that all the systems that utilize data from the physics layer (e.g.\ sounds, pilot animations, car lights, advanced wheel physics) still receive their data from the original untouched physics layer, resulting in some unsynchronized behaviour.
 \end{itemize}
 
-With the appropriate amount of time and external support, a physics splice would have been preferable, to retain those systems that function through layer. Due to time, support, and knowledge constraints the easier but more limited rendering splice was chosen.
+With the appropriate amount of time and external support, a physics splice would have been preferable, to retain those systems that function through that layer. Due to time, support, and knowledge constraints the easier but more limited rendering splice was chosen.
 
 \begin{image}
 	{integration/splice}{0.5}
 	{Engine Integration: rendering splice}
 	{im:integration:splice}
 	{}
-	{A coarse rendition of \gls{me}'s simulation stack, and the splicing that the \gls{ts} does at render time. The data is actually marshaelled and adapted by the \gls{middleware}, and doesn't come directly from the \gls{ts}.}
+	{A coarse rendition of \gls{me}'s simulation stack, and the splicing introduced by the \gls{ts} at render time. The data is actually marshaelled and adapted by the \gls{middleware}, and doesn't come directly from the \gls{ts}.}
 \end{image}
 
-Sending the player's vehicle data from the \gls{me} to the \gls{ts} is instead straightforward: telemetry metrics about the player (updated on each tick) are available at all times within the engine, and the necessary basic state vectors can be easily obtained and packed in the format required by the \gls{middleware}.
+Sending the player's vehicle data from the \gls{me} to the \gls{ts} is instead straightforward: telemetry metrics about the player (updated on each simulation tick) are available at all times within the engine, and the necessary basic state vectors can be easily obtained and deserialized in the format required by the \gls{middleware}.
 
 \section{Traffic Module}\label{sc:integration:trafficmodule}
 
-The integrating code is entirely contained in a separate code module, with only some necessary modifications made directly on the existing low-level rendering module. The methods exposed by this traffic module are thus called appropriately to drive the correct rendering.
+The integrating code is entirely contained in a separate module, with only some necessary modifications made directly on the existing low-level rendering module. The methods exposed by this traffic module are thus called appropriately to drive the desired rendering.
 
 \begin{image}
 	{integration/flow}{0.6}
@@ -42,7 +42,7 @@ The integrating code is entirely contained in a separate code module, with only 
 
 \subsubsection{Aids}
 
-To aid in the rendering process, a custom \code{Vehicle} extends the \gls{middleware}'s \code{VehicleEntity} class. This object encapsulates specific methods, data, and matrices that are required to convert state vectors from the \gls{middleware}'s to \gls{me}'s format, and back.\footnote{All of the following code snippets are removed of their comments and documentation.}
+To aid in the rendering process, a custom \code{Vehicle} extends the \gls{middleware}'s \code{VehicleEntity} class. This class encapsulates specific methods, data, and matrices that are required to convert state vectors from the \gls{middleware}'s to \gls{me}'s format, and back.\footnote{All of the following code snippets are removed of their comments and documentation.}
 
 \begin{codelist}{Vehicle.hpp}{51}
 class Vehicle : public UDPConnector::VehicleEntity {
@@ -91,7 +91,7 @@ private:
 };
 \end{codelist}
 
-An history matrix is used to hold data about all the traffic entities received from the \gls{ts}. Depending on the value of \code{IOTECH_TRAFFIC_DATA_HISTORY}, this matrix may either keep only the latest received \code{Vehicle}(s), or an history of past \code{Vehicle}(s) up to a specified number of receivals.\footnote{Currently implemented are only the no history and one past receival options.}
+An history matrix is used to hold data about all the traffic entities part of the simulation, and received from the \gls{ts}. Depending on the value of \code{IOTECH_TRAFFIC_DATA_HISTORY}, this matrix may either keep only the latest received \code{Vehicle}(s), or an history of past \code{Vehicle}(s) up to a specified number of receivals.\footnote{Currently implemented are only the no history and one past receival options.}
 
 \begin{codelist}{Traffic.hpp --- m\_trafficVehicles}{241}
 	static Vehicle* m_trafficVehicles[IOTECH_TRAFFIC_DATA_HISTORY][IOTECH_TRAFFIC_MAX_VEHICLES];
@@ -101,7 +101,7 @@ See \fref{ax:code:historymatrix} for an explanation of how the history matrix wo
 
 \subsubsection{Initialization}
 
-Instantiating the traffic module generates a new \gls{middleware} \code{UDPConnector} object, that handles all the communication with the \gls{ts}. Once instantiated, the module is initialized by opening the required connections with the \gls{ts} (either receive only, or both send and receive). Note that this module (and by extension, \gls{me}) has no knowledge on what sockets or network protocol are used to obtain and send the data: only the \glspl{ip} of the machines hosting \gls{me} and the \gls{ts}, and the respective process ports, are required.
+Instantiating the traffic module generates a new \code{UDPConnector} object, that handles all the communication with the \gls{ts}. Once instantiated, the module is initialized by opening the required connections with the \gls{ts} (either receive only, or both send and receive). Note that this module (and by extension, \gls{me}) has no knowledge on what sockets or network protocol are used to obtain and send the data: only the \glspl{ip} of the machines hosting \gls{me} and the \gls{ts}, and the respective process ports, are required.
 
 \begin{codelist}{Traffic.cpp --- init()}{73}
 void Traffic::init(const INIT_RESOURCE_e resource) {
@@ -127,17 +127,17 @@ void Traffic::init(const INIT_RESOURCE_e resource) {
 	{Engine Integration: traffic module update}
 	{im:integration:update}
 	{}
-	{See the method's description for details on the role of the \code{update()} module.}
+	{See the method's description for details on the role of the \code{update()} method.}
 \end{image}
 
-The \code{update()} method handles the process that updates the data about each entity handled by he \gls{ts}. When called, the player data is first sent to the \gls{ts}, and only then the data from the \gls{ts} is handled. In items:
+The \code{update()} method handles the process that updates the data relative to each entity handled by the \gls{ts}. When called, the player data is firstly sent to the \gls{ts}, and only then the received data is handled. In items:
 
 \begin{itemize}
 	\item data about the player vehicle is taken from \gls{me}'s metrics (through the \code{ParticipantConstPtr} and \code{ParticipantMemento} objects), and converted into the format required by the \gls{middleware};
 	\item an \code{std::vector} of \code{TrafficEntity}, with the \code{VehicleEntity} representing the player, is used to prepare the payload;
 	\item the packet is sent to the \gls{ts};
 	\item a packet is received from the \gls{ts};
-	\item the payload is converted into appropriate \code{TrafficEntity}(s), and from those the data about the "ego" vehicle is filtered out (since the \gls{ts} may send it back as a generic entity);
+	\item the payload is deserialized into appropriate \code{TrafficEntity}(s), and from those the data about the "ego" vehicle is filtered out (since the \gls{ts} may send it back as a generic entity);
 	\item for every \code{TrafficEntity}, its data is converted into the format required by \gls{me};
 	\item the resulting \code{Vehicle} is appropriately placed into the history matrix.
 \end{itemize}
@@ -240,7 +240,7 @@ Vehicle::Vehicle(const Vehicle current, const Vehicle old) {
 
 \section{Rendering Code}\label{sc:integration:renderingcode}
 
-In \gls{me}, a vehicle is a subclass of \code{ParticipantAI}: this class is the container of all the custom  modifications made to the rendering layer.
+In \gls{me}, a vehicle is a subclass of \code{ParticipantAI}: this class is the container for all the custom  modifications made to the rendering layer.
 
 The traffic module is instantiated when loading \gls{me}:
 
@@ -336,15 +336,15 @@ All the rendering module code modifications are guarded by preprocessor definiti
 
 \section{Limitations}\label{sc:integration:limitations}
 
-As mentioned in \fref{sc:integration:approach}, splicing at render time results in a number of limitations, some of which not trivial. All the following apply to non-player vehicles only.
+As mentioned in \fref{sc:integration:approach}, splicing at render time results in a number of limitations, some of which not trivial. All the following apply to non-player vehicles only:
 
 \begin{itemize}
 	\item \FONTbold{Sound} --- Sounds are played based on the physics layer data. No easy way of overriding this behaviour was found.
-	\item \FONTbold{Lights} --- Some vehicle lights (e.g.\ brakes) are not synchronized with the \gls{ts}, since they are activated by acceleration and braking inputs provided by the physics layer.
+	\item \FONTbold{Lights} --- Some vehicle lights (e.g.\ brake-lights) are not synchronized with the \gls{ts}, since they are activated by acceleration and braking inputs provided by the physics layer.
 	\item \FONTbold{Collisions} --- Collisions are also handled by the physics layer, hence the rendered vehicles lack any collision model with the player, between themselves, or the scenery. The latter two though are handled by the \gls{ts}, since a collision there is synchronized with appropriate state vectors changes in \gls{me}.
 	\item \FONTbold{Tires} --- Tires are handled separately from the rest of the vehicle model in \gls{me}, to allow for some advanced behaviour and simulation. Although simple position vectors can be supplied, other properties like spin, relative offsets (e.g.\ suspensions), deformation, and more are all handled by the physics layer. A crude tire spinning model was nonetheless added, by leveraging the history matrix.
 \end{itemize}
 
 \section{Recap}\label{sc:integration:recap}
 
-In \fref{sc:integration:approach} three different options to integrate a \gls{ts} in \gls{me} were listed: based mainly on the constraints put on this project, a render-time splice was chosen. \fref{sc:integration:trafficmodule} details how the \gls{middleware} was used to create a traffic module within \gls{me}, and how that is in turn integrated within the engine's rendering code. Relatedly, \fref{sc:integration:renderingcode} roughly describes how the module is integrated into \gls{me}'s own rendering code. \fref{sc:integration:limitations} finally broadly lists the main limitations of the chose approach, due to the splice not affecting the physics layer.
+In \fref{sc:integration:approach} three different options to integrate the \gls{middleware} in \gls{me} were listed: based mainly on the constraints put on this project, a render-time splice was chosen. \fref{sc:integration:trafficmodule} details how the \gls{middleware} was used to create a traffic module within \gls{me}; relatedly, \fref{sc:integration:renderingcode} roughly describes how the module is integrated into \gls{me}'s own rendering code. \fref{sc:integration:limitations} finally broadly lists the main limitations of the chosen approach, due to the splice not affecting the physics layer.

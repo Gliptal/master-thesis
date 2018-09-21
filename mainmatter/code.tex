@@ -1,5 +1,9 @@
 \chapter{Code Analysis}\label{ch:code}
 
+\begin{keywords}
+	netcode, packet
+\end{keywords}
+
 The code itself is also an index of the differences between the \gls{os} and \software{\FONTsmallcaps{0mq}} implementations. The latter provides abstract \glspl{api}, more consistent and organic functionality, an easily expandable core, and built-in scalability; the former is compatible with the commonly used \FONTsmallcaps{posix} sockets, and has some minor advantages in low level options.
 
 Due to the broad and subjective nature of some of these differences, the following analysis is mostly qualitative in nature.
@@ -122,4 +126,4 @@ Additionally, \software{\FONTsmallcaps{0mq}} is by construction fully scalable. 
 
 \section{Recap}\label{sc:code:recap}
 
-This chapter broadly described the code style and functional differences between \software{\FONTsmallcaps{0mq}} and \gls{os} sockets. \software{\FONTsmallcaps{0mq}} sockets have a large advantage thanks to higher abstraction (\fref{sc:code:abstraction}), coding ease (\fref{sc:code:ease}), and easier expandability (\fref{sc:code:expandability}).
+This chapter broadly described the code style and functional differences between \software{\FONTsmallcaps{0mq}} and \gls{os} sockets. \software{\FONTsmallcaps{0mq}} sockets are shown to have a large advantage thanks to higher abstraction (\fref{sc:code:abstraction}), coding ease (\fref{sc:code:ease}), and easier expandability (\fref{sc:code:expandability}).
